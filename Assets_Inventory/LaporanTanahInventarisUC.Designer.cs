@@ -1,0 +1,205 @@
+﻿namespace Assets_Inventory
+{
+    partial class LaporanTanahInventarisUC
+    {
+        /// <summary> 
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
+
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.dg = new System.Windows.Forms.DataGridView();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnTutup = new System.Windows.Forms.Button();
+            this.btnPreview = new System.Windows.Forms.Button();
+            this.btnExport = new System.Windows.Forms.Button();
+            this.btnTampilkan = new System.Windows.Forms.Button();
+            this.rbStatus = new System.Windows.Forms.RadioButton();
+            this.mcbStatus = new System.Windows.Forms.ComboBox();
+            this.rbSemua = new System.Windows.Forms.RadioButton();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dg)).BeginInit();
+            this.groupBox2.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.dg);
+            this.groupBox3.Location = new System.Drawing.Point(327, 103);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(1186, 695);
+            this.groupBox3.TabIndex = 49;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Data Tanah Inventaris";
+            // 
+            // dg
+            // 
+            this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dg.Location = new System.Drawing.Point(20, 35);
+            this.dg.Name = "dg";
+            this.dg.RowHeadersVisible = false;
+            this.dg.RowHeadersWidth = 62;
+            this.dg.RowTemplate.Height = 28;
+            this.dg.Size = new System.Drawing.Size(1140, 643);
+            this.dg.TabIndex = 30;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(49, 63);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(500, 25);
+            this.label1.TabIndex = 47;
+            this.label1.Text = "Gunakan Form Ini Untuk Mencetak Data Tanah Invetaris";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(49, 29);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(386, 29);
+            this.label2.TabIndex = 46;
+            this.label2.Text = "LAPORAN TANAH INVENTARIS";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.rbSemua);
+            this.groupBox2.Controls.Add(this.mcbStatus);
+            this.groupBox2.Controls.Add(this.rbStatus);
+            this.groupBox2.Controls.Add(this.btnTutup);
+            this.groupBox2.Controls.Add(this.btnPreview);
+            this.groupBox2.Controls.Add(this.btnExport);
+            this.groupBox2.Controls.Add(this.btnTampilkan);
+            this.groupBox2.Location = new System.Drawing.Point(41, 103);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(269, 695);
+            this.groupBox2.TabIndex = 48;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Filter Cetak";
+            // 
+            // btnTutup
+            // 
+            this.btnTutup.Location = new System.Drawing.Point(24, 328);
+            this.btnTutup.Name = "btnTutup";
+            this.btnTutup.Size = new System.Drawing.Size(213, 40);
+            this.btnTutup.TabIndex = 33;
+            this.btnTutup.Text = "Tutup";
+            this.btnTutup.UseVisualStyleBackColor = true;
+            // 
+            // btnPreview
+            // 
+            this.btnPreview.Location = new System.Drawing.Point(24, 236);
+            this.btnPreview.Name = "btnPreview";
+            this.btnPreview.Size = new System.Drawing.Size(213, 40);
+            this.btnPreview.TabIndex = 43;
+            this.btnPreview.Text = "Preview";
+            this.btnPreview.UseVisualStyleBackColor = true;
+            // 
+            // btnExport
+            // 
+            this.btnExport.Location = new System.Drawing.Point(24, 282);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(213, 40);
+            this.btnExport.TabIndex = 5;
+            this.btnExport.Text = "Export To Excel";
+            this.btnExport.UseVisualStyleBackColor = true;
+            // 
+            // btnTampilkan
+            // 
+            this.btnTampilkan.Location = new System.Drawing.Point(24, 190);
+            this.btnTampilkan.Name = "btnTampilkan";
+            this.btnTampilkan.Size = new System.Drawing.Size(213, 40);
+            this.btnTampilkan.TabIndex = 4;
+            this.btnTampilkan.Text = "Tampilkan Data";
+            this.btnTampilkan.UseVisualStyleBackColor = true;
+            // 
+            // rbStatus
+            // 
+            this.rbStatus.AutoSize = true;
+            this.rbStatus.Location = new System.Drawing.Point(24, 65);
+            this.rbStatus.Name = "rbStatus";
+            this.rbStatus.Size = new System.Drawing.Size(120, 24);
+            this.rbStatus.TabIndex = 54;
+            this.rbStatus.TabStop = true;
+            this.rbStatus.Text = "Filter Status";
+            this.rbStatus.UseVisualStyleBackColor = true;
+            // 
+            // mcbStatus
+            // 
+            this.mcbStatus.FormattingEnabled = true;
+            this.mcbStatus.Location = new System.Drawing.Point(24, 95);
+            this.mcbStatus.Name = "mcbStatus";
+            this.mcbStatus.Size = new System.Drawing.Size(213, 28);
+            this.mcbStatus.TabIndex = 55;
+            // 
+            // rbSemua
+            // 
+            this.rbSemua.AutoSize = true;
+            this.rbSemua.Location = new System.Drawing.Point(24, 35);
+            this.rbSemua.Name = "rbSemua";
+            this.rbSemua.Size = new System.Drawing.Size(85, 24);
+            this.rbSemua.TabIndex = 56;
+            this.rbSemua.TabStop = true;
+            this.rbSemua.Text = "Semua";
+            this.rbSemua.UseVisualStyleBackColor = true;
+            // 
+            // LaporanTanahInventarisUC
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.groupBox2);
+            this.Name = "LaporanTanahInventarisUC";
+            this.Size = new System.Drawing.Size(1561, 823);
+            this.groupBox3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dg)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.DataGridView dg;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button btnTutup;
+        private System.Windows.Forms.Button btnPreview;
+        private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.Button btnTampilkan;
+        private System.Windows.Forms.RadioButton rbSemua;
+        private System.Windows.Forms.ComboBox mcbStatus;
+        private System.Windows.Forms.RadioButton rbStatus;
+    }
+}
