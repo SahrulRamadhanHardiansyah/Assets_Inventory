@@ -74,5 +74,23 @@ namespace Assets_Inventory
         {
             this.Close();
         }
+
+        private void btnSumber_Click(object sender, EventArgs e)
+        {
+            MasterSumberPerolehanForm form = new MasterSumberPerolehanForm();
+            form.ShowDialog();
+        }
+
+        private void btnRombel_Click(object sender, EventArgs e)
+        {
+            MasterRombelForm form = new MasterRombelForm();
+            form.ShowDialog();
+        }
+
+        private void btnTahun_Click(object sender, EventArgs e)
+        {
+            MasterTahunAjaranForm form = new MasterTahunAjaranForm();
+            form.ShowDialog();
+        }
     }
 }

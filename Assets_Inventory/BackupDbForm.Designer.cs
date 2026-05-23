@@ -48,12 +48,14 @@
             // 
             // btnTutup
             // 
-            this.btnTutup.Location = new System.Drawing.Point(496, 175);
+            this.btnTutup.Location = new System.Drawing.Point(331, 114);
+            this.btnTutup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnTutup.Name = "btnTutup";
-            this.btnTutup.Size = new System.Drawing.Size(140, 40);
+            this.btnTutup.Size = new System.Drawing.Size(93, 26);
             this.btnTutup.TabIndex = 12;
             this.btnTutup.Text = "Tutup";
             this.btnTutup.UseVisualStyleBackColor = true;
+            this.btnTutup.Click += new System.EventHandler(this.btnTutup_Click);
             // 
             // kryptonPalette1
             // 
@@ -76,9 +78,11 @@
             this.groupBox1.Controls.Add(this.btnTutup);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.txtPath);
-            this.groupBox1.Location = new System.Drawing.Point(37, 80);
+            this.groupBox1.Location = new System.Drawing.Point(25, 52);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(675, 234);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Size = new System.Drawing.Size(450, 152);
             this.groupBox1.TabIndex = 26;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Backup";
@@ -86,78 +90,90 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(235, 132);
+            this.label5.Location = new System.Drawing.Point(155, 88);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(48, 20);
+            this.label5.Size = new System.Drawing.Size(33, 13);
             this.label5.TabIndex = 18;
             this.label5.Text = "Menit";
             // 
             // btnSimpan
             // 
-            this.btnSimpan.Location = new System.Drawing.Point(496, 122);
+            this.btnSimpan.Location = new System.Drawing.Point(331, 79);
+            this.btnSimpan.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnSimpan.Name = "btnSimpan";
-            this.btnSimpan.Size = new System.Drawing.Size(140, 40);
+            this.btnSimpan.Size = new System.Drawing.Size(93, 26);
             this.btnSimpan.TabIndex = 17;
             this.btnSimpan.Text = "Simpan";
             this.btnSimpan.UseVisualStyleBackColor = true;
+            this.btnSimpan.Click += new System.EventHandler(this.btnSimpan_Click);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(36, 103);
+            this.label4.Location = new System.Drawing.Point(24, 67);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(181, 20);
+            this.label4.Size = new System.Drawing.Size(121, 13);
             this.label4.TabIndex = 16;
             this.label4.Text = "Otomatis Backup Setiap";
             // 
             // txtMenit
             // 
-            this.txtMenit.Location = new System.Drawing.Point(40, 129);
+            this.txtMenit.Location = new System.Drawing.Point(27, 84);
+            this.txtMenit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtMenit.Name = "txtMenit";
-            this.txtMenit.Size = new System.Drawing.Size(177, 26);
+            this.txtMenit.Size = new System.Drawing.Size(119, 20);
             this.txtMenit.TabIndex = 15;
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(496, 52);
+            this.btnBrowse.Location = new System.Drawing.Point(331, 34);
+            this.btnBrowse.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(140, 40);
+            this.btnBrowse.Size = new System.Drawing.Size(93, 26);
             this.btnBrowse.TabIndex = 14;
             this.btnBrowse.Text = "Browse";
             this.btnBrowse.UseVisualStyleBackColor = true;
+            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // btnBackup
             // 
-            this.btnBackup.Location = new System.Drawing.Point(326, 122);
+            this.btnBackup.Location = new System.Drawing.Point(217, 79);
+            this.btnBackup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnBackup.Name = "btnBackup";
-            this.btnBackup.Size = new System.Drawing.Size(140, 40);
+            this.btnBackup.Size = new System.Drawing.Size(93, 26);
             this.btnBackup.TabIndex = 13;
             this.btnBackup.Text = "Backup";
             this.btnBackup.UseVisualStyleBackColor = true;
+            this.btnBackup.Click += new System.EventHandler(this.btnBackup_Click);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(36, 33);
+            this.label3.Location = new System.Drawing.Point(24, 21);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(176, 20);
+            this.label3.Size = new System.Drawing.Size(119, 13);
             this.label3.TabIndex = 3;
             this.label3.Text = "Simpan Hasil Backup di";
             // 
             // txtPath
             // 
-            this.txtPath.Location = new System.Drawing.Point(40, 59);
+            this.txtPath.Location = new System.Drawing.Point(27, 38);
+            this.txtPath.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtPath.Name = "txtPath";
-            this.txtPath.Size = new System.Drawing.Size(426, 26);
+            this.txtPath.Size = new System.Drawing.Size(285, 20);
             this.txtPath.TabIndex = 2;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(33, 50);
+            this.label1.Location = new System.Drawing.Point(22, 32);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(398, 22);
+            this.label1.Size = new System.Drawing.Size(271, 15);
             this.label1.TabIndex = 25;
             this.label1.Text = "Gunakan Form Ini Untuk Backup Database Anda";
             // 
@@ -165,9 +181,10 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(33, 22);
+            this.label2.Location = new System.Drawing.Point(22, 14);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(224, 25);
+            this.label2.Size = new System.Drawing.Size(155, 17);
             this.label2.TabIndex = 24;
             this.label2.Text = "BACKUP DATABASE";
             // 
@@ -175,21 +192,23 @@
             // 
             this.label6.AutoSize = true;
             this.label6.ForeColor = System.Drawing.Color.Red;
-            this.label6.Location = new System.Drawing.Point(34, 326);
+            this.label6.Location = new System.Drawing.Point(23, 212);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(452, 20);
+            this.label6.Size = new System.Drawing.Size(308, 13);
             this.label6.TabIndex = 19;
             this.label6.Text = "Backup hanya bisa dilakukan di komputer yang dijadikan server";
             // 
             // BackupDbForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(748, 371);
+            this.ClientSize = new System.Drawing.Size(499, 241);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "BackupDbForm";
             this.Palette = this.kryptonPalette1;
             this.PaletteMode = ComponentFactory.Krypton.Toolkit.PaletteMode.Custom;

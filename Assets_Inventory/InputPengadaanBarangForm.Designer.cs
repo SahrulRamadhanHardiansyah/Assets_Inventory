@@ -33,51 +33,51 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnHapus = new System.Windows.Forms.Button();
-            this.btnBrowse = new System.Windows.Forms.Button();
-            this.label21 = new System.Windows.Forms.Label();
-            this.picGambar = new System.Windows.Forms.PictureBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtTotalHarga = new System.Windows.Forms.TextBox();
+            this.cmbStatus = new System.Windows.Forms.ComboBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.cmbGudang = new System.Windows.Forms.ComboBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.cmbPemasok = new System.Windows.Forms.ComboBox();
+            this.label16 = new System.Windows.Forms.Label();
             this.label20 = new System.Windows.Forms.Label();
             this.txtKeterangan = new System.Windows.Forms.TextBox();
-            this.label19 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.txtSumber = new System.Windows.Forms.TextBox();
-            this.label17 = new System.Windows.Forms.Label();
-            this.txtSeri = new System.Windows.Forms.TextBox();
-            this.btnBrowseBarang = new System.Windows.Forms.Button();
-            this.label16 = new System.Windows.Forms.Label();
             this.dtpTglPengadaan = new System.Windows.Forms.DateTimePicker();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.txtUmur = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.txtResidu = new System.Windows.Forms.TextBox();
-            this.cmbSatuan = new System.Windows.Forms.ComboBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.txtJumlah = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.txtHargaPerolehan = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.cmbKondisi = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.cmbMerk = new System.Windows.Forms.ComboBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.cmbLokasi = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.cmbKategori = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.cmbNama = new System.Windows.Forms.ComboBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtKode = new System.Windows.Forms.TextBox();
+            this.txtId = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnTutup = new System.Windows.Forms.Button();
             this.btnSimpan = new System.Windows.Forms.Button();
-            this.btnTambah = new System.Windows.Forms.Button();
+            this.btnProsesBelanja = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.dgDetailBon = new System.Windows.Forms.DataGridView();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnPilihPermintaan = new System.Windows.Forms.Button();
+            this.dgPermintaan = new System.Windows.Forms.DataGridView();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.PilihColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.kodePermintaanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.idJurusanNavigationDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.keteranganKeperluanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.statusPersetujuanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tanggalPermintaanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tanggalPersetujuanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alasanDisetujuiDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.idPenggunaNavigationDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picGambar)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgDetailBon)).BeginInit();
+            this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgPermintaan)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // kryptonPalette1
@@ -94,7 +94,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(23, 50);
+            this.label1.Location = new System.Drawing.Point(14, 49);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(473, 22);
             this.label1.TabIndex = 16;
@@ -104,7 +104,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(23, 22);
+            this.label2.Location = new System.Drawing.Point(14, 22);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(376, 25);
             this.label2.TabIndex = 15;
@@ -112,91 +112,105 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.btnHapus);
-            this.groupBox1.Controls.Add(this.btnBrowse);
-            this.groupBox1.Controls.Add(this.label21);
-            this.groupBox1.Controls.Add(this.picGambar);
+            this.groupBox1.Controls.Add(this.label11);
+            this.groupBox1.Controls.Add(this.txtTotalHarga);
+            this.groupBox1.Controls.Add(this.cmbStatus);
+            this.groupBox1.Controls.Add(this.label23);
+            this.groupBox1.Controls.Add(this.cmbGudang);
+            this.groupBox1.Controls.Add(this.label22);
+            this.groupBox1.Controls.Add(this.cmbPemasok);
+            this.groupBox1.Controls.Add(this.label16);
             this.groupBox1.Controls.Add(this.label20);
             this.groupBox1.Controls.Add(this.txtKeterangan);
-            this.groupBox1.Controls.Add(this.label19);
             this.groupBox1.Controls.Add(this.label18);
             this.groupBox1.Controls.Add(this.txtSumber);
-            this.groupBox1.Controls.Add(this.label17);
-            this.groupBox1.Controls.Add(this.txtSeri);
-            this.groupBox1.Controls.Add(this.btnBrowseBarang);
-            this.groupBox1.Controls.Add(this.label16);
             this.groupBox1.Controls.Add(this.dtpTglPengadaan);
-            this.groupBox1.Controls.Add(this.label15);
-            this.groupBox1.Controls.Add(this.label14);
-            this.groupBox1.Controls.Add(this.txtUmur);
-            this.groupBox1.Controls.Add(this.label13);
-            this.groupBox1.Controls.Add(this.txtResidu);
-            this.groupBox1.Controls.Add(this.cmbSatuan);
-            this.groupBox1.Controls.Add(this.label12);
-            this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.txtJumlah);
-            this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.txtHargaPerolehan);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.cmbKondisi);
             this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.cmbMerk);
-            this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.cmbLokasi);
-            this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.cmbKategori);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.cmbNama);
-            this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.txtKode);
-            this.groupBox1.Location = new System.Drawing.Point(28, 87);
+            this.groupBox1.Controls.Add(this.txtId);
+            this.groupBox1.Location = new System.Drawing.Point(537, 88);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(914, 693);
+            this.groupBox1.Size = new System.Drawing.Size(1060, 298);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Detail Barang";
+            this.groupBox1.Text = "Detail Pengadaan";
             // 
-            // btnHapus
+            // label11
             // 
-            this.btnHapus.Location = new System.Drawing.Point(676, 362);
-            this.btnHapus.Name = "btnHapus";
-            this.btnHapus.Size = new System.Drawing.Size(196, 39);
-            this.btnHapus.TabIndex = 38;
-            this.btnHapus.Text = "Hapus";
-            this.btnHapus.UseVisualStyleBackColor = true;
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(580, 40);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(100, 20);
+            this.label11.TabIndex = 46;
+            this.label11.Text = "Total Harga :";
             // 
-            // btnBrowse
+            // txtTotalHarga
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(676, 317);
-            this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(196, 39);
-            this.btnBrowse.TabIndex = 37;
-            this.btnBrowse.Text = "Browse";
-            this.btnBrowse.UseVisualStyleBackColor = true;
+            this.txtTotalHarga.Location = new System.Drawing.Point(699, 37);
+            this.txtTotalHarga.Name = "txtTotalHarga";
+            this.txtTotalHarga.Size = new System.Drawing.Size(324, 26);
+            this.txtTotalHarga.TabIndex = 45;
             // 
-            // label21
+            // cmbStatus
             // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(739, 38);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(67, 20);
-            this.label21.TabIndex = 36;
-            this.label21.Text = "Gambar";
+            this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbStatus.FormattingEnabled = true;
+            this.cmbStatus.Location = new System.Drawing.Point(699, 112);
+            this.cmbStatus.Name = "cmbStatus";
+            this.cmbStatus.Size = new System.Drawing.Size(324, 28);
+            this.cmbStatus.TabIndex = 44;
             // 
-            // picGambar
+            // label23
             // 
-            this.picGambar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picGambar.Location = new System.Drawing.Point(676, 67);
-            this.picGambar.Name = "picGambar";
-            this.picGambar.Size = new System.Drawing.Size(196, 241);
-            this.picGambar.TabIndex = 35;
-            this.picGambar.TabStop = false;
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(620, 117);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(64, 20);
+            this.label23.TabIndex = 43;
+            this.label23.Text = "Status :";
+            // 
+            // cmbGudang
+            // 
+            this.cmbGudang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbGudang.FormattingEnabled = true;
+            this.cmbGudang.Location = new System.Drawing.Point(188, 198);
+            this.cmbGudang.Name = "cmbGudang";
+            this.cmbGudang.Size = new System.Drawing.Size(326, 28);
+            this.cmbGudang.TabIndex = 42;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(94, 198);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(75, 20);
+            this.label22.TabIndex = 41;
+            this.label22.Text = "Gudang :";
+            // 
+            // cmbPemasok
+            // 
+            this.cmbPemasok.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbPemasok.FormattingEnabled = true;
+            this.cmbPemasok.Location = new System.Drawing.Point(188, 115);
+            this.cmbPemasok.Name = "cmbPemasok";
+            this.cmbPemasok.Size = new System.Drawing.Size(326, 28);
+            this.cmbPemasok.TabIndex = 40;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(86, 120);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(83, 20);
+            this.label16.TabIndex = 39;
+            this.label16.Text = "Pemasok :";
             // 
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(108, 593);
+            this.label20.Location = new System.Drawing.Point(582, 154);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(100, 20);
             this.label20.TabIndex = 34;
@@ -204,25 +218,16 @@
             // 
             // txtKeterangan
             // 
-            this.txtKeterangan.Location = new System.Drawing.Point(224, 590);
+            this.txtKeterangan.Location = new System.Drawing.Point(698, 152);
             this.txtKeterangan.Multiline = true;
             this.txtKeterangan.Name = "txtKeterangan";
-            this.txtKeterangan.Size = new System.Drawing.Size(327, 83);
+            this.txtKeterangan.Size = new System.Drawing.Size(326, 76);
             this.txtKeterangan.TabIndex = 33;
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(442, 409);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(109, 20);
-            this.label19.TabIndex = 32;
-            this.label19.Text = "Harga Satuan";
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(59, 371);
+            this.label18.Location = new System.Drawing.Point(534, 78);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(149, 20);
             this.label18.TabIndex = 31;
@@ -230,151 +235,22 @@
             // 
             // txtSumber
             // 
-            this.txtSumber.Location = new System.Drawing.Point(224, 368);
+            this.txtSumber.Location = new System.Drawing.Point(699, 75);
             this.txtSumber.Name = "txtSumber";
-            this.txtSumber.Size = new System.Drawing.Size(327, 26);
+            this.txtSumber.Size = new System.Drawing.Size(324, 26);
             this.txtSumber.TabIndex = 30;
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(139, 255);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(69, 20);
-            this.label17.TabIndex = 29;
-            this.label17.Text = "No Seri :";
-            // 
-            // txtSeri
-            // 
-            this.txtSeri.Location = new System.Drawing.Point(224, 252);
-            this.txtSeri.Name = "txtSeri";
-            this.txtSeri.Size = new System.Drawing.Size(327, 26);
-            this.txtSeri.TabIndex = 28;
-            // 
-            // btnBrowseBarang
-            // 
-            this.btnBrowseBarang.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBrowseBarang.Location = new System.Drawing.Point(568, 133);
-            this.btnBrowseBarang.Name = "btnBrowseBarang";
-            this.btnBrowseBarang.Size = new System.Drawing.Size(42, 30);
-            this.btnBrowseBarang.TabIndex = 27;
-            this.btnBrowseBarang.Text = "...";
-            this.btnBrowseBarang.UseVisualStyleBackColor = true;
-            this.btnBrowseBarang.Click += new System.EventHandler(this.btnBrowseBarang_Click);
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.label16.ForeColor = System.Drawing.Color.Red;
-            this.label16.Location = new System.Drawing.Point(220, 67);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(380, 20);
-            this.label16.TabIndex = 18;
-            this.label16.Text = "Biarkan kosong jika ingin kode inventaris otomatis";
             // 
             // dtpTglPengadaan
             // 
-            this.dtpTglPengadaan.Location = new System.Drawing.Point(224, 330);
+            this.dtpTglPengadaan.Location = new System.Drawing.Point(188, 75);
             this.dtpTglPengadaan.Name = "dtpTglPengadaan";
-            this.dtpTglPengadaan.Size = new System.Drawing.Size(327, 26);
+            this.dtpTglPengadaan.Size = new System.Drawing.Size(326, 26);
             this.dtpTglPengadaan.TabIndex = 26;
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(497, 556);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(54, 20);
-            this.label15.TabIndex = 25;
-            this.label15.Text = "Tahun";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(86, 556);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(122, 20);
-            this.label14.TabIndex = 24;
-            this.label14.Text = "Umur Ekonomi :";
-            // 
-            // txtUmur
-            // 
-            this.txtUmur.Location = new System.Drawing.Point(224, 553);
-            this.txtUmur.Name = "txtUmur";
-            this.txtUmur.Size = new System.Drawing.Size(254, 26);
-            this.txtUmur.TabIndex = 23;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(65, 519);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(143, 20);
-            this.label13.TabIndex = 22;
-            this.label13.Text = "Nilai Residu ( Rp ) :";
-            // 
-            // txtResidu
-            // 
-            this.txtResidu.Location = new System.Drawing.Point(224, 516);
-            this.txtResidu.Name = "txtResidu";
-            this.txtResidu.Size = new System.Drawing.Size(327, 26);
-            this.txtResidu.TabIndex = 21;
-            // 
-            // cmbSatuan
-            // 
-            this.cmbSatuan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbSatuan.FormattingEnabled = true;
-            this.cmbSatuan.Location = new System.Drawing.Point(224, 478);
-            this.cmbSatuan.Name = "cmbSatuan";
-            this.cmbSatuan.Size = new System.Drawing.Size(327, 28);
-            this.cmbSatuan.TabIndex = 20;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(139, 481);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(69, 20);
-            this.label12.TabIndex = 19;
-            this.label12.Text = "Satuan :";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(140, 444);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(68, 20);
-            this.label11.TabIndex = 18;
-            this.label11.Text = "Jumlah :";
-            // 
-            // txtJumlah
-            // 
-            this.txtJumlah.Location = new System.Drawing.Point(224, 441);
-            this.txtJumlah.Name = "txtJumlah";
-            this.txtJumlah.Size = new System.Drawing.Size(327, 26);
-            this.txtJumlah.TabIndex = 17;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(28, 409);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(180, 20);
-            this.label10.TabIndex = 16;
-            this.label10.Text = "Harga Perolehan ( Rp ) :";
-            // 
-            // txtHargaPerolehan
-            // 
-            this.txtHargaPerolehan.Location = new System.Drawing.Point(224, 406);
-            this.txtHargaPerolehan.Name = "txtHargaPerolehan";
-            this.txtHargaPerolehan.Size = new System.Drawing.Size(201, 26);
-            this.txtHargaPerolehan.TabIndex = 15;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(48, 332);
+            this.label7.Location = new System.Drawing.Point(6, 78);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(160, 20);
             this.label7.TabIndex = 13;
@@ -384,123 +260,52 @@
             // 
             this.cmbKondisi.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbKondisi.FormattingEnabled = true;
-            this.cmbKondisi.Location = new System.Drawing.Point(224, 290);
+            this.cmbKondisi.Location = new System.Drawing.Point(188, 157);
             this.cmbKondisi.Name = "cmbKondisi";
-            this.cmbKondisi.Size = new System.Drawing.Size(327, 28);
+            this.cmbKondisi.Size = new System.Drawing.Size(326, 28);
             this.cmbKondisi.TabIndex = 12;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(140, 293);
+            this.label8.Location = new System.Drawing.Point(100, 162);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(68, 20);
             this.label8.TabIndex = 11;
             this.label8.Text = "Kondisi :";
             // 
-            // cmbMerk
-            // 
-            this.cmbMerk.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbMerk.FormattingEnabled = true;
-            this.cmbMerk.Location = new System.Drawing.Point(224, 213);
-            this.cmbMerk.Name = "cmbMerk";
-            this.cmbMerk.Size = new System.Drawing.Size(327, 28);
-            this.cmbMerk.TabIndex = 10;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(156, 216);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(52, 20);
-            this.label9.TabIndex = 9;
-            this.label9.Text = "Merk :";
-            // 
-            // cmbLokasi
-            // 
-            this.cmbLokasi.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbLokasi.FormattingEnabled = true;
-            this.cmbLokasi.Location = new System.Drawing.Point(224, 174);
-            this.cmbLokasi.Name = "cmbLokasi";
-            this.cmbLokasi.Size = new System.Drawing.Size(327, 28);
-            this.cmbLokasi.TabIndex = 8;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(42, 177);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(166, 20);
-            this.label6.TabIndex = 7;
-            this.label6.Text = "Lokasi / Penempatan :";
-            // 
-            // cmbKategori
-            // 
-            this.cmbKategori.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbKategori.FormattingEnabled = true;
-            this.cmbKategori.Location = new System.Drawing.Point(224, 95);
-            this.cmbKategori.Name = "cmbKategori";
-            this.cmbKategori.Size = new System.Drawing.Size(327, 28);
-            this.cmbKategori.TabIndex = 6;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(132, 98);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(76, 20);
-            this.label5.TabIndex = 5;
-            this.label5.Text = "Kategori :";
-            // 
-            // cmbNama
-            // 
-            this.cmbNama.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbNama.FormattingEnabled = true;
-            this.cmbNama.Location = new System.Drawing.Point(224, 134);
-            this.cmbNama.Name = "cmbNama";
-            this.cmbNama.Size = new System.Drawing.Size(327, 28);
-            this.cmbNama.TabIndex = 4;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(93, 137);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(115, 20);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Nama Barang :";
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(81, 38);
+            this.label3.Location = new System.Drawing.Point(48, 40);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(127, 20);
+            this.label3.Size = new System.Drawing.Size(120, 20);
             this.label3.TabIndex = 1;
-            this.label3.Text = "Kode Inventaris :";
+            this.label3.Text = "ID Pengadaan :";
             // 
-            // txtKode
+            // txtId
             // 
-            this.txtKode.Location = new System.Drawing.Point(224, 35);
-            this.txtKode.Name = "txtKode";
-            this.txtKode.Size = new System.Drawing.Size(327, 26);
-            this.txtKode.TabIndex = 0;
+            this.txtId.Location = new System.Drawing.Point(186, 35);
+            this.txtId.Name = "txtId";
+            this.txtId.ReadOnly = true;
+            this.txtId.Size = new System.Drawing.Size(326, 26);
+            this.txtId.TabIndex = 0;
             // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.btnTutup);
             this.groupBox2.Controls.Add(this.btnSimpan);
-            this.groupBox2.Controls.Add(this.btnTambah);
-            this.groupBox2.Location = new System.Drawing.Point(28, 786);
+            this.groupBox2.Controls.Add(this.btnProsesBelanja);
+            this.groupBox2.Location = new System.Drawing.Point(18, 749);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(914, 88);
+            this.groupBox2.Size = new System.Drawing.Size(1580, 88);
             this.groupBox2.TabIndex = 18;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Proses";
             // 
             // btnTutup
             // 
-            this.btnTutup.Location = new System.Drawing.Point(732, 33);
+            this.btnTutup.Location = new System.Drawing.Point(1404, 26);
             this.btnTutup.Name = "btnTutup";
             this.btnTutup.Size = new System.Drawing.Size(140, 40);
             this.btnTutup.TabIndex = 2;
@@ -510,28 +315,198 @@
             // 
             // btnSimpan
             // 
-            this.btnSimpan.Location = new System.Drawing.Point(186, 33);
+            this.btnSimpan.Location = new System.Drawing.Point(20, 29);
             this.btnSimpan.Name = "btnSimpan";
             this.btnSimpan.Size = new System.Drawing.Size(140, 40);
             this.btnSimpan.TabIndex = 1;
             this.btnSimpan.Text = "Simpan";
             this.btnSimpan.UseVisualStyleBackColor = true;
+            this.btnSimpan.Click += new System.EventHandler(this.btnSimpan_Click);
             // 
-            // btnTambah
+            // btnProsesBelanja
             // 
-            this.btnTambah.Location = new System.Drawing.Point(29, 33);
-            this.btnTambah.Name = "btnTambah";
-            this.btnTambah.Size = new System.Drawing.Size(140, 40);
-            this.btnTambah.TabIndex = 0;
-            this.btnTambah.Text = "Tambah";
-            this.btnTambah.UseVisualStyleBackColor = true;
+            this.btnProsesBelanja.Location = new System.Drawing.Point(165, 29);
+            this.btnProsesBelanja.Name = "btnProsesBelanja";
+            this.btnProsesBelanja.Size = new System.Drawing.Size(252, 40);
+            this.btnProsesBelanja.TabIndex = 0;
+            this.btnProsesBelanja.Text = "Telah Dibelanjakan";
+            this.btnProsesBelanja.UseVisualStyleBackColor = true;
+            this.btnProsesBelanja.Click += new System.EventHandler(this.btnProsesBelanja_Click);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.dgDetailBon);
+            this.groupBox3.Location = new System.Drawing.Point(18, 395);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox3.Size = new System.Drawing.Size(1580, 346);
+            this.groupBox3.TabIndex = 19;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Data Barang";
+            // 
+            // dgDetailBon
+            // 
+            this.dgDetailBon.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgDetailBon.Location = new System.Drawing.Point(18, 29);
+            this.dgDetailBon.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.dgDetailBon.Name = "dgDetailBon";
+            this.dgDetailBon.RowHeadersWidth = 62;
+            this.dgDetailBon.Size = new System.Drawing.Size(1527, 297);
+            this.dgDetailBon.TabIndex = 73;
+            this.dgDetailBon.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgDetailBon_CellEndEdit);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.btnPilihPermintaan);
+            this.groupBox4.Controls.Add(this.dgPermintaan);
+            this.groupBox4.Location = new System.Drawing.Point(18, 88);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox4.Size = new System.Drawing.Size(512, 298);
+            this.groupBox4.TabIndex = 20;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Data Permintaan";
+            // 
+            // btnPilihPermintaan
+            // 
+            this.btnPilihPermintaan.Location = new System.Drawing.Point(352, 249);
+            this.btnPilihPermintaan.Name = "btnPilihPermintaan";
+            this.btnPilihPermintaan.Size = new System.Drawing.Size(140, 40);
+            this.btnPilihPermintaan.TabIndex = 3;
+            this.btnPilihPermintaan.Text = "Pilih";
+            this.btnPilihPermintaan.UseVisualStyleBackColor = true;
+            this.btnPilihPermintaan.Click += new System.EventHandler(this.btnPilihPermintaan_Click);
+            // 
+            // dgPermintaan
+            // 
+            this.dgPermintaan.AllowUserToAddRows = false;
+            this.dgPermintaan.AllowUserToDeleteRows = false;
+            this.dgPermintaan.AutoGenerateColumns = false;
+            this.dgPermintaan.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgPermintaan.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.PilihColumn,
+            this.kodePermintaanDataGridViewTextBoxColumn,
+            this.idJurusanNavigationDataGridViewTextBoxColumn,
+            this.keteranganKeperluanDataGridViewTextBoxColumn,
+            this.statusPersetujuanDataGridViewTextBoxColumn,
+            this.tanggalPermintaanDataGridViewTextBoxColumn,
+            this.tanggalPersetujuanDataGridViewTextBoxColumn,
+            this.alasanDisetujuiDataGridViewTextBoxColumn,
+            this.idPenggunaNavigationDataGridViewTextBoxColumn,
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn});
+            this.dgPermintaan.DataSource = this.bindingSource1;
+            this.dgPermintaan.Location = new System.Drawing.Point(18, 29);
+            this.dgPermintaan.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.dgPermintaan.Name = "dgPermintaan";
+            this.dgPermintaan.ReadOnly = true;
+            this.dgPermintaan.RowHeadersWidth = 62;
+            this.dgPermintaan.Size = new System.Drawing.Size(474, 214);
+            this.dgPermintaan.TabIndex = 0;
+            this.dgPermintaan.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgPermintaan_CellFormatting);
+            // 
+            // bindingSource1
+            // 
+            this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.Permintaan);
+            // 
+            // PilihColumn
+            // 
+            this.PilihColumn.HeaderText = "Pilih";
+            this.PilihColumn.MinimumWidth = 8;
+            this.PilihColumn.Name = "PilihColumn";
+            this.PilihColumn.ReadOnly = true;
+            this.PilihColumn.Width = 150;
+            // 
+            // kodePermintaanDataGridViewTextBoxColumn
+            // 
+            this.kodePermintaanDataGridViewTextBoxColumn.DataPropertyName = "KodePermintaan";
+            this.kodePermintaanDataGridViewTextBoxColumn.HeaderText = "Kode Permintaan";
+            this.kodePermintaanDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.kodePermintaanDataGridViewTextBoxColumn.Name = "kodePermintaanDataGridViewTextBoxColumn";
+            this.kodePermintaanDataGridViewTextBoxColumn.ReadOnly = true;
+            this.kodePermintaanDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // idJurusanNavigationDataGridViewTextBoxColumn
+            // 
+            this.idJurusanNavigationDataGridViewTextBoxColumn.DataPropertyName = "IdJurusanNavigation";
+            this.idJurusanNavigationDataGridViewTextBoxColumn.HeaderText = "Jurusan";
+            this.idJurusanNavigationDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.idJurusanNavigationDataGridViewTextBoxColumn.Name = "idJurusanNavigationDataGridViewTextBoxColumn";
+            this.idJurusanNavigationDataGridViewTextBoxColumn.ReadOnly = true;
+            this.idJurusanNavigationDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // keteranganKeperluanDataGridViewTextBoxColumn
+            // 
+            this.keteranganKeperluanDataGridViewTextBoxColumn.DataPropertyName = "KeteranganKeperluan";
+            this.keteranganKeperluanDataGridViewTextBoxColumn.HeaderText = "Keperluan";
+            this.keteranganKeperluanDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.keteranganKeperluanDataGridViewTextBoxColumn.Name = "keteranganKeperluanDataGridViewTextBoxColumn";
+            this.keteranganKeperluanDataGridViewTextBoxColumn.ReadOnly = true;
+            this.keteranganKeperluanDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // statusPersetujuanDataGridViewTextBoxColumn
+            // 
+            this.statusPersetujuanDataGridViewTextBoxColumn.DataPropertyName = "StatusPersetujuan";
+            this.statusPersetujuanDataGridViewTextBoxColumn.HeaderText = "Status";
+            this.statusPersetujuanDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.statusPersetujuanDataGridViewTextBoxColumn.Name = "statusPersetujuanDataGridViewTextBoxColumn";
+            this.statusPersetujuanDataGridViewTextBoxColumn.ReadOnly = true;
+            this.statusPersetujuanDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // tanggalPermintaanDataGridViewTextBoxColumn
+            // 
+            this.tanggalPermintaanDataGridViewTextBoxColumn.DataPropertyName = "TanggalPermintaan";
+            this.tanggalPermintaanDataGridViewTextBoxColumn.HeaderText = "Tanggal Permintaan";
+            this.tanggalPermintaanDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.tanggalPermintaanDataGridViewTextBoxColumn.Name = "tanggalPermintaanDataGridViewTextBoxColumn";
+            this.tanggalPermintaanDataGridViewTextBoxColumn.ReadOnly = true;
+            this.tanggalPermintaanDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // tanggalPersetujuanDataGridViewTextBoxColumn
+            // 
+            this.tanggalPersetujuanDataGridViewTextBoxColumn.DataPropertyName = "TanggalPersetujuan";
+            this.tanggalPersetujuanDataGridViewTextBoxColumn.HeaderText = "Tanggal Persetujuan";
+            this.tanggalPersetujuanDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.tanggalPersetujuanDataGridViewTextBoxColumn.Name = "tanggalPersetujuanDataGridViewTextBoxColumn";
+            this.tanggalPersetujuanDataGridViewTextBoxColumn.ReadOnly = true;
+            this.tanggalPersetujuanDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // alasanDisetujuiDataGridViewTextBoxColumn
+            // 
+            this.alasanDisetujuiDataGridViewTextBoxColumn.DataPropertyName = "AlasanDisetujui";
+            this.alasanDisetujuiDataGridViewTextBoxColumn.HeaderText = "Alasan Disetujui";
+            this.alasanDisetujuiDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.alasanDisetujuiDataGridViewTextBoxColumn.Name = "alasanDisetujuiDataGridViewTextBoxColumn";
+            this.alasanDisetujuiDataGridViewTextBoxColumn.ReadOnly = true;
+            this.alasanDisetujuiDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // idPenggunaNavigationDataGridViewTextBoxColumn
+            // 
+            this.idPenggunaNavigationDataGridViewTextBoxColumn.DataPropertyName = "IdPenggunaNavigation";
+            this.idPenggunaNavigationDataGridViewTextBoxColumn.HeaderText = "Peminta";
+            this.idPenggunaNavigationDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.idPenggunaNavigationDataGridViewTextBoxColumn.Name = "idPenggunaNavigationDataGridViewTextBoxColumn";
+            this.idPenggunaNavigationDataGridViewTextBoxColumn.ReadOnly = true;
+            this.idPenggunaNavigationDataGridViewTextBoxColumn.Width = 150;
+            // 
+            // idPenyetujuNavigationDataGridViewTextBoxColumn
+            // 
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn.DataPropertyName = "IdPenyetujuNavigation";
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn.HeaderText = "Penyetuju";
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn.Name = "idPenyetujuNavigationDataGridViewTextBoxColumn";
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn.ReadOnly = true;
+            this.idPenyetujuNavigationDataGridViewTextBoxColumn.Width = 150;
             // 
             // InputPengadaanBarangForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(972, 883);
+            this.ClientSize = new System.Drawing.Size(1617, 846);
+            this.Controls.Add(this.groupBox4);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
@@ -544,8 +519,12 @@
             this.Load += new System.EventHandler(this.InputPengadaanBarangForm_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picGambar)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgDetailBon)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgPermintaan)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -558,46 +537,42 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.DateTimePicker dtpTglPengadaan;
-        private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.TextBox txtUmur;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.TextBox txtResidu;
-        private System.Windows.Forms.ComboBox cmbSatuan;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox txtJumlah;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.TextBox txtHargaPerolehan;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox cmbKondisi;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.ComboBox cmbMerk;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.ComboBox cmbLokasi;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ComboBox cmbKategori;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox cmbNama;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtKode;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.Button btnBrowseBarang;
-        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox txtId;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox txtSumber;
-        private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.TextBox txtSeri;
-        private System.Windows.Forms.Button btnHapus;
-        private System.Windows.Forms.Button btnBrowse;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.PictureBox picGambar;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.TextBox txtKeterangan;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnTutup;
         private System.Windows.Forms.Button btnSimpan;
-        private System.Windows.Forms.Button btnTambah;
+        private System.Windows.Forms.Button btnProsesBelanja;
+        private System.Windows.Forms.ComboBox cmbStatus;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.ComboBox cmbGudang;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.ComboBox cmbPemasok;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.DataGridView dgDetailBon;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.DataGridView dgPermintaan;
+        private System.Windows.Forms.Button btnPilihPermintaan;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox txtTotalHarga;
+        private System.Windows.Forms.BindingSource bindingSource1;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn PilihColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn kodePermintaanDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idJurusanNavigationDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn keteranganKeperluanDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn statusPersetujuanDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tanggalPermintaanDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tanggalPersetujuanDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alasanDisetujuiDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idPenggunaNavigationDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idPenyetujuNavigationDataGridViewTextBoxColumn;
     }
 }

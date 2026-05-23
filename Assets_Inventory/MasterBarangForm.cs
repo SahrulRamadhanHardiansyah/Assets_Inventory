@@ -1,5 +1,7 @@
-﻿using ComponentFactory.Krypton.Toolkit;
+﻿using Assets_Inventory.Models;
+using ComponentFactory.Krypton.Toolkit;
 using ExcelDataReader;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,23 +14,21 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OfficeOpenXml;
 
 namespace Assets_Inventory
 {
     public partial class MasterBarangForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private Client apiClient;
-
+        AppDbContext db = new AppDbContext();
         public MasterBarangForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
         }
 
         private async void MasterBarangForm_Load(object sender, EventArgs e)
         {
-            cmbKategori.DataSource = (await apiClient.IndexMasterBarangAsync()).Data.ToList();
+            cmbKategori.DataSource = db.Kategori.ToList();
             cmbKategori.SelectedIndex = -1;
             loadData();
             SetMode("View");
@@ -36,18 +36,8 @@ namespace Assets_Inventory
 
         private async void loadData()
         {
-            dg.DataSource = (await apiClient.IndexMasterBarangAsync()).Data
-                .Select(b => new
-                {
-                    b.Id_master_barang,
-                    b.Nama_barang,
-                    b.Kategori.Nama_kategori,
-                })
-                .ToList();
-
-            dg.Columns["Id_master_barang"].HeaderText = "ID";
-            dg.Columns["Nama_barang"].HeaderText = "Nama Barang";
-            dg.Columns["Nama_kategori"].HeaderText = "MasterBarang";
+            var cari = txtCari.Text.Trim().ToLower();
+            dg.DataSource = new SortableBindingList<MasterBarang>(db.MasterBarang.Where(mb => mb.NamaBarang.ToLower().Contains(cari) || mb.IdKategoriNavigation.NamaKategori.ToLower().Contains(cari)).ToList());
         }
 
         private void SetMode(string mode)
@@ -76,10 +66,14 @@ namespace Assets_Inventory
 
         private void dg_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is MasterBarangResource barang)
+            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is MasterBarang mb)
             {
-                bindingSource1.DataSource = barang;
-                cmbKategori.SelectedItem = barang.Kategori;
+                var barang = db.MasterBarang.Find(mb.IdMasterBarang);
+                if (barang != null)
+                {
+                    bindingSource1.DataSource = barang;
+                    cmbKategori.SelectedValue = barang.IdKategori ?? -1;
+                }
             }
         }
 
@@ -87,11 +81,12 @@ namespace Assets_Inventory
         {
             SetMode("Insert");
             bindingSource1.AddNew();
+            cmbKategori.SelectedIndex = -1;
         }
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is MasterBarangResource k)
+            if (bindingSource1.Current is MasterBarang)
             {
                 SetMode("Update");
             }
@@ -109,76 +104,74 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (bindingSource1.Current is MasterBarangResource k)
+            if (bindingSource1.Current is MasterBarang k)
             {
                 bindingSource1.EndEdit();
 
-                k.Nama_barang = txtNama.Text;
-                k.Id_kategori = (int)cmbKategori.SelectedValue;
-                k.Keterangan = txtKeterangan.Text;
-
                 try
                 {
-                    if (string.IsNullOrEmpty(txtKode.Text) || txtKode.Text == "0")
+                    if (k.IdMasterBarang == 0) 
                     {
-                        await apiClient.StoreMasterBarangAsync(new StoreMasterBarangRequest
+                        var baru = new MasterBarang
                         {
-                            Nama_barang = k.Nama_barang,
-                            Id_kategori = (int)cmbKategori.SelectedValue,
-                            Keterangan = k.Keterangan
-                        });
+                            NamaBarang = txtNama.Text,
+                            IdKategori = (int)cmbKategori.SelectedValue,
+                            Keterangan = txtKeterangan.Text,
+                            JenisBarang = "Aset"
+                        };
+
+                        db.MasterBarang.Add(baru);
                     }
-                    else
+                    else 
                     {
-                        await apiClient.UpdateMasterBarangAsync(k.Id_master_barang, new UpdateMasterBarangRequest
-                        {
-                            Nama_barang = k.Nama_barang,
-                            Keterangan = k.Keterangan
-                        });
+                        k.NamaBarang = txtNama.Text;
+                        k.IdKategori = (int)cmbKategori.SelectedValue;
+                        k.Keterangan = txtKeterangan.Text;
                     }
+
+                    db.SaveChanges();
 
                     MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadData();
                     SetMode("View");
                 }
-                catch (Assets_Inventory.ApiException apiEx)
-                {
-                    MessageBox.Show("Gagal menyimpan data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Terjadi kesalahan sistem: " + ex.InnerException?.Message ?? ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private async void btnHapus_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is MasterBarangResource k)
+            if (bindingSource1.Current is MasterBarang k && k.IdMasterBarang != 0)
             {
-                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.Nama_barang}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.NamaBarang}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     try
                     {
-                        await apiClient.DestroyMasterBarangAsync(k.Id_master_barang);
+                        db.MasterBarang.Remove(k);
+                        db.SaveChanges();
+
+                        MessageBox.Show("Berhasil dihapus!");
+                        loadData();
+                        bindingSource1.AddNew();
                     }
-                    catch (Assets_Inventory.ApiException apiEx)
+                    catch (Microsoft.EntityFrameworkCore.DbUpdateException)
                     {
-                        MessageBox.Show("Gagal menghapus data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        db.Entry(k).Reload();
+                        MessageBox.Show("Tidak dapat menghapus data ini karena data masih digunakan oleh data lain di dalam sistem.", "Peringatan Relasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
+                        db.Entry(k).Reload();
                         MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    MessageBox.Show("Berhasil dihapus!");
-                    loadData();
-                    bindingSource1.AddNew();
                 }
             }
             else
             {
-                MessageBox.Show("Pilih data yang ingin diubah.");
+                MessageBox.Show("Pilih data yang valid untuk dihapus.");
             }
         }
 
@@ -201,6 +194,9 @@ namespace Assets_Inventory
                 {
                     try
                     {
+                        this.Enabled = false;
+                        this.Cursor = Cursors.WaitCursor;
+
                         int sukses = 0;
                         int gagal = 0;
 
@@ -220,34 +216,36 @@ namespace Assets_Inventory
 
                                 foreach (DataRow row in dt.Rows)
                                 {
+                                    Application.DoEvents();
+
                                     string nama = row[0]?.ToString().Trim();
-                                    int IdKategori = int.Parse(row[1]?.ToString().Trim());
+                                    string strKategori = row[1]?.ToString().Trim();
                                     string keterangan = row[2]?.ToString().Trim();
 
-                                    if (!string.IsNullOrEmpty(nama))
+                                    if (!string.IsNullOrEmpty(nama) && int.TryParse(strKategori, out int IdKategori))
                                     {
-                                        try
+                                        var barangImpor = new MasterBarang
                                         {
-                                            await apiClient.StoreMasterBarangAsync(new StoreMasterBarangRequest
-                                            {
-                                                Nama_barang = nama,
-                                                Id_kategori = IdKategori, 
-                                                Keterangan = keterangan
-                                            });
-                                            sukses++;
-                                        }
-                                        catch
-                                        {
-                                            gagal++;
-                                        }
+                                            NamaBarang = nama,
+                                            IdKategori = IdKategori,
+                                            Keterangan = keterangan,
+                                            JenisBarang = "Aset"
+                                        };
+
+                                        db.MasterBarang.Add(barangImpor);
+                                        sukses++;
+                                    }
+                                    else
+                                    {
+                                        gagal++;
                                     }
                                 }
+
+                                db.SaveChanges();
                             }
                         }
 
-                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nGagal: {gagal} data",
-                                        "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nData tidak valid: {gagal} data", "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         loadData();
                     }
                     catch (IOException)
@@ -258,6 +256,11 @@ namespace Assets_Inventory
                     {
                         MessageBox.Show("Terjadi kesalahan saat membaca file Excel: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    finally
+                    {
+                        this.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                    }
                 }
             }
         }
@@ -265,6 +268,92 @@ namespace Assets_Inventory
         private void btnTutup_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void dg_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dg.Rows[e.RowIndex].DataBoundItem is MasterBarang mb)
+            {
+                if (KategoriNavigation.Index == e.ColumnIndex) e.Value = mb.IdKategoriNavigation?.NamaKategori;
+            }
+        }
+
+        private void cmbKategori_SelectedIndexChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void btnCari_Click(object sender, EventArgs e)
+        {
+            loadData();
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "Excel Files (*.xlsx)|*.xlsx";
+                sfd.Title = "Export Data Master Barang ke Excel";
+                sfd.FileName = "Data_Master_Barang_" + DateTime.Now.ToString("yyyyMMdd");
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        this.Enabled = false;
+                        this.Cursor = Cursors.WaitCursor;
+
+                        var dataList = db.MasterBarang
+                                         .Include(mb => mb.IdKategoriNavigation)
+                                         .ToList();
+
+                        using (var package = new OfficeOpenXml.ExcelPackage())
+                        {
+                            var worksheet = package.Workbook.Worksheets.Add("Data Master Barang");
+
+                            worksheet.Cells[1, 1].Value = "Nama Barang";
+                            worksheet.Cells[1, 2].Value = "Kategori";
+                            worksheet.Cells[1, 3].Value = "Keterangan";
+
+                            using (var range = worksheet.Cells[1, 1, 1, 3])
+                            {
+                                range.Style.Font.Bold = true;
+                                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                            }
+
+                            int baris = 2;
+                            foreach (var item in dataList)
+                            {
+                                Application.DoEvents();
+
+                                worksheet.Cells[baris, 1].Value = item.NamaBarang;
+                                worksheet.Cells[baris, 2].Value = item.IdKategoriNavigation?.NamaKategori ?? "Tanpa Kategori";
+                                worksheet.Cells[baris, 3].Value = item.Keterangan;
+
+                                baris++;
+                            }
+
+                            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                            FileInfo fi = new FileInfo(sfd.FileName);
+                            package.SaveAs(fi);
+                        }
+
+                        MessageBox.Show("Data berhasil diekspor ke Excel!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Terjadi kesalahan saat mengekspor data: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        this.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                    }
+                }
+            }
         }
     }
 }

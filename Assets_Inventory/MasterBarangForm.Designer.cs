@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MasterBarangForm));
             this.kryptonPalette1 = new ComponentFactory.Krypton.Toolkit.KryptonPalette(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -37,25 +38,34 @@
             this.txtKeterangan = new System.Windows.Forms.TextBox();
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.cmbKategori = new System.Windows.Forms.ComboBox();
-            this.kategoriResourceBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.kategoriBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.txtNama = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.txtKode = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnExport = new System.Windows.Forms.Button();
+            this.btnCari = new System.Windows.Forms.Button();
+            this.txtCari = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.dg = new System.Windows.Forms.DataGridView();
+            this.idMasterBarangDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.namaBarangDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.KategoriNavigation = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.keteranganDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnImport = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.btnBatal = new System.Windows.Forms.Button();
             this.btnUbah = new System.Windows.Forms.Button();
             this.btnHapus = new System.Windows.Forms.Button();
-            this.btnImport = new System.Windows.Forms.Button();
             this.btnTutup = new System.Windows.Forms.Button();
             this.btnSimpan = new System.Windows.Forms.Button();
             this.btnTambah = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kategoriResourceBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.kategoriBindingSource)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).BeginInit();
             this.groupBox3.SuspendLayout();
@@ -128,27 +138,29 @@
             // 
             // bindingSource1
             // 
-            this.bindingSource1.DataSource = typeof(Assets_Inventory.MasterBarangResource);
+            this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.MasterBarang);
             // 
             // cmbKategori
             // 
-            this.cmbKategori.DataSource = this.kategoriResourceBindingSource;
-            this.cmbKategori.DisplayMember = "Nama_kategori";
+            this.cmbKategori.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.kategoriBindingSource, "IdKategori", true));
+            this.cmbKategori.DataSource = this.kategoriBindingSource;
+            this.cmbKategori.DisplayMember = "NamaKategori";
             this.cmbKategori.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbKategori.FormattingEnabled = true;
             this.cmbKategori.Location = new System.Drawing.Point(160, 116);
             this.cmbKategori.Name = "cmbKategori";
             this.cmbKategori.Size = new System.Drawing.Size(327, 28);
             this.cmbKategori.TabIndex = 12;
-            this.cmbKategori.ValueMember = "Id_kategori";
+            this.cmbKategori.ValueMember = "IdKategori";
+            this.cmbKategori.SelectedIndexChanged += new System.EventHandler(this.cmbKategori_SelectedIndexChanged);
             // 
-            // kategoriResourceBindingSource
+            // kategoriBindingSource
             // 
-            this.kategoriResourceBindingSource.DataSource = typeof(Assets_Inventory.KategoriResource);
+            this.kategoriBindingSource.DataSource = typeof(Assets_Inventory.Models.Kategori);
             // 
             // txtNama
             // 
-            this.txtNama.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "Nama_barang", true));
+            this.txtNama.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "NamaBarang", true));
             this.txtNama.Location = new System.Drawing.Point(160, 76);
             this.txtNama.Name = "txtNama";
             this.txtNama.Size = new System.Drawing.Size(327, 26);
@@ -175,15 +187,15 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(34, 39);
+            this.label3.Location = new System.Drawing.Point(54, 39);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(110, 20);
+            this.label3.Size = new System.Drawing.Size(90, 20);
             this.label3.TabIndex = 8;
-            this.label3.Text = "Kode Barang :";
+            this.label3.Text = "ID Barang :";
             // 
             // txtKode
             // 
-            this.txtKode.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "Id_master_barang", true));
+            this.txtKode.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "IdMasterBarang", true));
             this.txtKode.Location = new System.Drawing.Point(160, 36);
             this.txtKode.Name = "txtKode";
             this.txtKode.ReadOnly = true;
@@ -192,21 +204,72 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnExport);
+            this.groupBox2.Controls.Add(this.btnCari);
+            this.groupBox2.Controls.Add(this.txtCari);
+            this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.dg);
+            this.groupBox2.Controls.Add(this.btnImport);
             this.groupBox2.Location = new System.Drawing.Point(30, 332);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(715, 311);
+            this.groupBox2.Size = new System.Drawing.Size(715, 364);
             this.groupBox2.TabIndex = 20;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Data Barang";
+            // 
+            // btnExport
+            // 
+            this.btnExport.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnExport.BackgroundImage")));
+            this.btnExport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnExport.Location = new System.Drawing.Point(661, 49);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(35, 35);
+            this.btnExport.TabIndex = 14;
+            this.toolTip1.SetToolTip(this.btnExport, "Export ke Excel");
+            this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
+            // 
+            // btnCari
+            // 
+            this.btnCari.Location = new System.Drawing.Point(356, 49);
+            this.btnCari.Name = "btnCari";
+            this.btnCari.Size = new System.Drawing.Size(106, 32);
+            this.btnCari.TabIndex = 13;
+            this.btnCari.Text = "Cari";
+            this.btnCari.UseVisualStyleBackColor = true;
+            this.btnCari.Click += new System.EventHandler(this.btnCari_Click);
+            // 
+            // txtCari
+            // 
+            this.txtCari.Location = new System.Drawing.Point(19, 52);
+            this.txtCari.Name = "txtCari";
+            this.txtCari.Size = new System.Drawing.Size(327, 26);
+            this.txtCari.TabIndex = 12;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 29);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(218, 20);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "Cari Nama / Kategori Barang :";
             // 
             // dg
             // 
             this.dg.AllowUserToAddRows = false;
             this.dg.AllowUserToDeleteRows = false;
+            this.dg.AllowUserToOrderColumns = true;
+            this.dg.AutoGenerateColumns = false;
             this.dg.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg.Location = new System.Drawing.Point(19, 31);
+            this.dg.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.idMasterBarangDataGridViewTextBoxColumn,
+            this.namaBarangDataGridViewTextBoxColumn,
+            this.KategoriNavigation,
+            this.keteranganDataGridViewTextBoxColumn});
+            this.dg.DataSource = this.bindingSource1;
+            this.dg.Location = new System.Drawing.Point(19, 89);
             this.dg.Name = "dg";
             this.dg.ReadOnly = true;
             this.dg.RowHeadersVisible = false;
@@ -215,17 +278,61 @@
             this.dg.Size = new System.Drawing.Size(677, 260);
             this.dg.TabIndex = 4;
             this.dg.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dg_CellClick);
+            this.dg.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dg_CellFormatting);
+            // 
+            // idMasterBarangDataGridViewTextBoxColumn
+            // 
+            this.idMasterBarangDataGridViewTextBoxColumn.DataPropertyName = "IdMasterBarang";
+            this.idMasterBarangDataGridViewTextBoxColumn.HeaderText = "ID";
+            this.idMasterBarangDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.idMasterBarangDataGridViewTextBoxColumn.Name = "idMasterBarangDataGridViewTextBoxColumn";
+            this.idMasterBarangDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // namaBarangDataGridViewTextBoxColumn
+            // 
+            this.namaBarangDataGridViewTextBoxColumn.DataPropertyName = "NamaBarang";
+            this.namaBarangDataGridViewTextBoxColumn.HeaderText = "Nama Barang";
+            this.namaBarangDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.namaBarangDataGridViewTextBoxColumn.Name = "namaBarangDataGridViewTextBoxColumn";
+            this.namaBarangDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // KategoriNavigation
+            // 
+            this.KategoriNavigation.DataPropertyName = "IdKategoriNavigation";
+            this.KategoriNavigation.HeaderText = "Kategori";
+            this.KategoriNavigation.MinimumWidth = 8;
+            this.KategoriNavigation.Name = "KategoriNavigation";
+            this.KategoriNavigation.ReadOnly = true;
+            // 
+            // keteranganDataGridViewTextBoxColumn
+            // 
+            this.keteranganDataGridViewTextBoxColumn.DataPropertyName = "Keterangan";
+            this.keteranganDataGridViewTextBoxColumn.HeaderText = "Keterangan";
+            this.keteranganDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.keteranganDataGridViewTextBoxColumn.Name = "keteranganDataGridViewTextBoxColumn";
+            this.keteranganDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // btnImport
+            // 
+            this.btnImport.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnImport.BackgroundImage")));
+            this.btnImport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnImport.Location = new System.Drawing.Point(620, 49);
+            this.btnImport.Name = "btnImport";
+            this.btnImport.Size = new System.Drawing.Size(35, 35);
+            this.btnImport.TabIndex = 10;
+            this.toolTip1.SetToolTip(this.btnImport, "Import dari Excel");
+            this.btnImport.UseVisualStyleBackColor = true;
+            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.btnBatal);
             this.groupBox3.Controls.Add(this.btnUbah);
             this.groupBox3.Controls.Add(this.btnHapus);
-            this.groupBox3.Controls.Add(this.btnImport);
             this.groupBox3.Controls.Add(this.btnTutup);
             this.groupBox3.Controls.Add(this.btnSimpan);
             this.groupBox3.Controls.Add(this.btnTambah);
-            this.groupBox3.Location = new System.Drawing.Point(31, 658);
+            this.groupBox3.Location = new System.Drawing.Point(31, 702);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(714, 143);
             this.groupBox3.TabIndex = 21;
@@ -262,16 +369,6 @@
             this.btnHapus.UseVisualStyleBackColor = true;
             this.btnHapus.Click += new System.EventHandler(this.btnHapus_Click);
             // 
-            // btnImport
-            // 
-            this.btnImport.Location = new System.Drawing.Point(291, 82);
-            this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(140, 40);
-            this.btnImport.TabIndex = 10;
-            this.btnImport.Text = "Import";
-            this.btnImport.UseVisualStyleBackColor = true;
-            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
-            // 
             // btnTutup
             // 
             this.btnTutup.Location = new System.Drawing.Point(465, 82);
@@ -307,7 +404,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(785, 809);
+            this.ClientSize = new System.Drawing.Size(785, 849);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -322,8 +419,9 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kategoriResourceBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.kategoriBindingSource)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -356,6 +454,15 @@
         private System.Windows.Forms.Button btnSimpan;
         private System.Windows.Forms.Button btnTambah;
         private System.Windows.Forms.BindingSource bindingSource1;
-        private System.Windows.Forms.BindingSource kategoriResourceBindingSource;
+        private System.Windows.Forms.BindingSource kategoriBindingSource;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idMasterBarangDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn namaBarangDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn KategoriNavigation;
+        private System.Windows.Forms.DataGridViewTextBoxColumn keteranganDataGridViewTextBoxColumn;
+        private System.Windows.Forms.TextBox txtCari;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button btnCari;
+        private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

@@ -1,27 +1,21 @@
-﻿using ComponentFactory.Krypton.Toolkit;
+﻿using Assets_Inventory.Models;
+using ComponentFactory.Krypton.Toolkit;
 using ExcelDataReader;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
 {
     public partial class MasterSatuanForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private Client apiClient;
+        AppDbContext db = new AppDbContext();
 
         public MasterSatuanForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
         }
 
         private void MasterSatuanForm_Load(object sender, EventArgs e)
@@ -35,6 +29,7 @@ namespace Assets_Inventory
             if (mode == "View")
             {
                 txtNama.Enabled = false;
+                txtKode.Enabled = false;
                 txtKeterangan.Enabled = false;
                 btnTambah.Enabled = true;
                 btnUbah.Enabled = true;
@@ -45,6 +40,7 @@ namespace Assets_Inventory
             else
             {
                 txtNama.Enabled = true;
+                txtKode.Enabled = true;
                 txtKeterangan.Enabled = true;
                 btnTambah.Enabled = false;
                 btnUbah.Enabled = false;
@@ -54,19 +50,21 @@ namespace Assets_Inventory
             }
         }
 
-        private async void loadDgv()
+        private void loadDgv()
         {
-            dg.DataSource = (await apiClient.IndexSatuanAsync()).Data.ToList();
-            dg.Columns["Id_satuan"].HeaderText = "ID";
-            dg.Columns["Nama_satuan"].HeaderText = "Nama Satuan";
-            dg.Columns["AdditionalProperties"].Visible = false;
+            var cari = txtCari.Text.Trim().ToLower();
+            dg.DataSource = new SortableBindingList<Satuan>(db.Satuan.Where(s => s.NamaSatuan.ToLower().Contains(cari) || s.KodeSatuan.ToLower().Contains(cari)).ToList());
         }
 
         private void dg_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is SatuanResource satuan)
+            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is Satuan s)
             {
-                bindingSource1.DataSource = satuan;
+                var satuan = db.Satuan.Find(s.IdSatuan);
+                if (satuan != null)
+                {
+                    bindingSource1.DataSource = satuan;
+                }
             }
         }
 
@@ -78,7 +76,7 @@ namespace Assets_Inventory
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is SatuanResource k)
+            if (bindingSource1.Current is Satuan)
             {
                 SetMode("Update");
             }
@@ -88,7 +86,7 @@ namespace Assets_Inventory
             }
         }
 
-        private async void btnSimpan_Click(object sender, EventArgs e)
+        private void btnSimpan_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtNama.Text))
             {
@@ -96,74 +94,78 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (bindingSource1.Current is SatuanResource k)
+            if (string.IsNullOrEmpty(txtKode.Text))
+            {
+                MessageBox.Show("Kode satuan harus diisi.");
+                return;
+            }
+
+            if (bindingSource1.Current is Satuan k)
             {
                 bindingSource1.EndEdit();
 
-                k.Nama_satuan = txtNama.Text;
-                k.Keterangan = txtKeterangan.Text;
-
                 try
                 {
-                    if (string.IsNullOrEmpty(txtKode.Text) || txtKode.Text == "0")
+                    if (k.IdSatuan == 0) 
                     {
-                        await apiClient.StoreSatuanAsync(new StoreSatuanRequest
+                        var baru = new Satuan
                         {
-                            Nama_satuan = k.Nama_satuan,
-                            Keterangan = k.Keterangan
-                        });
+                            NamaSatuan = txtNama.Text,
+                            KodeSatuan = txtKode.Text.ToUpper(),
+                            Keterangan = txtKeterangan.Text
+                        };
+                        db.Satuan.Add(baru);
                     }
-                    else
+                    else 
                     {
-                        await apiClient.UpdateSatuanAsync(k.Id_satuan, new UpdateSatuanRequest
-                        {
-                            Nama_satuan = k.Nama_satuan,
-                            Keterangan = k.Keterangan
-                        });
+                        k.NamaSatuan = txtNama.Text;
+                        k.KodeSatuan = txtKode.Text.ToUpper();
+                        k.Keterangan = txtKeterangan.Text;
                     }
+
+                    db.SaveChanges();
 
                     MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadDgv();
                     SetMode("View");
                 }
-                catch (Assets_Inventory.ApiException apiEx)
-                {
-                    MessageBox.Show("Gagal menyimpan data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Terjadi kesalahan sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private async void btnHapus_Click(object sender, EventArgs e)
+        private void btnHapus_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is SatuanResource k)
+            if (bindingSource1.Current is Satuan k && k.IdSatuan != 0)
             {
-                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.Nama_satuan}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.NamaSatuan}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     try
                     {
-                        await apiClient.DestroySatuanAsync(k.Id_satuan);
+                        db.Satuan.Remove(k);
+                        db.SaveChanges();
+
+                        MessageBox.Show("Berhasil dihapus!");
+                        loadDgv();
+                        bindingSource1.AddNew();
                     }
-                    catch (Assets_Inventory.ApiException apiEx)
+                    catch (Microsoft.EntityFrameworkCore.DbUpdateException)
                     {
-                        MessageBox.Show("Gagal menghapus data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        db.Entry(k).Reload();
+                        MessageBox.Show("Tidak dapat menghapus data ini karena data masih digunakan oleh data lain di dalam sistem.", "Peringatan Relasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
+                        db.Entry(k).Reload();
                         MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    MessageBox.Show("Berhasil dihapus!");
-                    loadDgv();
-                    bindingSource1.AddNew();
                 }
             }
             else
             {
-                MessageBox.Show("Pilih data yang ingin diubah.");
+                MessageBox.Show("Pilih data yang valid untuk dihapus.");
             }
         }
 
@@ -175,7 +177,12 @@ namespace Assets_Inventory
             SetMode("View");
         }
 
-        private async void btnImport_Click(object sender, EventArgs e)
+        private void btnTutup_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnImport_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -186,6 +193,9 @@ namespace Assets_Inventory
                 {
                     try
                     {
+                        this.Enabled = false;
+                        this.Cursor = Cursors.WaitCursor;
+
                         int sukses = 0;
                         int gagal = 0;
 
@@ -205,32 +215,35 @@ namespace Assets_Inventory
 
                                 foreach (DataRow row in dt.Rows)
                                 {
+                                    Application.DoEvents();
+
                                     string nama = row[0]?.ToString().Trim();
-                                    string keterangan = row[1]?.ToString().Trim();
+                                    string kode = row[1]?.ToString().Trim().ToUpper();
+                                    string keterangan = row[2]?.ToString().Trim();
 
                                     if (!string.IsNullOrEmpty(nama))
                                     {
-                                        try
+                                        var satuanImpor = new Satuan
                                         {
-                                            await apiClient.StoreSatuanAsync(new StoreSatuanRequest
-                                            {
-                                                Nama_satuan = nama,
-                                                Keterangan = keterangan
-                                            });
-                                            sukses++;
-                                        }
-                                        catch
-                                        {
-                                            gagal++;
-                                        }
+                                            NamaSatuan = nama,
+                                            KodeSatuan = kode,
+                                            Keterangan = keterangan
+                                        };
+
+                                        db.Satuan.Add(satuanImpor);
+                                        sukses++;
+                                    }
+                                    else
+                                    {
+                                        gagal++;
                                     }
                                 }
+
+                                db.SaveChanges();
                             }
                         }
 
-                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nGagal: {gagal} data",
-                                        "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nData tidak valid: {gagal} data", "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         loadDgv();
                     }
                     catch (IOException)
@@ -241,13 +254,18 @@ namespace Assets_Inventory
                     {
                         MessageBox.Show("Terjadi kesalahan saat membaca file Excel: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    finally
+                    {
+                        this.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                    }
                 }
             }
         }
 
-        private void btnTutup_Click(object sender, EventArgs e)
+        private void btnCari_Click(object sender, EventArgs e)
         {
-            this.Close();
+            loadDgv();
         }
     }
 }

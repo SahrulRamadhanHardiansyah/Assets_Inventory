@@ -29,8 +29,17 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MasterNonAktifForm));
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnCari = new System.Windows.Forms.Button();
+            this.txtCari = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.btnImport = new System.Windows.Forms.Button();
             this.dg = new System.Windows.Forms.DataGridView();
+            this.idStatusDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.namaStatusDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.keteranganDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label20 = new System.Windows.Forms.Label();
             this.txtKeterangan = new System.Windows.Forms.TextBox();
@@ -44,36 +53,83 @@
             this.btnBatal = new System.Windows.Forms.Button();
             this.btnUbah = new System.Windows.Forms.Button();
             this.btnHapus = new System.Windows.Forms.Button();
-            this.btnImport = new System.Windows.Forms.Button();
             this.btnTutup = new System.Windows.Forms.Button();
             this.btnSimpan = new System.Windows.Forms.Button();
             this.btnTambah = new System.Windows.Forms.Button();
             this.kryptonPalette1 = new ComponentFactory.Krypton.Toolkit.KryptonPalette(this.components);
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnCari);
+            this.groupBox2.Controls.Add(this.txtCari);
+            this.groupBox2.Controls.Add(this.label6);
+            this.groupBox2.Controls.Add(this.btnImport);
             this.groupBox2.Controls.Add(this.dg);
             this.groupBox2.Location = new System.Drawing.Point(35, 288);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(715, 303);
+            this.groupBox2.Size = new System.Drawing.Size(715, 361);
             this.groupBox2.TabIndex = 35;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Data Non Aktif";
+            // 
+            // btnCari
+            // 
+            this.btnCari.Location = new System.Drawing.Point(355, 46);
+            this.btnCari.Name = "btnCari";
+            this.btnCari.Size = new System.Drawing.Size(106, 32);
+            this.btnCari.TabIndex = 21;
+            this.btnCari.Text = "Cari";
+            this.btnCari.UseVisualStyleBackColor = true;
+            this.btnCari.Click += new System.EventHandler(this.btnCari_Click);
+            // 
+            // txtCari
+            // 
+            this.txtCari.Location = new System.Drawing.Point(18, 49);
+            this.txtCari.Name = "txtCari";
+            this.txtCari.Size = new System.Drawing.Size(327, 26);
+            this.txtCari.TabIndex = 20;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(14, 26);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(132, 20);
+            this.label6.TabIndex = 19;
+            this.label6.Text = "Cari Nama Jenis :";
+            // 
+            // btnImport
+            // 
+            this.btnImport.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnImport.BackgroundImage")));
+            this.btnImport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnImport.Location = new System.Drawing.Point(660, 46);
+            this.btnImport.Name = "btnImport";
+            this.btnImport.Size = new System.Drawing.Size(35, 35);
+            this.btnImport.TabIndex = 18;
+            this.toolTip1.SetToolTip(this.btnImport, "Import dari excel");
+            this.btnImport.UseVisualStyleBackColor = true;
+            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
             // 
             // dg
             // 
             this.dg.AllowUserToAddRows = false;
             this.dg.AllowUserToDeleteRows = false;
+            this.dg.AutoGenerateColumns = false;
             this.dg.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg.Location = new System.Drawing.Point(18, 26);
+            this.dg.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.idStatusDataGridViewTextBoxColumn,
+            this.namaStatusDataGridViewTextBoxColumn,
+            this.keteranganDataGridViewTextBoxColumn});
+            this.dg.DataSource = this.bindingSource1;
+            this.dg.Location = new System.Drawing.Point(18, 86);
             this.dg.Name = "dg";
             this.dg.ReadOnly = true;
             this.dg.RowHeadersVisible = false;
@@ -82,6 +138,34 @@
             this.dg.Size = new System.Drawing.Size(677, 260);
             this.dg.TabIndex = 4;
             this.dg.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dg_CellClick);
+            // 
+            // idStatusDataGridViewTextBoxColumn
+            // 
+            this.idStatusDataGridViewTextBoxColumn.DataPropertyName = "IdStatus";
+            this.idStatusDataGridViewTextBoxColumn.HeaderText = "ID";
+            this.idStatusDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.idStatusDataGridViewTextBoxColumn.Name = "idStatusDataGridViewTextBoxColumn";
+            this.idStatusDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // namaStatusDataGridViewTextBoxColumn
+            // 
+            this.namaStatusDataGridViewTextBoxColumn.DataPropertyName = "NamaStatus";
+            this.namaStatusDataGridViewTextBoxColumn.HeaderText = "Nama Jenis";
+            this.namaStatusDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.namaStatusDataGridViewTextBoxColumn.Name = "namaStatusDataGridViewTextBoxColumn";
+            this.namaStatusDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // keteranganDataGridViewTextBoxColumn
+            // 
+            this.keteranganDataGridViewTextBoxColumn.DataPropertyName = "Keterangan";
+            this.keteranganDataGridViewTextBoxColumn.HeaderText = "Keterangan";
+            this.keteranganDataGridViewTextBoxColumn.MinimumWidth = 8;
+            this.keteranganDataGridViewTextBoxColumn.Name = "keteranganDataGridViewTextBoxColumn";
+            this.keteranganDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // bindingSource1
+            // 
+            this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.StatusBarang);
             // 
             // groupBox1
             // 
@@ -118,7 +202,7 @@
             // 
             // txtNama
             // 
-            this.txtNama.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "Nama_status", true));
+            this.txtNama.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "NamaStatus", true));
             this.txtNama.Location = new System.Drawing.Point(172, 72);
             this.txtNama.Name = "txtNama";
             this.txtNama.Size = new System.Drawing.Size(327, 26);
@@ -136,15 +220,15 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(102, 35);
+            this.label3.Location = new System.Drawing.Point(119, 35);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(54, 20);
+            this.label3.Size = new System.Drawing.Size(34, 20);
             this.label3.TabIndex = 8;
-            this.label3.Text = "Kode :";
+            this.label3.Text = "ID :";
             // 
             // txtKode
             // 
-            this.txtKode.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "Id_status", true));
+            this.txtKode.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "IdStatus", true));
             this.txtKode.Location = new System.Drawing.Point(172, 32);
             this.txtKode.Name = "txtKode";
             this.txtKode.ReadOnly = true;
@@ -157,9 +241,9 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(31, 45);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(470, 22);
+            this.label1.Size = new System.Drawing.Size(517, 22);
             this.label1.TabIndex = 33;
-            this.label1.Text = "Gunakan Form Ini Untuk Mengisi Master Barang Non Aktif";
+            this.label1.Text = "Gunakan Form Ini Untuk Mengisi Master Jenis Barang Non Aktif";
             // 
             // label2
             // 
@@ -176,11 +260,10 @@
             this.groupBox3.Controls.Add(this.btnBatal);
             this.groupBox3.Controls.Add(this.btnUbah);
             this.groupBox3.Controls.Add(this.btnHapus);
-            this.groupBox3.Controls.Add(this.btnImport);
             this.groupBox3.Controls.Add(this.btnTutup);
             this.groupBox3.Controls.Add(this.btnSimpan);
             this.groupBox3.Controls.Add(this.btnTambah);
-            this.groupBox3.Location = new System.Drawing.Point(36, 604);
+            this.groupBox3.Location = new System.Drawing.Point(36, 655);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(714, 143);
             this.groupBox3.TabIndex = 36;
@@ -216,16 +299,6 @@
             this.btnHapus.Text = "Hapus";
             this.btnHapus.UseVisualStyleBackColor = true;
             this.btnHapus.Click += new System.EventHandler(this.btnHapus_Click);
-            // 
-            // btnImport
-            // 
-            this.btnImport.Location = new System.Drawing.Point(291, 85);
-            this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(140, 40);
-            this.btnImport.TabIndex = 10;
-            this.btnImport.Text = "Import";
-            this.btnImport.UseVisualStyleBackColor = true;
-            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
             // 
             // btnTutup
             // 
@@ -267,16 +340,12 @@
             this.kryptonPalette1.FormStyles.FormMain.StateCommon.Border.GraphicsHint = ComponentFactory.Krypton.Toolkit.PaletteGraphicsHint.None;
             this.kryptonPalette1.FormStyles.FormMain.StateCommon.Border.Rounding = 15;
             // 
-            // bindingSource1
-            // 
-            this.bindingSource1.DataSource = typeof(Assets_Inventory.StatusBarangResource);
-            // 
             // MasterNonAktifForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(785, 758);
+            this.ClientSize = new System.Drawing.Size(785, 805);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
@@ -289,11 +358,12 @@
             this.Text = "Master Non Aktif";
             this.Load += new System.EventHandler(this.MasterNonAktifForm_Load);
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -317,10 +387,17 @@
         private System.Windows.Forms.Button btnBatal;
         private System.Windows.Forms.Button btnUbah;
         private System.Windows.Forms.Button btnHapus;
-        private System.Windows.Forms.Button btnImport;
         private System.Windows.Forms.Button btnTutup;
         private System.Windows.Forms.Button btnSimpan;
         private System.Windows.Forms.Button btnTambah;
         private System.Windows.Forms.BindingSource bindingSource1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idStatusDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn namaStatusDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn keteranganDataGridViewTextBoxColumn;
+        private System.Windows.Forms.Button btnCari;
+        private System.Windows.Forms.TextBox txtCari;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button btnImport;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

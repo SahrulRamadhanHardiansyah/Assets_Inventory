@@ -1,67 +1,94 @@
-﻿using System;
+﻿using Assets_Inventory.Models;
+using ComponentFactory.Krypton.Toolkit;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using ComponentFactory.Krypton.Toolkit;
+using Microsoft.EntityFrameworkCore;
 
 namespace Assets_Inventory
 {
     public partial class GroupUserForm : KryptonForm
     {
-        private Client apiClient;
-        private Dictionary<int, CheckBox> mapAkses = new Dictionary<int, CheckBox>();
+        AppDbContext db = new AppDbContext();
 
         public GroupUserForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
-            SetupAksesMapping();
-        }
-
-        private void SetupAksesMapping()
-        {
-            mapAkses.Add(1, cbInventaris);
-            mapAkses.Add(2, cbPengadaanBarangInv);
-            mapAkses.Add(3, cbInputTanah);
-            mapAkses.Add(4, cbInputBangunan);
-
-            mapAkses.Add(5, cbProses);
-            mapAkses.Add(6, cbMutasiBarang);
-            mapAkses.Add(7, cbOpname);
-            mapAkses.Add(8, cbNonAktifBarang);
-            mapAkses.Add(9, cbPeminjaman);
-            mapAkses.Add(10, cbPengembalian);
-
-            mapAkses.Add(11, cbBrgHabisPakai);
-            mapAkses.Add(12, cbMasterData);
-            mapAkses.Add(13, cbDataBarang);
-            mapAkses.Add(14, cbPengadaanBarangHabisPakai);
-            mapAkses.Add(15, cbBarangKeluar);
-            mapAkses.Add(16, cbLapStokBarang);
-
-            mapAkses.Add(17, cbAdmin);
-            mapAkses.Add(18, cbDataMaster);
-            mapAkses.Add(19, cbSetLembaga);
-            mapAkses.Add(20, cbUser);
-            mapAkses.Add(21, cbWallpaper);
-
-            mapAkses.Add(22, cbLaporan);
-            mapAkses.Add(23, cbSubLaporan);
-
-            mapAkses.Add(24, cbTools);
-            mapAkses.Add(25, cbKoneksi);
-            mapAkses.Add(26, cbBackup);
-
-            mapAkses.Add(27, cbHelp);
-            mapAkses.Add(28, cbAbout);
-            mapAkses.Add(29, cbTutorial);
         }
 
         private void GroupUserForm_Load(object sender, EventArgs e)
         {
+            RenderDynamicAkses();
             loadDgv();
             SetMode("View");
+        }
+
+        private void RenderDynamicAkses()
+        {
+            try
+            {
+                treeAkses.Nodes.Clear();
+                var semuaModul = db.Akses.ToList();
+
+                var parents = semuaModul.Where(x => x.IdParent == null).ToList();
+
+                foreach (var p in parents)
+                {
+                    TreeNode pNode = new TreeNode(p.NamaModul) { Tag = "PARENT" };
+
+                    var children = semuaModul.Where(x => x.IdParent == p.IdAkses).ToList();
+                    foreach (var c in children)
+                    {
+                        TreeNode cNode = new TreeNode(c.NamaModul) { Tag = c.IdAkses };
+
+                        cNode.Nodes.Add(new TreeNode("Tambah Data (Create)") { Tag = "CRUD" });
+                        cNode.Nodes.Add(new TreeNode("Baca Data (Read)") { Tag = "CRUD" });
+                        cNode.Nodes.Add(new TreeNode("Ubah Data (Update)") { Tag = "CRUD" });
+                        cNode.Nodes.Add(new TreeNode("Hapus Data (Delete)") { Tag = "CRUD" });
+
+                        pNode.Nodes.Add(cNode);
+                    }
+
+                    if (pNode.Nodes.Count > 0) treeAkses.Nodes.Add(pNode);
+                }
+
+                treeAkses.ExpandAll();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal memuat daftar modul: " + ex.Message);
+            }
+        }
+
+        private void treeAkses_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            if (e.Action != TreeViewAction.Unknown)
+            {
+                treeAkses.AfterCheck -= treeAkses_AfterCheck;
+                CheckAllChildNodes(e.Node, e.Node.Checked);
+
+                if (e.Node.Checked && e.Node.Parent != null)
+                {
+                    e.Node.Parent.Checked = true;
+                    if (e.Node.Parent.Parent != null)
+                    {
+                        e.Node.Parent.Parent.Checked = true;
+                    }
+                }
+
+                treeAkses.AfterCheck += treeAkses_AfterCheck;
+            }
+        }
+
+        private void CheckAllChildNodes(TreeNode treeNode, bool nodeChecked)
+        {
+            foreach (TreeNode node in treeNode.Nodes)
+            {
+                node.Checked = nodeChecked;
+                if (node.Nodes.Count > 0) CheckAllChildNodes(node, nodeChecked);
+            }
         }
 
         private void SetMode(string mode)
@@ -69,33 +96,23 @@ namespace Assets_Inventory
             bool isEdit = mode != "View";
 
             txtNamaGroup.Enabled = isEdit;
-            txtKeterangan.Enabled = isEdit;
-
-            foreach (var cb in mapAkses.Values)
-            {
-                cb.Enabled = isEdit;
-            }
-
+            txtId.Enabled = isEdit;
+            treeAkses.Enabled = isEdit;
             btnTambah.Enabled = !isEdit;
             btnUbah.Enabled = !isEdit;
             btnHapus.Enabled = !isEdit;
-
             btnSimpan.Enabled = isEdit;
             btnBatal.Enabled = isEdit;
         }
 
-        private async void loadDgv()
+        private void loadDgv()
         {
             try
             {
-                bindingSource1.DataSource = (await apiClient.IndexPeranAsync()).Data.ToList();
+                bindingSource1.DataSource = db.Peran
+                                              .Include(p => p.PeranAkses)
+                                              .ToList();
                 dgGroup.DataSource = bindingSource1;
-
-                foreach (DataGridViewColumn col in dgGroup.Columns) col.Visible = false;
-
-                dgGroup.Columns["Nama_peran"].Visible = true;
-                dgGroup.Columns["Nama_peran"].HeaderText = "Nama Group";
-                dgGroup.Columns["Keterangan"].Visible = true;
             }
             catch (Exception ex)
             {
@@ -105,19 +122,49 @@ namespace Assets_Inventory
 
         private void dgGroup_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && bindingSource1.Current is PeranResource peran)
+            if (e.RowIndex >= 0 && dgGroup.Rows[e.RowIndex].DataBoundItem is Peran p)
             {
-                foreach (var cb in mapAkses.Values) cb.Checked = false;
+                var peran = db.Peran
+                              .Include(pr => pr.PeranAkses)
+                              .FirstOrDefault(pr => pr.IdPeran == p.IdPeran);
 
-                if (peran.Akses_list != null)
+                if (peran != null)
                 {
-                    foreach (var akses in peran.Akses_list)
+                    bindingSource1.DataSource = peran;
+
+                    treeAkses.AfterCheck -= treeAkses_AfterCheck;
+                    foreach (TreeNode pNode in treeAkses.Nodes)
                     {
-                        if (mapAkses.ContainsKey(akses.Id_akses))
+                        pNode.Checked = false;
+                        foreach (TreeNode cNode in pNode.Nodes)
                         {
-                            mapAkses[akses.Id_akses].Checked = true;
+                            cNode.Checked = false;
+                            foreach (TreeNode crudNode in cNode.Nodes) crudNode.Checked = false;
                         }
                     }
+
+                    if (peran.PeranAkses != null)
+                    {
+                        foreach (var aksesPivot in peran.PeranAkses)
+                        {
+                            foreach (TreeNode pNode in treeAkses.Nodes)
+                            {
+                                foreach (TreeNode cNode in pNode.Nodes)
+                                {
+                                    if (cNode.Tag != null && cNode.Tag.ToString() != "PARENT" && (int)cNode.Tag == aksesPivot.IdAkses)
+                                    {
+                                        pNode.Checked = true;
+                                        cNode.Checked = true;
+                                        cNode.Nodes[0].Checked = aksesPivot.HakBuat ?? false;
+                                        cNode.Nodes[1].Checked = aksesPivot.HakBaca ?? false;
+                                        cNode.Nodes[2].Checked = aksesPivot.HakUbah ?? false;
+                                        cNode.Nodes[3].Checked = aksesPivot.HakHapus ?? false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    treeAkses.AfterCheck += treeAkses_AfterCheck;
                 }
             }
         }
@@ -125,13 +172,25 @@ namespace Assets_Inventory
         private void btnTambah_Click(object sender, EventArgs e)
         {
             bindingSource1.AddNew();
-            foreach (var cb in mapAkses.Values) cb.Checked = false;
+
+            treeAkses.AfterCheck -= treeAkses_AfterCheck;
+            foreach (TreeNode pNode in treeAkses.Nodes)
+            {
+                pNode.Checked = false;
+                foreach (TreeNode cNode in pNode.Nodes)
+                {
+                    cNode.Checked = false;
+                    foreach (TreeNode crudNode in cNode.Nodes) crudNode.Checked = false;
+                }
+            }
+            treeAkses.AfterCheck += treeAkses_AfterCheck;
+
             SetMode("Insert");
         }
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is PeranResource) SetMode("Update");
+            if (bindingSource1.Current is Peran) SetMode("Update");
         }
 
         private void btnBatal_Click(object sender, EventArgs e)
@@ -141,7 +200,7 @@ namespace Assets_Inventory
             SetMode("View");
         }
 
-        private async void btnSimpan_Click(object sender, EventArgs e)
+        private void btnSimpan_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtNamaGroup.Text))
             {
@@ -149,77 +208,98 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (bindingSource1.Current is PeranResource peran)
+            if (bindingSource1.Current is Peran k)
             {
                 bindingSource1.EndEdit();
+                List<PeranAkses> aksesBaru = new List<PeranAkses>();
 
-                List<int> aksesYangDipilih = new List<int>();
-                foreach (var item in mapAkses)
+                foreach (TreeNode pNode in treeAkses.Nodes)
                 {
-                    if (item.Value.Checked)
+                    foreach (TreeNode cNode in pNode.Nodes)
                     {
-                        aksesYangDipilih.Add(item.Key);
+                        bool isCreate = cNode.Nodes[0].Checked;
+                        bool isRead = cNode.Nodes[1].Checked;
+                        bool isUpdate = cNode.Nodes[2].Checked;
+                        bool isDelete = cNode.Nodes[3].Checked;
+                        if (cNode.Checked || isCreate || isRead || isUpdate || isDelete)
+                        {
+                            aksesBaru.Add(new PeranAkses
+                            {
+                                IdAkses = (int)cNode.Tag,
+                                HakBuat = isCreate,
+                                HakBaca = isRead,
+                                HakUbah = isUpdate,
+                                HakHapus = isDelete
+                            });
+                        }
                     }
                 }
 
                 try
                 {
-                    int idPeranSekarang = peran.Id_peran;
+                    Peran peranDatabase;
 
-                    if (idPeranSekarang == 0)
+                    if (k.IdPeran == 0)
                     {
-                        var response = await apiClient.StorePeranAsync(new StorePeranRequest
-                        {
-                            Nama_peran = txtNamaGroup.Text,
-                            Keterangan = txtKeterangan.Text
-                        });
-
-                        idPeranSekarang = response.Data.Id_peran;
+                        peranDatabase = new Peran { NamaPeran = txtNamaGroup.Text };
+                        db.Peran.Add(peranDatabase);
                     }
                     else
                     {
-                        await apiClient.UpdatePeranAsync(idPeranSekarang.ToString(), new UpdatePeranRequest
-                        {
-                            Nama_peran = txtNamaGroup.Text,
-                            Keterangan = txtKeterangan.Text
-                        });
+                        peranDatabase = db.Peran
+                                          .Include(p => p.PeranAkses)
+                                          .FirstOrDefault(p => p.IdPeran == k.IdPeran);
+
+                        if (peranDatabase != null) peranDatabase.NamaPeran = txtNamaGroup.Text;
                     }
 
-                    await apiClient.SyncAksesPeranAsync(idPeranSekarang.ToString(), new SyncAksesRequest
+                    if (peranDatabase.IdPeran != 0 && peranDatabase.PeranAkses != null)
                     {
-                        Id_akses = aksesYangDipilih
-                    });
+                        db.PeranAkses.RemoveRange(peranDatabase.PeranAkses);
+                    }
+
+                    foreach (var item in aksesBaru)
+                    {
+                        item.IdPeran = peranDatabase.IdPeran;
+                        db.PeranAkses.Add(item);
+                    }
+
+                    db.SaveChanges();
 
                     MessageBox.Show("Data dan Hak Akses berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadDgv();
                     SetMode("View");
                 }
-                catch (Assets_Inventory.ApiException apiEx)
-                {
-                    MessageBox.Show("Gagal menyimpan: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error Sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error Sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private async void btnHapus_Click(object sender, EventArgs e)
+        private void btnHapus_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is PeranResource peran && peran.Id_peran != 0)
+            if (bindingSource1.Current is Peran peran && peran.IdPeran != 0)
             {
-                if (MessageBox.Show($"Hapus group {peran.Nama_peran}?", "Konfirmasi", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show($"Hapus group {peran.NamaPeran}?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                 {
                     try
                     {
-                        await apiClient.DestroyPeranAsync(peran.Id_peran.ToString());
-                        MessageBox.Show("Berhasil dihapus!");
-                        loadDgv();
+                        var peranUntukDihapus = db.Peran.Include(p => p.PeranAkses).FirstOrDefault(p => p.IdPeran == peran.IdPeran);
+
+                        if (peranUntukDihapus != null)
+                        {
+                            db.PeranAkses.RemoveRange(peranUntukDihapus.PeranAkses);
+                            db.Peran.Remove(peranUntukDihapus);
+                            db.SaveChanges();
+
+                            MessageBox.Show("Berhasil dihapus!");
+                            loadDgv();
+                        }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Gagal menghapus: " + ex.Message);
+                        MessageBox.Show("Gagal menghapus: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

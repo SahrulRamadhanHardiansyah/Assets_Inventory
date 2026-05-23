@@ -30,9 +30,13 @@
         {
             this.components = new System.ComponentModel.Container();
             this.txtKeterangan = new System.Windows.Forms.TextBox();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.kryptonPalette1 = new ComponentFactory.Krypton.Toolkit.KryptonPalette(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dg = new System.Windows.Forms.DataGridView();
+            this.kodeGudangDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.namaGudangDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.keteranganDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
             this.txtNama = new System.Windows.Forms.TextBox();
@@ -44,23 +48,31 @@
             this.btnUbah = new System.Windows.Forms.Button();
             this.btnHapus = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.btnBatal = new System.Windows.Forms.Button();
             this.btnTutup = new System.Windows.Forms.Button();
             this.btnSimpan = new System.Windows.Forms.Button();
             this.btnTambah = new System.Windows.Forms.Button();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.btnCari = new System.Windows.Forms.Button();
+            this.txtCari = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // txtKeterangan
             // 
+            this.txtKeterangan.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "Keterangan", true));
             this.txtKeterangan.Location = new System.Drawing.Point(160, 120);
             this.txtKeterangan.Name = "txtKeterangan";
             this.txtKeterangan.Size = new System.Drawing.Size(240, 26);
             this.txtKeterangan.TabIndex = 38;
+            // 
+            // bindingSource1
+            // 
+            this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.Gudang);
             // 
             // kryptonPalette1
             // 
@@ -74,10 +86,13 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnCari);
+            this.groupBox2.Controls.Add(this.txtCari);
+            this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.dg);
-            this.groupBox2.Location = new System.Drawing.Point(465, 89);
+            this.groupBox2.Location = new System.Drawing.Point(465, 74);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(616, 311);
+            this.groupBox2.Size = new System.Drawing.Size(616, 361);
             this.groupBox2.TabIndex = 30;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Data Gudang";
@@ -86,9 +101,15 @@
             // 
             this.dg.AllowUserToAddRows = false;
             this.dg.AllowUserToDeleteRows = false;
+            this.dg.AutoGenerateColumns = false;
             this.dg.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg.Location = new System.Drawing.Point(19, 34);
+            this.dg.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.kodeGudangDataGridViewTextBoxColumn,
+            this.namaGudangDataGridViewTextBoxColumn,
+            this.keteranganDataGridViewTextBoxColumn});
+            this.dg.DataSource = this.bindingSource1;
+            this.dg.Location = new System.Drawing.Point(19, 87);
             this.dg.Name = "dg";
             this.dg.ReadOnly = true;
             this.dg.RowHeadersVisible = false;
@@ -96,6 +117,28 @@
             this.dg.RowTemplate.Height = 28;
             this.dg.Size = new System.Drawing.Size(578, 260);
             this.dg.TabIndex = 4;
+            this.dg.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dg_CellClick);
+            // 
+            // kodeGudangDataGridViewTextBoxColumn
+            // 
+            this.kodeGudangDataGridViewTextBoxColumn.DataPropertyName = "KodeGudang";
+            this.kodeGudangDataGridViewTextBoxColumn.HeaderText = "Kode Gudang";
+            this.kodeGudangDataGridViewTextBoxColumn.Name = "kodeGudangDataGridViewTextBoxColumn";
+            this.kodeGudangDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // namaGudangDataGridViewTextBoxColumn
+            // 
+            this.namaGudangDataGridViewTextBoxColumn.DataPropertyName = "NamaGudang";
+            this.namaGudangDataGridViewTextBoxColumn.HeaderText = "Nama Gudang";
+            this.namaGudangDataGridViewTextBoxColumn.Name = "namaGudangDataGridViewTextBoxColumn";
+            this.namaGudangDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // keteranganDataGridViewTextBoxColumn
+            // 
+            this.keteranganDataGridViewTextBoxColumn.DataPropertyName = "Keterangan";
+            this.keteranganDataGridViewTextBoxColumn.HeaderText = "Keterangan";
+            this.keteranganDataGridViewTextBoxColumn.Name = "keteranganDataGridViewTextBoxColumn";
+            this.keteranganDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // groupBox1
             // 
@@ -105,9 +148,9 @@
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.txtKode);
-            this.groupBox1.Location = new System.Drawing.Point(17, 89);
+            this.groupBox1.Location = new System.Drawing.Point(17, 74);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(438, 311);
+            this.groupBox1.Size = new System.Drawing.Size(438, 361);
             this.groupBox1.TabIndex = 29;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detail Gudang";
@@ -123,6 +166,7 @@
             // 
             // txtNama
             // 
+            this.txtNama.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "NamaGudang", true));
             this.txtNama.Location = new System.Drawing.Point(160, 79);
             this.txtNama.Name = "txtNama";
             this.txtNama.Size = new System.Drawing.Size(240, 26);
@@ -148,8 +192,10 @@
             // 
             // txtKode
             // 
+            this.txtKode.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "KodeGudang", true));
             this.txtKode.Location = new System.Drawing.Point(160, 39);
             this.txtKode.Name = "txtKode";
+            this.txtKode.ReadOnly = true;
             this.txtKode.Size = new System.Drawing.Size(240, 26);
             this.txtKode.TabIndex = 7;
             // 
@@ -159,7 +205,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(12, 50);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(441, 22);
+            this.label1.Size = new System.Drawing.Size(304, 15);
             this.label1.TabIndex = 28;
             this.label1.Text = "Gunakan Form Ini Untuk Mengisi Master Data Gudang";
             // 
@@ -169,7 +215,7 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(12, 22);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(200, 25);
+            this.label2.Size = new System.Drawing.Size(143, 17);
             this.label2.TabIndex = 27;
             this.label2.Text = "MASTER GUDANG";
             // 
@@ -181,6 +227,7 @@
             this.btnUbah.TabIndex = 5;
             this.btnUbah.Text = "Ubah";
             this.btnUbah.UseVisualStyleBackColor = true;
+            this.btnUbah.Click += new System.EventHandler(this.btnUbah_Click);
             // 
             // btnHapus
             // 
@@ -190,20 +237,32 @@
             this.btnHapus.TabIndex = 4;
             this.btnHapus.Text = "Hapus";
             this.btnHapus.UseVisualStyleBackColor = true;
+            this.btnHapus.Click += new System.EventHandler(this.btnHapus_Click);
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.btnBatal);
             this.groupBox3.Controls.Add(this.btnUbah);
             this.groupBox3.Controls.Add(this.btnHapus);
             this.groupBox3.Controls.Add(this.btnTutup);
             this.groupBox3.Controls.Add(this.btnSimpan);
             this.groupBox3.Controls.Add(this.btnTambah);
-            this.groupBox3.Location = new System.Drawing.Point(17, 415);
+            this.groupBox3.Location = new System.Drawing.Point(17, 441);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(1064, 95);
             this.groupBox3.TabIndex = 31;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Proses";
+            // 
+            // btnBatal
+            // 
+            this.btnBatal.Location = new System.Drawing.Point(659, 36);
+            this.btnBatal.Name = "btnBatal";
+            this.btnBatal.Size = new System.Drawing.Size(140, 40);
+            this.btnBatal.TabIndex = 6;
+            this.btnBatal.Text = "Batal";
+            this.btnBatal.UseVisualStyleBackColor = true;
+            this.btnBatal.Click += new System.EventHandler(this.btnBatal_Click);
             // 
             // btnTutup
             // 
@@ -213,6 +272,7 @@
             this.btnTutup.TabIndex = 2;
             this.btnTutup.Text = "Tutup";
             this.btnTutup.UseVisualStyleBackColor = true;
+            this.btnTutup.Click += new System.EventHandler(this.btnTutup_Click);
             // 
             // btnSimpan
             // 
@@ -222,6 +282,7 @@
             this.btnSimpan.TabIndex = 1;
             this.btnSimpan.Text = "Simpan";
             this.btnSimpan.UseVisualStyleBackColor = true;
+            this.btnSimpan.Click += new System.EventHandler(this.btnSimpan_Click);
             // 
             // btnTambah
             // 
@@ -231,13 +292,40 @@
             this.btnTambah.TabIndex = 0;
             this.btnTambah.Text = "Tambah";
             this.btnTambah.UseVisualStyleBackColor = true;
+            this.btnTambah.Click += new System.EventHandler(this.btnTambah_Click);
+            // 
+            // btnCari
+            // 
+            this.btnCari.Location = new System.Drawing.Point(356, 49);
+            this.btnCari.Name = "btnCari";
+            this.btnCari.Size = new System.Drawing.Size(106, 32);
+            this.btnCari.TabIndex = 16;
+            this.btnCari.Text = "Cari";
+            this.btnCari.UseVisualStyleBackColor = true;
+            this.btnCari.Click += new System.EventHandler(this.btnCari_Click);
+            // 
+            // txtCari
+            // 
+            this.txtCari.Location = new System.Drawing.Point(19, 52);
+            this.txtCari.Name = "txtCari";
+            this.txtCari.Size = new System.Drawing.Size(327, 26);
+            this.txtCari.TabIndex = 15;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(15, 29);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(202, 20);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "Cari Kode / Nama Gudang :";
             // 
             // MasterGudangForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1099, 522);
+            this.ClientSize = new System.Drawing.Size(1099, 545);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
@@ -249,12 +337,13 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Master Gudang";
             this.Load += new System.EventHandler(this.MasterGudangForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -281,5 +370,12 @@
         private System.Windows.Forms.Button btnSimpan;
         private System.Windows.Forms.Button btnTambah;
         private System.Windows.Forms.BindingSource bindingSource1;
+        private System.Windows.Forms.Button btnBatal;
+        private System.Windows.Forms.DataGridViewTextBoxColumn kodeGudangDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn namaGudangDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn keteranganDataGridViewTextBoxColumn;
+        private System.Windows.Forms.Button btnCari;
+        private System.Windows.Forms.TextBox txtCari;
+        private System.Windows.Forms.Label label5;
     }
 }

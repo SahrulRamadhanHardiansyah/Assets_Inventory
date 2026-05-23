@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
+using System;
+using System.Data;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace Assets_Inventory
 {
     public partial class UserForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private Client apiClient;
+        AppDbContext db = new AppDbContext();
+
         public UserForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
         }
 
-        private async void UserForm_Load(object sender, EventArgs e)
+        private void UserForm_Load(object sender, EventArgs e)
         {
-            cmbLevel.DataSource = (await apiClient.IndexPeranAsync()).Data;
-            cmbLevel.SelectedIndex = 0;
-
+            cmbPeran.DataSource = db.Peran.ToList();
+            cmbJurusan.DataSource = db.Jurusan.ToList();
+            cmbMapel.DataSource = db.Mapel.ToList();
+            cmbKelas.DataSource = db.Kelas.ToList();
+            cmbPeran.SelectedIndex = 0;
             loadDgv();
             SetMode("View");
         }
@@ -56,69 +53,31 @@ namespace Assets_Inventory
             }
         }
 
-        private async void loadDgv()
+        private void loadDgv()
         {
             var cari = txtCari.Text.ToLower();
-            dg.DataSource = (await apiClient.IndexPenggunaAsync()).Data.Where(d => d.Username.ToLower().Contains(cari))
-                .Select(d => new
-                {
-                    d.Username,
-                    d.Peran.Nama_peran,
-                    d.Mapel.Nama_mapel,
-                    d.Unit.Nama_unit
-                }).ToList();
+
+            var query = db.Pengguna.AsQueryable();
+
+            if (!string.IsNullOrEmpty(cari))
+            {
+                query = query.Where(d => d.Username.ToLower().Contains(cari));
+            }
+
+            dg.DataSource = new SortableBindingList<Pengguna>(query.ToList());
         }
 
-        private void uncheckAllRadioButtonInputs()
+        private void uncheckAll()
         {
-            lblUnit.Visible = false;
-            lblUnit.Enabled = false;
-            cmbUnit.Visible = false;
-            cmbUnit.Enabled = false;
             lblMapel.Visible = false;
             lblMapel.Enabled = false;
             cmbMapel.Visible = false;
             cmbMapel.Enabled = false;
+
             lblKelas.Visible = false;
             lblKelas.Enabled = false;
             cmbKelas.Visible = false;
             cmbKelas.Enabled = false;
-        }
-
-        private void rbStaff_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbStaff.Checked)
-            {
-                uncheckAllRadioButtonInputs();
-                lblUnit.Visible = true;
-                lblUnit.Enabled = true;
-                cmbUnit.Visible = true;
-                cmbUnit.Enabled = true;
-            }
-        }
-
-        private void rbGuru_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbGuru.Checked)
-            {
-                uncheckAllRadioButtonInputs();
-                lblMapel.Visible = true;
-                lblMapel.Enabled = true;
-                cmbMapel.Visible = true;
-                cmbMapel.Enabled = true;
-            }
-        }
-
-        private void rbMurid_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbMurid.Checked)
-            {
-                uncheckAllRadioButtonInputs();
-                lblKelas.Visible = true;
-                lblKelas.Enabled = true;
-                cmbKelas.Visible = true;
-                cmbKelas.Enabled = true;
-            }
         }
 
         private void btnCari_Click(object sender, EventArgs e)
@@ -128,25 +87,36 @@ namespace Assets_Inventory
 
         private void dg_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is PenggunaResource pengguna)
+            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is Pengguna p)
             {
-                bindingSource1.DataSource = pengguna;
-                cmbLevel.SelectedItem = pengguna.Peran;
-                
-                if (cmbLevel.SelectedText == "Staff")
+                var pengguna = db.Pengguna.Find(p.IdPengguna);
+
+                if (pengguna != null)
                 {
-                    rbStaff.Checked = true;
-                    cmbUnit.SelectedItem = pengguna.Unit;
-                }
-                else if (cmbLevel.SelectedText == "Guru")
-                {
-                    rbGuru.Checked = true;
-                    cmbMapel.SelectedItem = pengguna.Mapel;
-                }
-                else if (cmbLevel.SelectedText == "Murid")
-                {
-                    rbMurid.Checked = true;
-                    cmbKelas.SelectedItem = pengguna.Kelas;
+                    bindingSource1.DataSource = pengguna;
+                    cmbPeran.SelectedValue = pengguna.IdPeran;
+
+                    var peran = db.Peran.Find(pengguna.IdPeran);
+                    string namaPeran = peran != null ? peran.NamaPeran : "";
+
+                    if (namaPeran == "Guru")
+                    {
+                        uncheckAll();
+                        lblMapel.Visible = true;
+                        lblMapel.Enabled = true;
+                        cmbMapel.Visible = true;
+                        cmbMapel.Enabled = true;
+                        cmbMapel.SelectedValue = pengguna.IdMapel ?? -1;
+                    }
+                    else if (namaPeran == "Murid")
+                    {
+                        uncheckAll();
+                        lblKelas.Visible = true;
+                        lblKelas.Enabled = true;
+                        cmbKelas.Visible = true;
+                        cmbKelas.Enabled = true;
+                        cmbKelas.SelectedValue = pengguna.IdKelas ?? -1;
+                    }
                 }
             }
         }
@@ -155,11 +125,13 @@ namespace Assets_Inventory
         {
             SetMode("Insert");
             bindingSource1.AddNew();
+            txtPassword.Clear();
+            txtPassword2.Clear();
         }
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is PenggunaResource k)
+            if (bindingSource1.Current is Pengguna)
             {
                 SetMode("Update");
             }
@@ -169,11 +141,29 @@ namespace Assets_Inventory
             }
         }
 
-        private async void btnSimpan_Click(object sender, EventArgs e)
+        private void btnSimpan_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtUsername.Text) || cmbLevel.SelectedIndex == -1)
+            if (string.IsNullOrEmpty(txtUsername.Text) || cmbPeran.SelectedIndex == -1)
             {
-                MessageBox.Show("Nama pengguna dan level group harus diisi.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Nama pengguna dan peran harus diisi.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cmbJurusan.SelectedIndex == -1)
+            {
+                MessageBox.Show("Jurusan harus dipilih.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cmbPeran.SelectedText == "Guru" && cmbMapel.SelectedIndex == -1)
+            {
+                MessageBox.Show("Mata pelajaran harus dipilih untuk guru.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cmbPeran.SelectedText == "Murid" && cmbKelas.SelectedIndex == -1)
+            {
+                MessageBox.Show("Kelas harus dipilih untuk murid.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -183,92 +173,92 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (bindingSource1.Current is PenggunaResource k)
+            if (bindingSource1.Current is Pengguna k)
             {
                 bindingSource1.EndEdit();
 
-                if (k.Id_pengguna == 0 && string.IsNullOrEmpty(txtPassword.Text))
+                if (k.IdPengguna == 0 && string.IsNullOrEmpty(txtPassword.Text))
                 {
                     MessageBox.Show("Password wajib diisi untuk pengguna baru.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                k.Username = txtUsername.Text;
-                k.Id_peran = (int)cmbLevel.SelectedValue;
-                k.Id_kelas = rbMurid.Checked ? (cmbKelas.SelectedItem as KelasResource)?.Id_kelas : null;
-                k.Id_mapel = rbGuru.Checked ? (cmbMapel.SelectedItem as MapelResource)?.Id_mapel : null;
-                k.Id_unit = rbStaff.Checked ? (cmbUnit.SelectedItem as UnitResource)?.Id_unit : null;
-                string passwordKirim = string.IsNullOrEmpty(txtPassword.Text) ? null : txtPassword.Text;
-
                 try
                 {
-                    if (k.Id_pengguna == 0)
+                    if (k.IdPengguna == 0) 
                     {
-                        await apiClient.StorePenggunaAsync(new StorePenggunaRequest
+                        var baru = new Pengguna
                         {
-                            Username = k.Username,
-                            Password = passwordKirim, 
-                            Id_peran = k.Id_peran ?? 1,
-                            Id_kelas = k.Id_kelas,
-                            Id_mapel = k.Id_mapel,
-                            Id_unit = k.Id_unit,
-                        });
+                            Username = txtUsername.Text,
+                            IdPeran = (int)cmbPeran.SelectedValue,
+                            IdKelas = cmbPeran.SelectedText == "Murid" && cmbKelas.SelectedValue != null ? (int?)cmbKelas.SelectedValue : null,
+                            IdMapel = cmbPeran.SelectedText == "Guru" && cmbMapel.SelectedValue != null ? (int?)cmbMapel.SelectedValue : null,
+                            IdJurusan = cmbJurusan.SelectedValue != null ? (int?)cmbJurusan.SelectedValue : null,
+                            Password = txtPassword.Text
+                        };
+                        db.Pengguna.Add(baru);
                     }
                     else
                     {
-                        await apiClient.UpdatePenggunaAsync(k.Id_pengguna.ToString(), new UpdatePenggunaRequest
+                        k.Username = txtUsername.Text;
+                        k.IdPeran = (int)cmbPeran.SelectedValue;
+
+                        k.IdKelas = cmbPeran.SelectedText == "Murid" && cmbKelas.SelectedValue != null ? (int?)cmbKelas.SelectedValue : null;
+                        k.IdMapel = cmbPeran.SelectedText == "Guru" && cmbMapel.SelectedValue != null ? (int?)cmbMapel.SelectedValue : null;
+                        k.IdJurusan = cmbJurusan.SelectedValue != null ? (int?)cmbJurusan.SelectedValue : null;
+
+                        if (!string.IsNullOrEmpty(txtPassword.Text))
                         {
-                            Username = k.Username,
-                            Password = passwordKirim,
-                            Id_peran = k.Id_peran ?? 1,
-                            Id_kelas = k.Id_kelas,
-                            Id_mapel = k.Id_mapel,
-                            Id_unit = k.Id_unit,
-                        });
+                            k.Password = txtPassword.Text;
+                        }
                     }
 
+                    db.SaveChanges();
+
                     MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    txtPassword.Clear();
+                    txtPassword2.Clear();
                     loadDgv();
                     SetMode("View");
                 }
-                catch (Assets_Inventory.ApiException apiEx)
-                {
-                    MessageBox.Show("Gagal menyimpan data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Terjadi kesalahan sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private async void btnHapus_Click(object sender, EventArgs e)
+        private void btnHapus_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is PenggunaResource k)
+            if (bindingSource1.Current is Pengguna k && k.IdPengguna != 0)
             {
                 if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.Username}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     try
                     {
-                        await apiClient.DestroyPenggunaAsync(k.Id_pengguna.ToString());
+                        db.Pengguna.Remove(k);
+                        db.SaveChanges();
+
+                        MessageBox.Show("Berhasil dihapus!");
+                        loadDgv();
+                        bindingSource1.AddNew();
                     }
-                    catch (Assets_Inventory.ApiException apiEx)
+                    catch (Microsoft.EntityFrameworkCore.DbUpdateException)
                     {
-                        MessageBox.Show("Gagal menghapus data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        db.Entry(k).Reload();
+                        MessageBox.Show("Tidak dapat menghapus data ini karena data masih digunakan oleh data lain di dalam sistem.", "Peringatan Relasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
+                        db.Entry(k).Reload();
                         MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    MessageBox.Show("Berhasil dihapus!");
-                    loadDgv();
-                    bindingSource1.AddNew();
                 }
             }
             else
             {
-                MessageBox.Show("Pilih data yang ingin diubah.");
+                MessageBox.Show("Pilih data yang valid untuk dihapus.");
             }
         }
 
@@ -276,6 +266,8 @@ namespace Assets_Inventory
         {
             bindingSource1.CancelEdit();
             bindingSource1.AddNew();
+            txtPassword.Clear();
+            txtPassword2.Clear();
             loadDgv();
             SetMode("View");
         }
@@ -283,6 +275,37 @@ namespace Assets_Inventory
         private void btnTutup_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void dg_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dg.Rows[e.RowIndex].DataBoundItem is Pengguna pengguna)
+            {
+                if (idKelasNavigationDataGridViewTextBoxColumn.Index == e.ColumnIndex) e.Value = pengguna.IdKelasNavigation != null ? pengguna.IdKelasNavigation.NamaKelas : "-";
+                if (idMapelNavigationDataGridViewTextBoxColumn.Index == e.ColumnIndex) e.Value = pengguna.IdMapelNavigation != null ? pengguna.IdMapelNavigation.NamaMapel : "-";
+                if (idPeranNavigationDataGridViewTextBoxColumn.Index == e.ColumnIndex) e.Value = pengguna.IdPeranNavigation != null ? pengguna.IdPeranNavigation.NamaPeran : "-";
+                if (idJurusanNavigationDataGridViewTextBoxColumn.Index == e.ColumnIndex) e.Value = pengguna.IdJurusanNavigation != null ? pengguna.IdJurusanNavigation.NamaJurusan : "-";
+            }
+        }
+
+        private void cmbPeran_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbPeran.SelectedText == "Guru")
+            {
+                uncheckAll();
+                lblMapel.Visible = true;
+                lblMapel.Enabled = true;
+                cmbMapel.Visible = true;
+                cmbMapel.Enabled = true;
+            }
+            else if (cmbPeran.SelectedText == "Murid")
+            {
+                uncheckAll();
+                lblKelas.Visible = true;
+                lblKelas.Enabled = true;
+                cmbKelas.Visible = true;
+                cmbKelas.Enabled = true;
+            }
         }
     }
 }

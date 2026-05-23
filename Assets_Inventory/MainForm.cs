@@ -1,5 +1,4 @@
 ﻿using ComponentFactory.Krypton.Toolkit;
-using ComponentFactory.Krypton.Toolkit;
 using Krypton.Toolkit;
 using System;
 using System.Collections.Generic;
@@ -15,63 +14,56 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Assets_Inventory.Models;
 
 namespace Assets_Inventory
 {
     public partial class MainForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private Client apiClient;
+        AppDbContext db = new AppDbContext();
 
         public MainForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
         }
 
-        private async void MainForm_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             try
             {
-                var userData = (await apiClient.MeAsync()).Data;
-
+                var userId = Properties.Settings.Default.userId;
+                var userData = db.Pengguna.FirstOrDefault(p => p.IdPengguna == userId);
                 if (userData != null)
                 {
                     lblUser.Text = $"User Aktif: {userData.Username}";
                 }
 
-                var pengaturan = (await apiClient.IndexPengaturanAsync()).Data;
-
-                if (pengaturan != null && !string.IsNullOrEmpty(pengaturan.Wallpaper_aplikasi))
+                var pengaturan = db.Pengaturan.FirstOrDefault();
+                if (pengaturan != null && !string.IsNullOrEmpty(pengaturan.WallpaperAplikasi))
                 {
-                    string imageUrl = "http://127.0.0.1:8000/storage/" + pengaturan.Wallpaper_aplikasi;
-                    imageUrl = imageUrl.Replace("\\", "/");
+                    string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    string imagePath = Path.Combine(baseDirectory, "Resources", pengaturan.WallpaperAplikasi);
 
-                    using (var httpClient = new HttpClient())
+                    if (File.Exists(imagePath))
                     {
-                        var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
-                        using (var ms = new MemoryStream(imageBytes))
+                        using (var bmpTemp = new Bitmap(imagePath))
                         {
-                            pnlContent.BackgroundImage = Image.FromStream(ms);
-                            pnlContent.BackgroundImageLayout = ImageLayout.Stretch;
+                            pnlContent.BackgroundImage = new Bitmap(bmpTemp);
                         }
+                        pnlContent.BackgroundImageLayout = ImageLayout.Stretch;
                     }
                 }
-            }
-            catch (Assets_Inventory.ApiException apiEx)
-            {
-                if (apiEx.StatusCode == 401)
+
+                int intervalMenit = Properties.Settings.Default.BackupInterval;
+
+                if (intervalMenit > 0)
                 {
-                    MessageBox.Show("Sesi Anda habis atau tidak valid. Silakan login ulang.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LoginForm form = new LoginForm();
-                    form.Show();
-                    this.Hide();
-                    form.FormClosing += (s, args) => this.Close();
+                    timerAutoBackup.Interval = intervalMenit * 60000;
+                    timerAutoBackup.Enabled = true;
+                    timerAutoBackup.Start();
                 }
-                else
-                {
-                    MessageBox.Show("Gagal mengambil data: " + apiEx.Message, "Error API", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                CekNotifikasiAset();
             }
             catch (Exception ex)
             {
@@ -93,6 +85,12 @@ namespace Assets_Inventory
             if (dr == DialogResult.No)
             {
                 e.Cancel = true; 
+            }
+
+            string path = Properties.Settings.Default.BackupPath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                DatabaseHelper.PerformBackup(path);
             }
         }
 
@@ -221,7 +219,7 @@ namespace Assets_Inventory
             form.ShowDialog();
         }
 
-        private async void wallpaperToolStripMenuItem_Click(object sender, EventArgs e)
+        private void wallpaperToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -232,41 +230,37 @@ namespace Assets_Inventory
                 {
                     try
                     {
-                        var currentPengaturan = (await apiClient.IndexPengaturanAsync()).Data;
-
-                        if (currentPengaturan == null)
+                        var pengaturan = db.Pengaturan.FirstOrDefault();
+                        if (pengaturan == null)
                         {
                             MessageBox.Show("Data pengaturan lembaga belum dibuat. Silakan isi profil lembaga terlebih dahulu.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
 
-                        using (var stream = File.OpenRead(ofd.FileName))
-                        {
-                            var fileUpload = new FileParameter(stream, Path.GetFileName(ofd.FileName), "image/jpeg");
+                        string resourceFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
 
-                            await apiClient.UpdatePengaturanAsync(
-                                currentPengaturan.Id_pengaturan,
-                                currentPengaturan.Nama_instansi,
-                                currentPengaturan.Alamat_instansi,
-                                fileUpload,       
-                                currentPengaturan.Telpon,
-                                currentPengaturan.Website,
-                                currentPengaturan.Email,
-                                currentPengaturan.Kota,
-                                currentPengaturan.Kepala_sekolah,
-                                currentPengaturan.NIP,
-                                currentPengaturan.Bagian_inventaris
-                            );
+                        if (!Directory.Exists(resourceFolder)) Directory.CreateDirectory(resourceFolder);
+
+                        string fileName = Path.GetFileName(ofd.FileName);
+                        string destFilePath = Path.Combine(resourceFolder, fileName);
+
+                        File.Copy(ofd.FileName, destFilePath, true);
+
+                        pengaturan.WallpaperAplikasi = fileName;
+                        db.SaveChanges();
+
+                        if (pnlContent.BackgroundImage != null)
+                        {
+                            pnlContent.BackgroundImage.Dispose(); 
                         }
 
-                        pnlContent.BackgroundImage = Image.FromFile(ofd.FileName);
-                        pnlContent.BackgroundImageLayout = ImageLayout.Stretch;
+                        using (var bmpTemp = new Bitmap(destFilePath))
+                        {
+                            pnlContent.BackgroundImage = new Bitmap(bmpTemp);
+                        }
 
-                        MessageBox.Show("Wallpaper berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    catch (Assets_Inventory.ApiException apiEx)
-                    {
-                        MessageBox.Show("Gagal menyimpan wallpaper: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        pnlContent.BackgroundImageLayout = ImageLayout.Stretch;
+                        MessageBox.Show("Wallpaper berhasil diperbarui dan disimpan ke sistem!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
@@ -345,6 +339,64 @@ namespace Assets_Inventory
         private void lapStokMinimalToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaporanStokMinimalBarangHabisPakaiUC uc = new LaporanStokMinimalBarangHabisPakaiUC();
+            ChangeView(uc);
+        }
+
+        private void timerAutoBackup_Tick(object sender, EventArgs e)
+        {
+            string path = Properties.Settings.Default.BackupPath;
+
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+            {
+                try
+                {
+                    DatabaseHelper.PerformBackup(path);
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        private void permintaanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PermintaanBarangUC uc = new PermintaanBarangUC();
+            ChangeView(uc);
+        }
+
+        public void CekNotifikasiAset()
+        {
+            try
+            {
+                using (var dbContext = new AppDbContext())
+                {
+                    int jumlahBelumLengkap = dbContext.Aset.Count(a =>
+                        string.IsNullOrEmpty(a.NoSeri) ||
+                        a.IdRuang == null ||
+                        a.IdLokasi == null ||
+                        string.IsNullOrEmpty(a.Gambar)
+                    );
+
+                    if (jumlahBelumLengkap > 0)
+                    {
+                        lblNotifAset.Visible = true;
+                        lblNotifAset.Text = $"⚠️ Terdapat {jumlahBelumLengkap} data aset yang perlu dilengkapi!";
+                    }
+                    else
+                    {
+                        lblNotifAset.Visible = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Gagal mengecek notifikasi: " + ex.Message);
+            }
+        }
+
+        private void lblNotifAset_Click(object sender, EventArgs e)
+        {
+            AsetPerluDilengkapiUC uc = new AsetPerluDilengkapiUC();
             ChangeView(uc);
         }
     }

@@ -39,6 +39,9 @@
             this.btnKondisi = new System.Windows.Forms.Button();
             this.btnNonAktif = new System.Windows.Forms.Button();
             this.btnTutup = new System.Windows.Forms.Button();
+            this.btnSumber = new System.Windows.Forms.Button();
+            this.btnRombel = new System.Windows.Forms.Button();
+            this.btnTahun = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // kryptonPalette1
@@ -56,7 +59,7 @@
             this.btnKategori.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnKategori.Location = new System.Drawing.Point(41, 33);
             this.btnKategori.Name = "btnKategori";
-            this.btnKategori.Size = new System.Drawing.Size(236, 45);
+            this.btnKategori.Size = new System.Drawing.Size(270, 45);
             this.btnKategori.TabIndex = 0;
             this.btnKategori.Text = "Master Kategori";
             this.btnKategori.UseVisualStyleBackColor = true;
@@ -67,7 +70,7 @@
             this.btnBarang.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBarang.Location = new System.Drawing.Point(41, 84);
             this.btnBarang.Name = "btnBarang";
-            this.btnBarang.Size = new System.Drawing.Size(236, 45);
+            this.btnBarang.Size = new System.Drawing.Size(270, 45);
             this.btnBarang.TabIndex = 1;
             this.btnBarang.Text = "Master Barang";
             this.btnBarang.UseVisualStyleBackColor = true;
@@ -78,7 +81,7 @@
             this.btnLokasi.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLokasi.Location = new System.Drawing.Point(41, 135);
             this.btnLokasi.Name = "btnLokasi";
-            this.btnLokasi.Size = new System.Drawing.Size(236, 45);
+            this.btnLokasi.Size = new System.Drawing.Size(270, 45);
             this.btnLokasi.TabIndex = 2;
             this.btnLokasi.Text = "Master Lokasi";
             this.btnLokasi.UseVisualStyleBackColor = true;
@@ -89,7 +92,7 @@
             this.btnSatuan.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSatuan.Location = new System.Drawing.Point(41, 288);
             this.btnSatuan.Name = "btnSatuan";
-            this.btnSatuan.Size = new System.Drawing.Size(236, 45);
+            this.btnSatuan.Size = new System.Drawing.Size(270, 45);
             this.btnSatuan.TabIndex = 5;
             this.btnSatuan.Text = "Master Satuan";
             this.btnSatuan.UseVisualStyleBackColor = true;
@@ -100,7 +103,7 @@
             this.btnMerk.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnMerk.Location = new System.Drawing.Point(41, 237);
             this.btnMerk.Name = "btnMerk";
-            this.btnMerk.Size = new System.Drawing.Size(236, 45);
+            this.btnMerk.Size = new System.Drawing.Size(270, 45);
             this.btnMerk.TabIndex = 4;
             this.btnMerk.Text = "Master Merk";
             this.btnMerk.UseVisualStyleBackColor = true;
@@ -111,18 +114,18 @@
             this.btnRuang.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRuang.Location = new System.Drawing.Point(41, 186);
             this.btnRuang.Name = "btnRuang";
-            this.btnRuang.Size = new System.Drawing.Size(236, 45);
+            this.btnRuang.Size = new System.Drawing.Size(270, 45);
             this.btnRuang.TabIndex = 3;
-            this.btnRuang.Text = "Master Ruang";
+            this.btnRuang.Text = "Master Ruang && Lemari";
             this.btnRuang.UseVisualStyleBackColor = true;
             this.btnRuang.Click += new System.EventHandler(this.btnRuang_Click);
             // 
             // btnKondisi
             // 
             this.btnKondisi.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnKondisi.Location = new System.Drawing.Point(41, 390);
+            this.btnKondisi.Location = new System.Drawing.Point(317, 84);
             this.btnKondisi.Name = "btnKondisi";
-            this.btnKondisi.Size = new System.Drawing.Size(236, 45);
+            this.btnKondisi.Size = new System.Drawing.Size(270, 45);
             this.btnKondisi.TabIndex = 7;
             this.btnKondisi.Text = "Master Kondisi";
             this.btnKondisi.UseVisualStyleBackColor = true;
@@ -131,9 +134,9 @@
             // btnNonAktif
             // 
             this.btnNonAktif.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNonAktif.Location = new System.Drawing.Point(41, 339);
+            this.btnNonAktif.Location = new System.Drawing.Point(317, 33);
             this.btnNonAktif.Name = "btnNonAktif";
-            this.btnNonAktif.Size = new System.Drawing.Size(236, 45);
+            this.btnNonAktif.Size = new System.Drawing.Size(270, 45);
             this.btnNonAktif.TabIndex = 6;
             this.btnNonAktif.Text = "Master Non Aktif";
             this.btnNonAktif.UseVisualStyleBackColor = true;
@@ -142,20 +145,56 @@
             // btnTutup
             // 
             this.btnTutup.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTutup.Location = new System.Drawing.Point(41, 485);
+            this.btnTutup.Location = new System.Drawing.Point(41, 405);
             this.btnTutup.Name = "btnTutup";
-            this.btnTutup.Size = new System.Drawing.Size(236, 45);
+            this.btnTutup.Size = new System.Drawing.Size(546, 45);
             this.btnTutup.TabIndex = 8;
             this.btnTutup.Text = "Tutup";
             this.btnTutup.UseVisualStyleBackColor = true;
             this.btnTutup.Click += new System.EventHandler(this.btnTutup_Click);
+            // 
+            // btnSumber
+            // 
+            this.btnSumber.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSumber.Location = new System.Drawing.Point(317, 135);
+            this.btnSumber.Name = "btnSumber";
+            this.btnSumber.Size = new System.Drawing.Size(270, 45);
+            this.btnSumber.TabIndex = 9;
+            this.btnSumber.Text = "Master Sumber Perolehan";
+            this.btnSumber.UseVisualStyleBackColor = true;
+            this.btnSumber.Click += new System.EventHandler(this.btnSumber_Click);
+            // 
+            // btnRombel
+            // 
+            this.btnRombel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRombel.Location = new System.Drawing.Point(317, 186);
+            this.btnRombel.Name = "btnRombel";
+            this.btnRombel.Size = new System.Drawing.Size(270, 45);
+            this.btnRombel.TabIndex = 10;
+            this.btnRombel.Text = "Master Rombel";
+            this.btnRombel.UseVisualStyleBackColor = true;
+            this.btnRombel.Click += new System.EventHandler(this.btnRombel_Click);
+            // 
+            // btnTahun
+            // 
+            this.btnTahun.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTahun.Location = new System.Drawing.Point(317, 237);
+            this.btnTahun.Name = "btnTahun";
+            this.btnTahun.Size = new System.Drawing.Size(270, 45);
+            this.btnTahun.TabIndex = 11;
+            this.btnTahun.Text = "Master Tahun Ajaran";
+            this.btnTahun.UseVisualStyleBackColor = true;
+            this.btnTahun.Click += new System.EventHandler(this.btnTahun_Click);
             // 
             // MasterDataForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(318, 542);
+            this.ClientSize = new System.Drawing.Size(628, 463);
+            this.Controls.Add(this.btnTahun);
+            this.Controls.Add(this.btnRombel);
+            this.Controls.Add(this.btnSumber);
             this.Controls.Add(this.btnTutup);
             this.Controls.Add(this.btnKondisi);
             this.Controls.Add(this.btnNonAktif);
@@ -187,5 +226,8 @@
         private System.Windows.Forms.Button btnKondisi;
         private System.Windows.Forms.Button btnNonAktif;
         private System.Windows.Forms.Button btnTutup;
+        private System.Windows.Forms.Button btnSumber;
+        private System.Windows.Forms.Button btnRombel;
+        private System.Windows.Forms.Button btnTahun;
     }
 }

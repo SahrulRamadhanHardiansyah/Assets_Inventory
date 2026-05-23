@@ -1,26 +1,21 @@
-﻿using ComponentFactory.Krypton.Toolkit;
+﻿using Assets_Inventory.Models;
+using ComponentFactory.Krypton.Toolkit;
 using ExcelDataReader;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
 {
     public partial class MasterKondisiForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private Client apiClient;
+        AppDbContext db = new AppDbContext();
+
         public MasterKondisiForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
         }
 
         private void MasterKondisiForm_Load(object sender, EventArgs e)
@@ -53,19 +48,21 @@ namespace Assets_Inventory
             }
         }
 
-        private async void loadDgv()
+        private void loadDgv()
         {
-            dg.DataSource = (await apiClient.IndexKondisiAsync()).Data.ToList();
-            dg.Columns["Id_kondisi"].HeaderText = "ID";
-            dg.Columns["Nama_kondisi"].HeaderText = "Nama Kondisi";
-            dg.Columns["AdditionalProperties"].Visible = false;
+            var cari = txtCari.Text.Trim().ToLower();
+            dg.DataSource = new SortableBindingList<Kondisi>(db.Kondisi.Where(mb => mb.NamaKondisi.ToLower().Contains(cari)).ToList());
         }
 
         private void dg_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is KondisiResource kondisi)
+            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is Kondisi k)
             {
-                bindingSource1.DataSource = kondisi;
+                var kondisi = db.Kondisi.Find(k.IdKondisi);
+                if (kondisi != null)
+                {
+                    bindingSource1.DataSource = kondisi;
+                }
             }
         }
 
@@ -77,7 +74,7 @@ namespace Assets_Inventory
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is KondisiResource k)
+            if (bindingSource1.Current is Kondisi)
             {
                 SetMode("Update");
             }
@@ -87,7 +84,7 @@ namespace Assets_Inventory
             }
         }
 
-        private async void btnSimpan_Click(object sender, EventArgs e)
+        private void btnSimpan_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtKondisi.Text))
             {
@@ -95,74 +92,70 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (bindingSource1.Current is KondisiResource k)
+            if (bindingSource1.Current is Kondisi k)
             {
                 bindingSource1.EndEdit();
 
-                k.Nama_kondisi = txtKondisi.Text;
-                k.Keterangan = txtKeterangan.Text;
-
                 try
                 {
-                    if (string.IsNullOrEmpty(txtKode.Text) || txtKode.Text == "0")
+                    if (k.IdKondisi == 0) 
                     {
-                        await apiClient.StoreKondisiAsync(new StoreKondisiRequest
+                        var baru = new Kondisi
                         {
-                            Nama_kondisi = k.Nama_kondisi,
-                            Keterangan = k.Keterangan
-                        });
+                            NamaKondisi = txtKondisi.Text,
+                            Keterangan = txtKeterangan.Text
+                        };
+                        db.Kondisi.Add(baru);
                     }
-                    else
+                    else 
                     {
-                        await apiClient.UpdateKondisiAsync(k.Id_kondisi, new UpdateKondisiRequest
-                        {
-                            Nama_kondisi = k.Nama_kondisi,
-                            Keterangan = k.Keterangan
-                        });
+                        k.NamaKondisi = txtKondisi.Text;
+                        k.Keterangan = txtKeterangan.Text;
                     }
+
+                    db.SaveChanges();
 
                     MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadDgv();
                     SetMode("View");
                 }
-                catch (Assets_Inventory.ApiException apiEx)
-                {
-                    MessageBox.Show("Gagal menyimpan data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Terjadi kesalahan sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private async void btnHapus_Click(object sender, EventArgs e)
+        private void btnHapus_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is KondisiResource k)
+            if (bindingSource1.Current is Kondisi k && k.IdKondisi != 0)
             {
-                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.Nama_kondisi}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.NamaKondisi}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     try
                     {
-                        await apiClient.DestroyKondisiAsync(k.Id_kondisi);
+                        db.Kondisi.Remove(k);
+                        db.SaveChanges();
+
+                        MessageBox.Show("Berhasil dihapus!");
+                        loadDgv();
+                        bindingSource1.AddNew();
                     }
-                    catch (Assets_Inventory.ApiException apiEx)
+                    catch (Microsoft.EntityFrameworkCore.DbUpdateException)
                     {
-                        MessageBox.Show("Gagal menghapus data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        db.Entry(k).Reload();
+                        MessageBox.Show("Tidak dapat menghapus data ini karena data masih digunakan oleh data lain di dalam sistem.", "Peringatan Relasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
+                        db.Entry(k).Reload();
                         MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    MessageBox.Show("Berhasil dihapus!");
-                    loadDgv();
-                    bindingSource1.AddNew();
                 }
             }
             else
             {
-                MessageBox.Show("Pilih data yang ingin diubah.");
+                MessageBox.Show("Pilih data yang valid untuk dihapus.");
             }
         }
 
@@ -174,7 +167,17 @@ namespace Assets_Inventory
             SetMode("View");
         }
 
-        private async void btnImport_Click(object sender, EventArgs e)
+        private void btnTutup_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnCari_Click(object sender, EventArgs e)
+        {
+            loadDgv();
+        }
+
+        private void btnImport_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -185,6 +188,9 @@ namespace Assets_Inventory
                 {
                     try
                     {
+                        this.Enabled = false;
+                        this.Cursor = Cursors.WaitCursor;
+
                         int sukses = 0;
                         int gagal = 0;
 
@@ -204,32 +210,33 @@ namespace Assets_Inventory
 
                                 foreach (DataRow row in dt.Rows)
                                 {
+                                    Application.DoEvents();
+
                                     string nama = row[0]?.ToString().Trim();
                                     string keterangan = row[1]?.ToString().Trim();
 
                                     if (!string.IsNullOrEmpty(nama))
                                     {
-                                        try
+                                        var kondisiImpor = new Kondisi
                                         {
-                                            await apiClient.StoreKondisiAsync(new StoreKondisiRequest
-                                            {
-                                                Nama_kondisi = nama,
-                                                Keterangan = keterangan
-                                            });
-                                            sukses++;
-                                        }
-                                        catch
-                                        {
-                                            gagal++;
-                                        }
+                                            NamaKondisi = nama,
+                                            Keterangan = keterangan
+                                        };
+
+                                        db.Kondisi.Add(kondisiImpor);
+                                        sukses++;
+                                    }
+                                    else
+                                    {
+                                        gagal++;
                                     }
                                 }
+
+                                db.SaveChanges();
                             }
                         }
 
-                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nGagal: {gagal} data",
-                                        "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nData tidak valid: {gagal} data", "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         loadDgv();
                     }
                     catch (IOException)
@@ -240,13 +247,13 @@ namespace Assets_Inventory
                     {
                         MessageBox.Show("Terjadi kesalahan saat membaca file Excel: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    finally
+                    {
+                        this.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                    }
                 }
             }
-        }
-
-        private void btnTutup_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }

@@ -120,6 +120,20 @@
   <metadata name="bindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>205, 23</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="btnImport.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1
+        MAAA6mAAADqYAAAXcJy6UTwAAAAJcEhZcwAACw4AAAsOAUC+4UEAAAAHdElNRQfqBRILCgHIRrXdAAAA
+        2UlEQVQoU5XSPUoDQBAF4C8JKhL/wJ+AgtHGzs7Cxl5PYKMHEIvkCEG08hCagD+NhRexETyPDOzGzWLE
+        vG7nzXvMzjx+0EIH29jBJtpYKHom0MAVXvCIEW5wjXss1YLACp5wjHVsYRl9fOHuN+Eahtir6hd4xzNu
+        MVeSq0m0XxaT2RlO8JreY0wTZcQEwUffGP8RPcwqirEu6/X/JYrP9/CJczQzMW17gSO84SPd7yAT9Z0i
+        DXGrMFvEYTr6bjlinYicikESddMiwnwCZfZy/jaSYaTjFPPR+A2ffh4FrJXwhAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>397, 23</value>
+  </metadata>
   <metadata name="kryptonPalette1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>14, 23</value>
   </metadata>

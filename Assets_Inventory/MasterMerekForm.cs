@@ -1,26 +1,21 @@
-﻿using ComponentFactory.Krypton.Toolkit;
+﻿using Assets_Inventory.Models;
+using ComponentFactory.Krypton.Toolkit;
 using ExcelDataReader;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
 {
     public partial class MasterMerekForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private Client apiClient;
+        AppDbContext db = new AppDbContext();
+
         public MasterMerekForm()
         {
             InitializeComponent();
-            if (!ApiClientHelper.TrySetToken()) return;
-            apiClient = new Client(ApiClientHelper.SharedHttpClient);
         }
 
         private void MasterMerekForm_Load(object sender, EventArgs e)
@@ -53,19 +48,21 @@ namespace Assets_Inventory
             }
         }
 
-        private async void loadDgv()
+        private void loadDgv()
         {
-            dg.DataSource = (await apiClient.IndexMerekAsync()).Data.ToList();
-            dg.Columns["Id_merek"].HeaderText = "ID";
-            dg.Columns["Nama_merek"].HeaderText = "Nama Merek";
-            dg.Columns["AdditionalProperties"].Visible = false;
+            var cari = txtCari.Text.Trim().ToLower();
+            dg.DataSource = new SortableBindingList<Merek>(db.Merek.Where(mb => mb.NamaMerek.ToLower().Contains(cari)).ToList());
         }
 
         private void dg_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is MerekResource merek)
+            if (e.RowIndex >= 0 && dg.Rows[e.RowIndex].DataBoundItem is Merek m)
             {
-                bindingSource1.DataSource = merek;
+                var merek = db.Merek.Find(m.IdMerek);
+                if (merek != null)
+                {
+                    bindingSource1.DataSource = merek;
+                }
             }
         }
 
@@ -77,7 +74,7 @@ namespace Assets_Inventory
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is MerekResource k)
+            if (bindingSource1.Current is Merek)
             {
                 SetMode("Update");
             }
@@ -87,7 +84,7 @@ namespace Assets_Inventory
             }
         }
 
-        private async void btnSimpan_Click(object sender, EventArgs e)
+        private void btnSimpan_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtNama.Text))
             {
@@ -95,74 +92,70 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (bindingSource1.Current is MerekResource k)
+            if (bindingSource1.Current is Merek k)
             {
                 bindingSource1.EndEdit();
 
-                k.Nama_merek = txtNama.Text;
-                k.Keterangan = txtKeterangan.Text;
-
                 try
                 {
-                    if (string.IsNullOrEmpty(txtKode.Text) || txtKode.Text == "0")
+                    if (k.IdMerek == 0) 
                     {
-                        await apiClient.StoreMerekAsync(new StoreMerekRequest
+                        var baru = new Merek
                         {
-                            Nama_merek = k.Nama_merek,
-                            Keterangan = k.Keterangan
-                        });
+                            NamaMerek = txtNama.Text,
+                            Keterangan = txtKeterangan.Text
+                        };
+                        db.Merek.Add(baru);
                     }
-                    else
+                    else 
                     {
-                        await apiClient.UpdateMerekAsync(k.Id_merek, new UpdateMerekRequest
-                        {
-                            Nama_merek = k.Nama_merek,
-                            Keterangan = k.Keterangan
-                        });
+                        k.NamaMerek = txtNama.Text;
+                        k.Keterangan = txtKeterangan.Text;
                     }
+
+                    db.SaveChanges();
 
                     MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadDgv();
                     SetMode("View");
                 }
-                catch (Assets_Inventory.ApiException apiEx)
-                {
-                    MessageBox.Show("Gagal menyimpan data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Terjadi kesalahan sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private async void btnHapus_Click(object sender, EventArgs e)
+        private void btnHapus_Click(object sender, EventArgs e)
         {
-            if (bindingSource1.Current is MerekResource k)
+            if (bindingSource1.Current is Merek k && k.IdMerek != 0)
             {
-                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.Nama_merek}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show($"Apakah anda yakin ingin menghapus data {k.NamaMerek}?", "Konfirmasi Hapus", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     try
                     {
-                        await apiClient.DestroyMerekAsync(k.Id_merek);
+                        db.Merek.Remove(k);
+                        db.SaveChanges();
+
+                        MessageBox.Show("Berhasil dihapus!");
+                        loadDgv();
+                        bindingSource1.AddNew();
                     }
-                    catch (Assets_Inventory.ApiException apiEx)
+                    catch (Microsoft.EntityFrameworkCore.DbUpdateException)
                     {
-                        MessageBox.Show("Gagal menghapus data: " + apiEx.Message, "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        db.Entry(k).Reload();
+                        MessageBox.Show("Tidak dapat menghapus data ini karena data masih digunakan oleh data lain di dalam sistem.", "Peringatan Relasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
+                        db.Entry(k).Reload();
                         MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    MessageBox.Show("Berhasil dihapus!");
-                    loadDgv();
-                    bindingSource1.AddNew();
                 }
             }
             else
             {
-                MessageBox.Show("Pilih data yang ingin diubah.");
+                MessageBox.Show("Pilih data yang valid untuk dihapus.");
             }
         }
 
@@ -174,7 +167,12 @@ namespace Assets_Inventory
             SetMode("View");
         }
 
-        private async void btnImport_Click(object sender, EventArgs e)
+        private void btnTutup_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnImport_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -185,6 +183,9 @@ namespace Assets_Inventory
                 {
                     try
                     {
+                        this.Enabled = false;
+                        this.Cursor = Cursors.WaitCursor;
+
                         int sukses = 0;
                         int gagal = 0;
 
@@ -204,32 +205,33 @@ namespace Assets_Inventory
 
                                 foreach (DataRow row in dt.Rows)
                                 {
+                                    Application.DoEvents();
+
                                     string nama = row[0]?.ToString().Trim();
                                     string keterangan = row[1]?.ToString().Trim();
 
                                     if (!string.IsNullOrEmpty(nama))
                                     {
-                                        try
+                                        var merekImpor = new Merek
                                         {
-                                            await apiClient.StoreMerekAsync(new StoreMerekRequest
-                                            {
-                                                Nama_merek = nama,
-                                                Keterangan = keterangan
-                                            });
-                                            sukses++;
-                                        }
-                                        catch
-                                        {
-                                            gagal++;
-                                        }
+                                            NamaMerek = nama,
+                                            Keterangan = keterangan
+                                        };
+
+                                        db.Merek.Add(merekImpor);
+                                        sukses++;
+                                    }
+                                    else
+                                    {
+                                        gagal++;
                                     }
                                 }
+
+                                db.SaveChanges();
                             }
                         }
 
-                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nGagal: {gagal} data",
-                                        "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                        MessageBox.Show($"Proses Import Selesai!\n\nBerhasil: {sukses} data\nData tidak valid: {gagal} data", "Info Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         loadDgv();
                     }
                     catch (IOException)
@@ -240,13 +242,18 @@ namespace Assets_Inventory
                     {
                         MessageBox.Show("Terjadi kesalahan saat membaca file Excel: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    finally
+                    {
+                        this.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                    }
                 }
             }
         }
 
-        private void btnTutup_Click(object sender, EventArgs e)
+        private void btnCari_Click(object sender, EventArgs e)
         {
-            this.Close();
+            loadDgv();
         }
     }
 }

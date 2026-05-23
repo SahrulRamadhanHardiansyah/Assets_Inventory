@@ -1,4 +1,7 @@
-﻿using Krypton.Toolkit;
+﻿using Assets_Inventory.Models;
+using ComponentFactory.Krypton.Toolkit;
+using Krypton.Toolkit;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,30 +12,25 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ComponentFactory.Krypton.Toolkit;
 
 namespace Assets_Inventory
 {
     public partial class LoginForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        private static readonly HttpClient httpClient = new HttpClient()
-        {
-            BaseAddress = new Uri("http://127.0.0.1:8000/")
-        };
-
-        private Client apiClient;
+        AppDbContext db = new AppDbContext();
 
         public LoginForm()
         {
             InitializeComponent();
-            apiClient = new Client(httpClient);
         }
 
-        private async void LoginForm_Load(object sender, EventArgs e)
+        private void LoginForm_Load(object sender, EventArgs e)
         {
+            txtUsername.Text = "admin";
+            txtPassword.Text = "admin";
         }
 
-        private async void btnLogin_Click(object sender, EventArgs e)
+        private void btnLogin_Click(object sender, EventArgs e)
         {
             try
             {
@@ -45,33 +43,22 @@ namespace Assets_Inventory
                     return;
                 }
 
-                var loginRequest = new LoginRequest
-                {
-                    Username = username,
-                    Password = password
-                };
+                var pengguna = db.Pengguna.FirstOrDefault(u => u.Username == username && u.Password == password);
 
-                var loginResponse = await apiClient.LoginAsync(loginRequest);
-                string token = loginResponse.Data?.Token;
-
-                if (!string.IsNullOrEmpty(token))
+                if (pengguna != null)
                 {
-                    Properties.Settings.Default.AuthToken = token;
+                    Properties.Settings.Default.userId = pengguna.IdPengguna;
                     Properties.Settings.Default.Save();
-                    MessageBox.Show("Login  Berhasil.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Login Berhasil.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     MainForm form = new MainForm();
                     form.Show();
                     this.Hide();
                     form.FormClosed += (s, args) => this.Close();
                 }
                 else
-                { 
-                    MessageBox.Show("Login gagal: token tidak ditemukan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                {
+                    MessageBox.Show("Login gagal: username atau password salah.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-            catch (Assets_Inventory.ApiException apiEx)
-            {
-                MessageBox.Show("Gagal: " + apiEx.Message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
