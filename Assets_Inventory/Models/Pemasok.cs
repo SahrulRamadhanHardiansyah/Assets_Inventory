@@ -12,7 +12,7 @@ namespace Assets_Inventory.Models
         public Pemasok()
         {
             DetailPengadaan = new HashSet<DetailPengadaan>();
-            PengadaanHabisPakai = new HashSet<PengadaanHabisPakai>();
+            DetailPengadaanHp = new HashSet<DetailPengadaanHp>();
         }
 
         public int IdPemasok { get; set; }
@@ -22,6 +22,6 @@ namespace Assets_Inventory.Models
         public string Keterangan { get; set; }
 
         public virtual ICollection<DetailPengadaan> DetailPengadaan { get; set; }
-        public virtual ICollection<PengadaanHabisPakai> PengadaanHabisPakai { get; set; }
+        public virtual ICollection<DetailPengadaanHp> DetailPengadaanHp { get; set; }
     }
 }

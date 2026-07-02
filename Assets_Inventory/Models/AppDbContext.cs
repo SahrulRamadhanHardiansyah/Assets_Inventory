@@ -32,7 +32,9 @@ namespace Assets_Inventory.Models
         public virtual DbSet<CacheLocks> CacheLocks { get; set; }
         public virtual DbSet<DetailPeminjaman> DetailPeminjaman { get; set; }
         public virtual DbSet<DetailPengadaan> DetailPengadaan { get; set; }
+        public virtual DbSet<DetailPengadaanHp> DetailPengadaanHp { get; set; }
         public virtual DbSet<DetailPermintaan> DetailPermintaan { get; set; }
+        public virtual DbSet<DetailPermintaanHp> DetailPermintaanHp { get; set; }
         public virtual DbSet<FailedJobs> FailedJobs { get; set; }
         public virtual DbSet<Gudang> Gudang { get; set; }
         public virtual DbSet<JobBatches> JobBatches { get; set; }
@@ -56,6 +58,7 @@ namespace Assets_Inventory.Models
         public virtual DbSet<Pengadaan> Pengadaan { get; set; }
         public virtual DbSet<PengadaanHabisPakai> PengadaanHabisPakai { get; set; }
         public virtual DbSet<PengadaanPermintaan> PengadaanPermintaan { get; set; }
+        public virtual DbSet<PengadaanPermintaanHp> PengadaanPermintaanHp { get; set; }
         public virtual DbSet<Pengaturan> Pengaturan { get; set; }
         public virtual DbSet<Pengembalian> Pengembalian { get; set; }
         public virtual DbSet<Pengguna> Pengguna { get; set; }
@@ -64,6 +67,7 @@ namespace Assets_Inventory.Models
         public virtual DbSet<PeranAkses> PeranAkses { get; set; }
         public virtual DbSet<Perbaikan> Perbaikan { get; set; }
         public virtual DbSet<Permintaan> Permintaan { get; set; }
+        public virtual DbSet<PermintaanHp> PermintaanHp { get; set; }
         public virtual DbSet<PersonalAccessTokens> PersonalAccessTokens { get; set; }
         public virtual DbSet<Rombel> Rombel { get; set; }
         public virtual DbSet<Ruang> Ruang { get; set; }
@@ -73,6 +77,23 @@ namespace Assets_Inventory.Models
         public virtual DbSet<SumberPerolehan> SumberPerolehan { get; set; }
         public virtual DbSet<TahunAjaran> TahunAjaran { get; set; }
         public virtual DbSet<TanahNonAktif> TanahNonAktif { get; set; }
+        public virtual DbSet<VAset> VAset { get; set; }
+        public virtual DbSet<VAsetBangunan> VAsetBangunan { get; set; }
+        public virtual DbSet<VAsetHabisPakai> VAsetHabisPakai { get; set; }
+        public virtual DbSet<VAsetTanah> VAsetTanah { get; set; }
+        public virtual DbSet<VBangunanNonAktif> VBangunanNonAktif { get; set; }
+        public virtual DbSet<VBarangKeluar> VBarangKeluar { get; set; }
+        public virtual DbSet<VBarangNonAktif> VBarangNonAktif { get; set; }
+        public virtual DbSet<VLaporanKerusakan> VLaporanKerusakan { get; set; }
+        public virtual DbSet<VLaporanPeminjaman> VLaporanPeminjaman { get; set; }
+        public virtual DbSet<VLaporanPengembalian> VLaporanPengembalian { get; set; }
+        public virtual DbSet<VLaporanPerbaikan> VLaporanPerbaikan { get; set; }
+        public virtual DbSet<VLaporanPermintaan> VLaporanPermintaan { get; set; }
+        public virtual DbSet<VMutasi> VMutasi { get; set; }
+        public virtual DbSet<VOpnameAset> VOpnameAset { get; set; }
+        public virtual DbSet<VPengadaanAset> VPengadaanAset { get; set; }
+        public virtual DbSet<VPenghapusanAset> VPenghapusanAset { get; set; }
+        public virtual DbSet<VTanahNonAktif> VTanahNonAktif { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -82,7 +103,6 @@ namespace Assets_Inventory.Models
                 optionsBuilder.UseMySql(connString);
             }
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -130,6 +150,9 @@ namespace Assets_Inventory.Models
                 entity.HasIndex(e => e.IdKondisi)
                     .HasName("fk_aset_kondisi");
 
+                entity.HasIndex(e => e.IdLemari)
+                    .HasName("fk_aset_lemari");
+
                 entity.HasIndex(e => e.IdLokasi)
                     .HasName("fk_aset_lokasi");
 
@@ -143,15 +166,11 @@ namespace Assets_Inventory.Models
                     .HasName("uk_aset_kode_inventaris")
                     .IsUnique();
 
-                entity.Property(e => e.KodeBarang)
-                    .HasColumnName("kode_barang")
-                    .HasColumnType("varchar(50)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
 
                 entity.Property(e => e.Gambar)
                     .HasColumnName("gambar")
-                    .HasColumnType("varchar(255)")
+                    .HasColumnType("longtext")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -166,6 +185,8 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.IdKondisi).HasColumnName("id_kondisi");
 
+                entity.Property(e => e.IdLemari).HasColumnName("id_lemari");
+
                 entity.Property(e => e.IdLokasi).HasColumnName("id_lokasi");
 
                 entity.Property(e => e.IdMasterBarang).HasColumnName("id_master_barang");
@@ -175,6 +196,13 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.Keterangan)
                     .HasColumnName("keterangan")
                     .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBarang2)
+                    .IsRequired()
+                    .HasColumnName("kode_barang2")
+                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -193,6 +221,12 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.NoSeri)
                     .HasColumnName("no_seri")
                     .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NomorRak)
+                    .HasColumnName("nomor_rak")
+                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -226,6 +260,12 @@ namespace Assets_Inventory.Models
                     .HasForeignKey(d => d.IdKondisi)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_aset_kondisi");
+
+                entity.HasOne(d => d.IdLemariNavigation)
+                    .WithMany(p => p.Aset)
+                    .HasForeignKey(d => d.IdLemari)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_aset_lemari");
 
                 entity.HasOne(d => d.IdLokasiNavigation)
                     .WithMany(p => p.Aset)
@@ -285,12 +325,18 @@ namespace Assets_Inventory.Models
                     .HasColumnType("decimal(15,2)")
                     .HasDefaultValueSql("'0.00'");
 
+                entity.Property(e => e.Status)
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif')")
+                    .HasDefaultValueSql("'Aktif'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
                 entity.Property(e => e.StatusBangunan)
                     .HasColumnName("status_bangunan")
                     .HasColumnType("enum('Milik Sendiri','Sewa','Lainnya')")
                     .HasDefaultValueSql("'Milik Sendiri'")
                     .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_as_ci");
+                    .HasCollation("utf8mb4_0900_bin");
 
                 entity.Property(e => e.TanggalBangunan)
                     .HasColumnName("tanggal_bangunan")
@@ -320,14 +366,8 @@ namespace Assets_Inventory.Models
 
                 entity.ToTable("aset_habis_pakai");
 
-                entity.HasIndex(e => e.IdDetailPengadaan)
-                    .HasName("fk_ahp_detail");
-
                 entity.HasIndex(e => e.IdJurusan)
                     .HasName("fk_ahp_jurusan");
-
-                entity.HasIndex(e => e.IdKondisi)
-                    .HasName("fk_ahp_kondisi");
 
                 entity.HasIndex(e => e.IdLokasi)
                     .HasName("fk_ahp_lokasi");
@@ -335,12 +375,11 @@ namespace Assets_Inventory.Models
                 entity.HasIndex(e => e.IdMasterBarang)
                     .HasName("fk_ahp_master");
 
+                entity.HasIndex(e => e.IdPengadaanHp)
+                    .HasName("fk_ahp_pengadaanhp");
+
                 entity.HasIndex(e => e.IdRuang)
                     .HasName("fk_ahp_ruang");
-
-                entity.HasIndex(e => e.KodeInventaris)
-                    .HasName("uk_ahp_kode_inventaris")
-                    .IsUnique();
 
                 entity.Property(e => e.KodeBarang)
                     .HasColumnName("kode_barang")
@@ -348,26 +387,13 @@ namespace Assets_Inventory.Models
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
-                entity.Property(e => e.Gambar)
-                    .HasColumnName("gambar")
-                    .HasColumnType("varchar(255)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
-                entity.Property(e => e.HargaSatuan)
-                    .HasColumnName("harga_satuan")
-                    .HasColumnType("decimal(15,2)")
-                    .HasDefaultValueSql("'0.00'");
-
-                entity.Property(e => e.IdDetailPengadaan).HasColumnName("id_detail_pengadaan");
-
                 entity.Property(e => e.IdJurusan).HasColumnName("id_jurusan");
-
-                entity.Property(e => e.IdKondisi).HasColumnName("id_kondisi");
 
                 entity.Property(e => e.IdLokasi).HasColumnName("id_lokasi");
 
                 entity.Property(e => e.IdMasterBarang).HasColumnName("id_master_barang");
+
+                entity.Property(e => e.IdPengadaanHp).HasColumnName("id_pengadaan_hp");
 
                 entity.Property(e => e.IdRuang).HasColumnName("id_ruang");
 
@@ -381,47 +407,26 @@ namespace Assets_Inventory.Models
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
-                entity.Property(e => e.KodeInventaris)
-                    .IsRequired()
-                    .HasColumnName("kode_inventaris")
-                    .HasColumnType("varchar(50)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
-                entity.Property(e => e.NoSeri)
-                    .HasColumnName("no_seri")
-                    .HasColumnType("varchar(100)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
                 entity.Property(e => e.Status)
                     .HasColumnName("status")
-                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif')")
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif','Keluar','Tersedia')")
                     .HasDefaultValueSql("'Di Gudang'")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
+                entity.Property(e => e.Stok).HasColumnName("stok");
+
+                entity.Property(e => e.StokAktual).HasColumnName("stok_aktual");
+
                 entity.Property(e => e.TanggalRegistrasi)
                     .HasColumnName("tanggal_registrasi")
                     .HasColumnType("date");
-
-                entity.HasOne(d => d.IdDetailPengadaanNavigation)
-                    .WithMany(p => p.AsetHabisPakai)
-                    .HasForeignKey(d => d.IdDetailPengadaan)
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_ahp_detail");
 
                 entity.HasOne(d => d.IdJurusanNavigation)
                     .WithMany(p => p.AsetHabisPakai)
                     .HasForeignKey(d => d.IdJurusan)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_ahp_jurusan");
-
-                entity.HasOne(d => d.IdKondisiNavigation)
-                    .WithMany(p => p.AsetHabisPakai)
-                    .HasForeignKey(d => d.IdKondisi)
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_ahp_kondisi");
 
                 entity.HasOne(d => d.IdLokasiNavigation)
                     .WithMany(p => p.AsetHabisPakai)
@@ -433,6 +438,11 @@ namespace Assets_Inventory.Models
                     .WithMany(p => p.AsetHabisPakai)
                     .HasForeignKey(d => d.IdMasterBarang)
                     .HasConstraintName("fk_ahp_master");
+
+                entity.HasOne(d => d.IdPengadaanHpNavigation)
+                    .WithMany(p => p.AsetHabisPakai)
+                    .HasForeignKey(d => d.IdPengadaanHp)
+                    .HasConstraintName("fk_ahp_pengadaanhp");
 
                 entity.HasOne(d => d.IdRuangNavigation)
                     .WithMany(p => p.AsetHabisPakai)
@@ -485,6 +495,12 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.Penggunaan)
                     .HasColumnName("penggunaan")
                     .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif')")
+                    .HasDefaultValueSql("'Aktif'")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -563,11 +579,11 @@ namespace Assets_Inventory.Models
                 entity.HasIndex(e => e.IdRuang)
                     .HasName("fk_barang_keluar_ruang");
 
+                entity.HasIndex(e => e.KodeBarang)
+                    .HasName("fk_bk_inventaris");
+
                 entity.HasIndex(e => e.KodeGudang)
                     .HasName("fk_barang_keluar_gudang");
-
-                entity.HasIndex(e => e.KodeInventaris)
-                    .HasName("fk_bk_inventaris");
 
                 entity.HasIndex(e => e.NamaPenerima)
                     .HasName("fk_barang_keluar_pengguna");
@@ -587,17 +603,17 @@ namespace Assets_Inventory.Models
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
+                entity.Property(e => e.KodeBarang)
+                    .IsRequired()
+                    .HasColumnName("kode_barang")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
                 entity.Property(e => e.KodeGudang)
                     .IsRequired()
                     .HasColumnName("kode_gudang")
                     .HasColumnType("varchar(20)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
-                entity.Property(e => e.KodeInventaris)
-                    .IsRequired()
-                    .HasColumnName("kode_inventaris")
-                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -614,17 +630,17 @@ namespace Assets_Inventory.Models
                     .HasForeignKey(d => d.IdRuang)
                     .HasConstraintName("fk_barang_keluar_ruang");
 
+                entity.HasOne(d => d.KodeBarangNavigation)
+                    .WithMany(p => p.BarangKeluar)
+                    .HasForeignKey(d => d.KodeBarang)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_bk_kode_barang");
+
                 entity.HasOne(d => d.KodeGudangNavigation)
                     .WithMany(p => p.BarangKeluar)
                     .HasForeignKey(d => d.KodeGudang)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_barang_keluar_gudang");
-
-                entity.HasOne(d => d.KodeInventarisNavigation)
-                    .WithMany(p => p.BarangKeluar)
-                    .HasPrincipalKey(p => p.KodeInventaris)
-                    .HasForeignKey(d => d.KodeInventaris)
-                    .HasConstraintName("fk_bk_inventaris");
 
                 entity.HasOne(d => d.NamaPenerimaNavigation)
                     .WithMany(p => p.BarangKeluarNamaPenerimaNavigation)
@@ -750,19 +766,14 @@ namespace Assets_Inventory.Models
                 entity.ToTable("detail_peminjaman");
 
                 entity.HasIndex(e => e.KodeBarang)
-                    .HasName("kode_barang");
+                    .HasName("detail_peminjaman_ibfk_2");
 
                 entity.HasIndex(e => e.NomorPeminjaman)
                     .HasName("nomor_peminjaman");
 
                 entity.Property(e => e.IdDetailPinjam).HasColumnName("id_detail_pinjam");
 
-                entity.Property(e => e.KodeBarang)
-                    .IsRequired()
-                    .HasColumnName("kode_barang")
-                    .HasColumnType("varchar(50)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
 
                 entity.Property(e => e.NomorPeminjaman)
                     .IsRequired()
@@ -812,6 +823,10 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.JumlahMasuk).HasColumnName("jumlah_masuk");
 
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasDefaultValueSql("'0'");
+
                 entity.HasOne(d => d.IdMasterBarangNavigation)
                     .WithMany(p => p.DetailPengadaan)
                     .HasForeignKey(d => d.IdMasterBarang)
@@ -827,6 +842,53 @@ namespace Assets_Inventory.Models
                     .WithMany(p => p.DetailPengadaan)
                     .HasForeignKey(d => d.IdPengadaan)
                     .HasConstraintName("fk_detail_pengadaan_pengadaan");
+            });
+
+            modelBuilder.Entity<DetailPengadaanHp>(entity =>
+            {
+                entity.HasKey(e => e.IdDetailPengadaanHp)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("detail_pengadaan_hp");
+
+                entity.HasIndex(e => e.IdMasterBarang)
+                    .HasName("fk_dp_hp_master");
+
+                entity.HasIndex(e => e.IdPemasok)
+                    .HasName("fk_dp_hp_pemasok");
+
+                entity.HasIndex(e => e.IdPengadaanHp)
+                    .HasName("fk_dp_hp_pengadaan");
+
+                entity.Property(e => e.IdDetailPengadaanHp).HasColumnName("id_detail_pengadaan_hp");
+
+                entity.Property(e => e.HargaSatuan)
+                    .HasColumnName("harga_satuan")
+                    .HasColumnType("decimal(15,2)");
+
+                entity.Property(e => e.IdMasterBarang).HasColumnName("id_master_barang");
+
+                entity.Property(e => e.IdPemasok).HasColumnName("id_pemasok");
+
+                entity.Property(e => e.IdPengadaanHp).HasColumnName("id_pengadaan_hp");
+
+                entity.Property(e => e.JumlahMasuk).HasColumnName("jumlah_masuk");
+
+                entity.HasOne(d => d.IdMasterBarangNavigation)
+                    .WithMany(p => p.DetailPengadaanHp)
+                    .HasForeignKey(d => d.IdMasterBarang)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_dp_hp_master");
+
+                entity.HasOne(d => d.IdPemasokNavigation)
+                    .WithMany(p => p.DetailPengadaanHp)
+                    .HasForeignKey(d => d.IdPemasok)
+                    .HasConstraintName("fk_dp_hp_pemasok");
+
+                entity.HasOne(d => d.IdPengadaanHpNavigation)
+                    .WithMany(p => p.DetailPengadaanHp)
+                    .HasForeignKey(d => d.IdPengadaanHp)
+                    .HasConstraintName("fk_dp_hp_pengadaan");
             });
 
             modelBuilder.Entity<DetailPermintaan>(entity =>
@@ -870,6 +932,50 @@ namespace Assets_Inventory.Models
                     .WithMany(p => p.DetailPermintaan)
                     .HasForeignKey(d => d.KodePermintaan)
                     .HasConstraintName("detail_permintaan_ibfk_1");
+            });
+
+            modelBuilder.Entity<DetailPermintaanHp>(entity =>
+            {
+                entity.HasKey(e => e.IdDetailPermintaanHp)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("detail_permintaan_hp");
+
+                entity.HasIndex(e => e.IdMasterBarang)
+                    .HasName("fk_dphp_master");
+
+                entity.HasIndex(e => e.KodePermintaanHp)
+                    .HasName("fk_dphp_kodeprm");
+
+                entity.Property(e => e.IdDetailPermintaanHp).HasColumnName("id_detail_permintaan_hp");
+
+                entity.Property(e => e.AlasanKebutuhan)
+                    .HasColumnName("alasan_kebutuhan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.IdMasterBarang).HasColumnName("id_master_barang");
+
+                entity.Property(e => e.JumlahDiminta).HasColumnName("jumlah_diminta");
+
+                entity.Property(e => e.KodePermintaanHp)
+                    .IsRequired()
+                    .HasColumnName("kode_permintaan_hp")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.HasOne(d => d.IdMasterBarangNavigation)
+                    .WithMany(p => p.DetailPermintaanHp)
+                    .HasForeignKey(d => d.IdMasterBarang)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_dphp_master");
+
+                entity.HasOne(d => d.KodePermintaanHpNavigation)
+                    .WithMany(p => p.DetailPermintaanHp)
+                    .HasForeignKey(d => d.KodePermintaanHp)
+                    .HasConstraintName("fk_dphp_kodeprm");
             });
 
             modelBuilder.Entity<FailedJobs>(entity =>
@@ -1110,7 +1216,7 @@ namespace Assets_Inventory.Models
                     .HasName("id_pelapor");
 
                 entity.HasIndex(e => e.KodeBarang)
-                    .HasName("kode_barang");
+                    .HasName("kerusakan_ibfk_1");
 
                 entity.Property(e => e.IdKerusakan).HasColumnName("id_kerusakan");
 
@@ -1123,12 +1229,7 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.IdPelapor).HasColumnName("id_pelapor");
 
-                entity.Property(e => e.KodeBarang)
-                    .IsRequired()
-                    .HasColumnName("kode_barang")
-                    .HasColumnType("varchar(50)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
 
                 entity.Property(e => e.StatusKerusakan)
                     .HasColumnName("status_kerusakan")
@@ -1207,12 +1308,6 @@ namespace Assets_Inventory.Models
                     .IsRequired()
                     .HasColumnName("nama")
                     .HasColumnType("varchar(150)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
-                entity.Property(e => e.NomorRak)
-                    .HasColumnName("nomor_rak")
-                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -1397,6 +1492,10 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.IdJurusanAsal).HasColumnName("id_jurusan_asal");
 
                 entity.Property(e => e.IdJurusanTujuan).HasColumnName("id_jurusan_tujuan");
+
+                entity.Property(e => e.IsApproved)
+                    .HasColumnName("is_approved")
+                    .HasDefaultValueSql("'0'");
 
                 entity.Property(e => e.KodeInventaris)
                     .IsRequired()
@@ -1616,12 +1715,17 @@ namespace Assets_Inventory.Models
                 entity.HasIndex(e => e.IdSumberPerolehan)
                     .HasName("fk_pengadaan_sumber");
 
+                entity.HasIndex(e => e.IdTahunAjaran)
+                    .HasName("fk_pengadaan_ta");
+
                 entity.HasIndex(e => e.KodeGudang)
                     .HasName("idx_gudang");
 
                 entity.Property(e => e.IdPengadaan).HasColumnName("id_pengadaan");
 
                 entity.Property(e => e.IdSumberPerolehan).HasColumnName("id_sumber_perolehan");
+
+                entity.Property(e => e.IdTahunAjaran).HasColumnName("id_tahun_ajaran");
 
                 entity.Property(e => e.Keterangan)
                     .HasColumnName("keterangan")
@@ -1637,8 +1741,8 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.Status)
                     .HasColumnName("status")
-                    .HasColumnType("enum('diproses','dibelanjakan','selesai')")
-                    .HasDefaultValueSql("'diproses'")
+                    .HasColumnType("enum('Menunggu Proses','Sedang Dibelanjakan','Selesai Dibelanjakan')")
+                    .HasDefaultValueSql("'Menunggu Proses'")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -1657,6 +1761,11 @@ namespace Assets_Inventory.Models
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_pengadaan_sumber");
 
+                entity.HasOne(d => d.IdTahunAjaranNavigation)
+                    .WithMany(p => p.Pengadaan)
+                    .HasForeignKey(d => d.IdTahunAjaran)
+                    .HasConstraintName("fk_pengadaan_ta");
+
                 entity.HasOne(d => d.KodeGudangNavigation)
                     .WithMany(p => p.Pengadaan)
                     .HasForeignKey(d => d.KodeGudang)
@@ -1665,45 +1774,26 @@ namespace Assets_Inventory.Models
 
             modelBuilder.Entity<PengadaanHabisPakai>(entity =>
             {
-                entity.HasKey(e => e.IdPengadaanHp)
+                entity.HasKey(e => e.IdPengadaan)
                     .HasName("PRIMARY");
 
                 entity.ToTable("pengadaan_habis_pakai");
 
-                entity.HasIndex(e => e.IdPemasok)
-                    .HasName("fk_php_pemasok");
-
-                entity.HasIndex(e => e.KodeBarang)
-                    .HasName("fk_php_barang");
+                entity.HasIndex(e => e.IdTahunAjaran)
+                    .HasName("fk_php_ta");
 
                 entity.HasIndex(e => e.KodeGudang)
                     .HasName("fk_php_gudang");
 
-                entity.HasIndex(e => e.KodeInventaris)
-                    .HasName("kode_inventaris")
-                    .IsUnique();
+                entity.Property(e => e.IdPengadaan).HasColumnName("id_pengadaan");
 
-                entity.Property(e => e.IdPengadaanHp).HasColumnName("id_pengadaan_hp");
+                entity.Property(e => e.IdSumberPerolehan).HasColumnName("id_sumber_perolehan");
 
-                entity.Property(e => e.HargaSatuan)
-                    .HasColumnName("harga_satuan")
-                    .HasColumnType("decimal(15,2)")
-                    .HasDefaultValueSql("'0.00'");
-
-                entity.Property(e => e.IdPemasok).HasColumnName("id_pemasok");
-
-                entity.Property(e => e.Jumlah).HasColumnName("jumlah");
+                entity.Property(e => e.IdTahunAjaran).HasColumnName("id_tahun_ajaran");
 
                 entity.Property(e => e.Keterangan)
                     .HasColumnName("keterangan")
                     .HasColumnType("text")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
-                entity.Property(e => e.KodeBarang)
-                    .IsRequired()
-                    .HasColumnName("kode_barang")
-                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -1713,10 +1803,10 @@ namespace Assets_Inventory.Models
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
-                entity.Property(e => e.KodeInventaris)
-                    .IsRequired()
-                    .HasColumnName("kode_inventaris")
-                    .HasColumnType("varchar(50)")
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasColumnType("enum('Menunggu Proses','Dibelanjakan','Selesai')")
+                    .HasDefaultValueSql("'Menunggu Proses'")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -1724,11 +1814,15 @@ namespace Assets_Inventory.Models
                     .HasColumnName("tanggal_pengadaan")
                     .HasColumnType("date");
 
-                entity.HasOne(d => d.IdPemasokNavigation)
+                entity.Property(e => e.TotalHarga)
+                    .HasColumnName("total_harga")
+                    .HasColumnType("decimal(15,2)")
+                    .HasDefaultValueSql("'0.00'");
+
+                entity.HasOne(d => d.IdTahunAjaranNavigation)
                     .WithMany(p => p.PengadaanHabisPakai)
-                    .HasForeignKey(d => d.IdPemasok)
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_php_pemasok");
+                    .HasForeignKey(d => d.IdTahunAjaran)
+                    .HasConstraintName("fk_php_ta");
 
                 entity.HasOne(d => d.KodeGudangNavigation)
                     .WithMany(p => p.PengadaanHabisPakai)
@@ -1767,6 +1861,36 @@ namespace Assets_Inventory.Models
                     .HasConstraintName("fk_pp_permintaan");
             });
 
+            modelBuilder.Entity<PengadaanPermintaanHp>(entity =>
+            {
+                entity.HasKey(e => new { e.IdPengadaanHp, e.KodePermintaanHp })
+                    .HasName("PRIMARY")
+                    .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+
+                entity.ToTable("pengadaan_permintaan_hp");
+
+                entity.HasIndex(e => e.KodePermintaanHp)
+                    .HasName("fk_jembatan_hp_permintaan");
+
+                entity.Property(e => e.IdPengadaanHp).HasColumnName("id_pengadaan_hp");
+
+                entity.Property(e => e.KodePermintaanHp)
+                    .HasColumnName("kode_permintaan_hp")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.HasOne(d => d.IdPengadaanHpNavigation)
+                    .WithMany(p => p.PengadaanPermintaanHp)
+                    .HasForeignKey(d => d.IdPengadaanHp)
+                    .HasConstraintName("fk_jembatan_hp_pengadaan");
+
+                entity.HasOne(d => d.KodePermintaanHpNavigation)
+                    .WithMany(p => p.PengadaanPermintaanHp)
+                    .HasForeignKey(d => d.KodePermintaanHp)
+                    .HasConstraintName("fk_jembatan_hp_permintaan");
+            });
+
             modelBuilder.Entity<Pengaturan>(entity =>
             {
                 entity.HasKey(e => e.IdPengaturan)
@@ -1803,6 +1927,13 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.Kota)
                     .HasColumnName("kota")
                     .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KustomPrefix)
+                    .HasColumnName("kustom_prefix")
+                    .HasColumnType("varchar(10)")
+                    .HasDefaultValueSql("'INV'")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
@@ -1896,6 +2027,13 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.IdPengguna).HasColumnName("id_pengguna");
 
+                entity.Property(e => e.FullName)
+                    .IsRequired()
+                    .HasColumnName("full_name")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
                 entity.Property(e => e.IdJurusan).HasColumnName("id_jurusan");
 
                 entity.Property(e => e.IdKelas).HasColumnName("id_kelas");
@@ -1954,7 +2092,7 @@ namespace Assets_Inventory.Models
                     .HasName("id_penyetuju");
 
                 entity.HasIndex(e => e.KodeBarang)
-                    .HasName("kode_barang");
+                    .HasName("penghapusan_aset_ibfk_1");
 
                 entity.Property(e => e.IdPenghapusan).HasColumnName("id_penghapusan");
 
@@ -1967,12 +2105,7 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.IdPenyetuju).HasColumnName("id_penyetuju");
 
-                entity.Property(e => e.KodeBarang)
-                    .IsRequired()
-                    .HasColumnName("kode_barang")
-                    .HasColumnType("varchar(50)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
 
                 entity.Property(e => e.TanggalHapus)
                     .HasColumnName("tanggal_hapus")
@@ -2111,6 +2244,9 @@ namespace Assets_Inventory.Models
                 entity.HasIndex(e => e.IdPenyetuju)
                     .HasName("id_penyetuju");
 
+                entity.HasIndex(e => e.IdTahunAjaran)
+                    .HasName("fk_permintaan_ta");
+
                 entity.Property(e => e.KodePermintaan)
                     .HasColumnName("kode_permintaan")
                     .HasColumnType("varchar(50)")
@@ -2128,6 +2264,8 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.IdPengguna).HasColumnName("id_pengguna");
 
                 entity.Property(e => e.IdPenyetuju).HasColumnName("id_penyetuju");
+
+                entity.Property(e => e.IdTahunAjaran).HasColumnName("id_tahun_ajaran");
 
                 entity.Property(e => e.KeteranganKeperluan)
                     .IsRequired()
@@ -2167,6 +2305,93 @@ namespace Assets_Inventory.Models
                     .HasForeignKey(d => d.IdPenyetuju)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("permintaan_ibfk_2");
+
+                entity.HasOne(d => d.IdTahunAjaranNavigation)
+                    .WithMany(p => p.Permintaan)
+                    .HasForeignKey(d => d.IdTahunAjaran)
+                    .HasConstraintName("fk_permintaan_ta");
+            });
+
+            modelBuilder.Entity<PermintaanHp>(entity =>
+            {
+                entity.HasKey(e => e.KodePermintaanHp)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("permintaan_hp");
+
+                entity.HasIndex(e => e.IdJurusan)
+                    .HasName("fk_permintaanhp_jurusan");
+
+                entity.HasIndex(e => e.IdPengguna)
+                    .HasName("fk_permintaannhp_pengguna");
+
+                entity.HasIndex(e => e.IdPenyetuju)
+                    .HasName("fk_permintaanhp_penyetuju");
+
+                entity.HasIndex(e => e.IdTahunAjaran)
+                    .HasName("fk_permintaanhp_ta");
+
+                entity.Property(e => e.KodePermintaanHp)
+                    .HasColumnName("kode_permintaan_hp")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.AlasanDisetujui)
+                    .HasColumnName("alasan_disetujui")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.IdJurusan).HasColumnName("id_jurusan");
+
+                entity.Property(e => e.IdPengguna).HasColumnName("id_pengguna");
+
+                entity.Property(e => e.IdPenyetuju).HasColumnName("id_penyetuju");
+
+                entity.Property(e => e.IdTahunAjaran).HasColumnName("id_tahun_ajaran");
+
+                entity.Property(e => e.KeteranganKeperluan)
+                    .IsRequired()
+                    .HasColumnName("keterangan_keperluan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StatusPersetujuan)
+                    .HasColumnName("status_persetujuan")
+                    .HasColumnType("enum('Menunggu','Disetujui','Ditolak')")
+                    .HasDefaultValueSql("'Menunggu'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalPermintaan)
+                    .HasColumnName("tanggal_permintaan")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.TanggalPersetujuan)
+                    .HasColumnName("tanggal_persetujuan")
+                    .HasColumnType("date");
+
+                entity.HasOne(d => d.IdJurusanNavigation)
+                    .WithMany(p => p.PermintaanHp)
+                    .HasForeignKey(d => d.IdJurusan)
+                    .HasConstraintName("fk_permintaanhp_jurusan");
+
+                entity.HasOne(d => d.IdPenggunaNavigation)
+                    .WithMany(p => p.PermintaanHpIdPenggunaNavigation)
+                    .HasForeignKey(d => d.IdPengguna)
+                    .HasConstraintName("fk_permintaannhp_pengguna");
+
+                entity.HasOne(d => d.IdPenyetujuNavigation)
+                    .WithMany(p => p.PermintaanHpIdPenyetujuNavigation)
+                    .HasForeignKey(d => d.IdPenyetuju)
+                    .HasConstraintName("fk_permintaanhp_penyetuju");
+
+                entity.HasOne(d => d.IdTahunAjaranNavigation)
+                    .WithMany(p => p.PermintaanHp)
+                    .HasForeignKey(d => d.IdTahunAjaran)
+                    .HasConstraintName("fk_permintaanhp_ta");
             });
 
             modelBuilder.Entity<PersonalAccessTokens>(entity =>
@@ -2524,6 +2749,987 @@ namespace Assets_Inventory.Models
                     .WithMany(p => p.TanahNonAktif)
                     .HasForeignKey(d => d.KodeTanah)
                     .HasConstraintName("fk_tna_tanah");
+            });
+
+            modelBuilder.Entity<VAset>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_aset");
+
+                entity.Property(e => e.HargaSatuan)
+                    .HasColumnName("harga_satuan")
+                    .HasColumnType("decimal(15,2)")
+                    .HasDefaultValueSql("'0.00'");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
+
+                entity.Property(e => e.KodeInventaris)
+                    .IsRequired()
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaJurusan)
+                    .HasColumnName("nama_jurusan")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaKategori)
+                    .HasColumnName("nama_kategori")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaKondisi)
+                    .HasColumnName("nama_kondisi")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaLokasi)
+                    .HasColumnName("nama_lokasi")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaMerek)
+                    .HasColumnName("nama_merek")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaRuang)
+                    .HasColumnName("nama_ruang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaSatuan)
+                    .HasColumnName("nama_satuan")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NilaiResidu)
+                    .HasColumnName("nilai_residu")
+                    .HasColumnType("decimal(15,2)")
+                    .HasDefaultValueSql("'0.00'");
+
+                entity.Property(e => e.NoSeri)
+                    .HasColumnName("no_seri")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif')")
+                    .HasDefaultValueSql("'Di Gudang'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalRegistrasi)
+                    .HasColumnName("tanggal_registrasi")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.UmurEkonomi).HasColumnName("umur_ekonomi");
+            });
+
+            modelBuilder.Entity<VAsetBangunan>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_aset_bangunan");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBangunan).HasColumnName("kode_bangunan");
+
+                entity.Property(e => e.Konstruksi)
+                    .HasColumnName("konstruksi")
+                    .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.LuasBangunan).HasColumnName("luas_bangunan");
+
+                entity.Property(e => e.NamaBangunan)
+                    .IsRequired()
+                    .HasColumnName("nama_bangunan")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaKondisi)
+                    .HasColumnName("nama_kondisi")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NilaiAset)
+                    .HasColumnName("nilai_aset")
+                    .HasColumnType("decimal(15,2)")
+                    .HasDefaultValueSql("'0.00'");
+
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif')")
+                    .HasDefaultValueSql("'Aktif'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StatusBangunan)
+                    .HasColumnName("status_bangunan")
+                    .HasColumnType("enum('Milik Sendiri','Sewa','Lainnya')")
+                    .HasDefaultValueSql("'Milik Sendiri'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_bin");
+
+                entity.Property(e => e.TanggalBangunan)
+                    .HasColumnName("tanggal_bangunan")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.UkuranL)
+                    .HasColumnName("ukuran_l")
+                    .HasColumnType("decimal(10,2)")
+                    .HasComment("Lebar Bangunan");
+
+                entity.Property(e => e.UkuranP)
+                    .HasColumnName("ukuran_p")
+                    .HasColumnType("decimal(10,2)")
+                    .HasComment("Panjang Bangunan");
+            });
+
+            modelBuilder.Entity<VAsetHabisPakai>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_aset_habis_pakai");
+
+                entity.Property(e => e.IsReturnable)
+                    .HasColumnName("is_returnable")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBarang)
+                    .IsRequired()
+                    .HasColumnName("kode_barang")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaJurusan)
+                    .HasColumnName("nama_jurusan")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaKategori)
+                    .HasColumnName("nama_kategori")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaLokasi)
+                    .HasColumnName("nama_lokasi")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaRuang)
+                    .HasColumnName("nama_ruang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif','Keluar','Tersedia')")
+                    .HasDefaultValueSql("'Di Gudang'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StokAktual).HasColumnName("stok_aktual");
+
+                entity.Property(e => e.StokAwal).HasColumnName("stok_awal");
+
+                entity.Property(e => e.TanggalRegistrasi)
+                    .HasColumnName("tanggal_registrasi")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VAsetTanah>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_aset_tanah");
+
+                entity.Property(e => e.KodeTanah).HasColumnName("kode_tanah");
+
+                entity.Property(e => e.LetakTanah)
+                    .IsRequired()
+                    .HasColumnName("letak_tanah")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.LuasTanah).HasColumnName("luas_tanah");
+
+                entity.Property(e => e.NamaLokasi)
+                    .HasColumnName("nama_lokasi")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPemilik)
+                    .IsRequired()
+                    .HasColumnName("nama_pemilik")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NilaiAset)
+                    .HasColumnName("nilai_aset")
+                    .HasColumnType("decimal(15,2)")
+                    .HasDefaultValueSql("'0.00'");
+
+                entity.Property(e => e.NomorSertifikat)
+                    .HasColumnName("nomor_sertifikat")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Penggunaan)
+                    .HasColumnName("penggunaan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasColumnType("enum('Di Gudang','Aktif','Dipinjam','Nonaktif')")
+                    .HasDefaultValueSql("'Aktif'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StatusHak)
+                    .HasColumnName("status_hak")
+                    .HasColumnType("enum('Hak Milik','Hak Pakai','Hak Guna Bangunan','Sewa','Lainnya')")
+                    .HasDefaultValueSql("'Hak Milik'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.SumberPerolehan)
+                    .HasColumnName("sumber_perolehan")
+                    .HasColumnType("enum('Beli','Sumbangan','Hibah','Lainnya')")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalPerolehan)
+                    .HasColumnName("tanggal_perolehan")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VBangunanNonAktif>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_bangunan_non_aktif");
+
+                entity.Property(e => e.IdBangunanNonAktif).HasColumnName("id_bangunan_non_aktif");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBangunan)
+                    .HasColumnName("kode_bangunan")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.LuasBangunan).HasColumnName("luas_bangunan");
+
+                entity.Property(e => e.NamaBangunan)
+                    .HasColumnName("nama_bangunan")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Penyebab)
+                    .HasColumnName("penyebab")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalNonaktif)
+                    .HasColumnName("tanggal_nonaktif")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VBarangKeluar>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_barang_keluar");
+
+                entity.Property(e => e.JumlahKeluar).HasColumnName("jumlah_keluar");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBarang)
+                    .IsRequired()
+                    .HasColumnName("kode_barang")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaGudang)
+                    .HasColumnName("nama_gudang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPenerima)
+                    .HasColumnName("nama_penerima")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPetugas)
+                    .HasColumnName("nama_petugas")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaRuang)
+                    .HasColumnName("nama_ruang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NoTransaksi).HasColumnName("no_transaksi");
+
+                entity.Property(e => e.TanggalKeluar)
+                    .HasColumnName("tanggal_keluar")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VBarangNonAktif>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_barang_non_aktif");
+
+                entity.Property(e => e.IdBarangNonAktif).HasColumnName("id_barang_non_aktif");
+
+                entity.Property(e => e.Jumlah)
+                    .HasColumnName("jumlah")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeInventaris)
+                    .IsRequired()
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaKategori)
+                    .HasColumnName("nama_kategori")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaLokasi)
+                    .HasColumnName("nama_lokasi")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaRuang)
+                    .HasColumnName("nama_ruang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Penyebab)
+                    .HasColumnName("penyebab")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalNonaktif)
+                    .HasColumnName("tanggal_nonaktif")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VLaporanKerusakan>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_laporan_kerusakan");
+
+                entity.Property(e => e.DeskripsiKerusakan)
+                    .IsRequired()
+                    .HasColumnName("deskripsi_kerusakan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.IdKerusakan).HasColumnName("id_kerusakan");
+
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
+
+                entity.Property(e => e.KodeInventaris)
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPelapor)
+                    .HasColumnName("nama_pelapor")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StatusKerusakan)
+                    .HasColumnName("status_kerusakan")
+                    .HasColumnType("enum('Menunggu Pemeriksaan','Sedang Diperbaiki','Selesai','Tidak Bisa Diperbaiki')")
+                    .HasDefaultValueSql("'Menunggu Pemeriksaan'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalLapor)
+                    .HasColumnName("tanggal_lapor")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.TingkatKerusakan)
+                    .IsRequired()
+                    .HasColumnName("tingkat_kerusakan")
+                    .HasColumnType("enum('Ringan','Sedang','Berat')")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+            });
+
+            modelBuilder.Entity<VLaporanPeminjaman>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_laporan_peminjaman");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
+
+                entity.Property(e => e.KodeInventaris)
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.LamaPinjamHari).HasColumnName("lama_pinjam_hari");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPeminjam)
+                    .IsRequired()
+                    .HasColumnName("nama_peminjam")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NomorPeminjaman)
+                    .IsRequired()
+                    .HasColumnName("nomor_peminjaman")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NomorTelepon)
+                    .HasColumnName("nomor_telepon")
+                    .HasColumnType("varchar(20)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StatusPeminjaman)
+                    .HasColumnName("status_peminjaman")
+                    .HasColumnType("enum('Sedang Dipinjam','Dikembalikan')")
+                    .HasDefaultValueSql("'Sedang Dipinjam'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalJatuhTempo)
+                    .HasColumnName("tanggal_jatuh_tempo")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.TanggalPinjam)
+                    .HasColumnName("tanggal_pinjam")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VLaporanPengembalian>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_laporan_pengembalian");
+
+                entity.Property(e => e.BatasWaktu)
+                    .HasColumnName("batas_waktu")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.IdPengembalian).HasColumnName("id_pengembalian");
+
+                entity.Property(e => e.NamaPeminjam)
+                    .IsRequired()
+                    .HasColumnName("nama_peminjam")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NomorPeminjaman)
+                    .IsRequired()
+                    .HasColumnName("nomor_peminjaman")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalKembali)
+                    .HasColumnName("tanggal_kembali")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.TanggalPinjam)
+                    .HasColumnName("tanggal_pinjam")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.TelatHari).HasColumnName("telat_hari");
+            });
+
+            modelBuilder.Entity<VLaporanPerbaikan>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_laporan_perbaikan");
+
+                entity.Property(e => e.BiayaPerbaikan)
+                    .HasColumnName("biaya_perbaikan")
+                    .HasColumnType("decimal(15,2)")
+                    .HasDefaultValueSql("'0.00'");
+
+                entity.Property(e => e.DeskripsiKerusakan)
+                    .IsRequired()
+                    .HasColumnName("deskripsi_kerusakan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.IdPerbaikan).HasColumnName("id_perbaikan");
+
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
+
+                entity.Property(e => e.KodeInventaris)
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalPerbaikan)
+                    .HasColumnName("tanggal_perbaikan")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.Teknisi)
+                    .HasColumnName("teknisi")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TindakanPerbaikan)
+                    .IsRequired()
+                    .HasColumnName("tindakan_perbaikan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+            });
+
+            modelBuilder.Entity<VLaporanPermintaan>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_laporan_permintaan");
+
+                entity.Property(e => e.AlasanDisetujui)
+                    .HasColumnName("alasan_disetujui")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.AlasanKebutuhan)
+                    .HasColumnName("alasan_kebutuhan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.JumlahDiminta).HasColumnName("jumlah_diminta");
+
+                entity.Property(e => e.KodePermintaan)
+                    .IsRequired()
+                    .HasColumnName("kode_permintaan")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaJurusan)
+                    .HasColumnName("nama_jurusan")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPeminta)
+                    .HasColumnName("nama_peminta")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPenyetuju)
+                    .HasColumnName("nama_penyetuju")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.StatusPersetujuan)
+                    .HasColumnName("status_persetujuan")
+                    .HasColumnType("enum('Menunggu','Disetujui','Ditolak')")
+                    .HasDefaultValueSql("'Menunggu'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalPermintaan)
+                    .HasColumnName("tanggal_permintaan")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.TanggalPersetujuan)
+                    .HasColumnName("tanggal_persetujuan")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VMutasi>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_mutasi");
+
+                entity.Property(e => e.AlasanMutasi)
+                    .HasColumnName("alasan_mutasi")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.IdMutasi).HasColumnName("id_mutasi");
+
+                entity.Property(e => e.JurusanAsal)
+                    .HasColumnName("jurusan_asal")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.JurusanTujuan)
+                    .HasColumnName("jurusan_tujuan")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeInventaris)
+                    .IsRequired()
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalMutasi)
+                    .HasColumnName("tanggal_mutasi")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VOpnameAset>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_opname_aset");
+
+                entity.Property(e => e.IdOpnameAset).HasColumnName("id_opname_aset");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeInventaris)
+                    .IsRequired()
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KondisiTerkini)
+                    .HasColumnName("kondisi_terkini")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaRuang)
+                    .HasColumnName("nama_ruang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalOpname)
+                    .HasColumnName("tanggal_opname")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VPengadaanAset>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_pengadaan_aset");
+
+                entity.Property(e => e.HargaSatuan)
+                    .HasColumnName("harga_satuan")
+                    .HasColumnType("decimal(15,2)");
+
+                entity.Property(e => e.IdPengadaan).HasColumnName("id_pengadaan");
+
+                entity.Property(e => e.JumlahMasuk).HasColumnName("jumlah_masuk");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaGudang)
+                    .HasColumnName("nama_gudang")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaKategori)
+                    .HasColumnName("nama_kategori")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPemasok)
+                    .HasColumnName("nama_pemasok")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaSumber)
+                    .HasColumnName("nama_sumber")
+                    .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasColumnType("enum('Menunggu Proses','Sedang Dibelanjakan','Selesai Dibelanjakan')")
+                    .HasDefaultValueSql("'Menunggu Proses'")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.SubTotal)
+                    .HasColumnName("sub_total")
+                    .HasColumnType("decimal(25,2)");
+
+                entity.Property(e => e.TahunAjaran)
+                    .HasColumnName("tahun_ajaran")
+                    .HasColumnType("varchar(20)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalPengadaan)
+                    .HasColumnName("tanggal_pengadaan")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VPenghapusanAset>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_penghapusan_aset");
+
+                entity.Property(e => e.AlasanHapus)
+                    .IsRequired()
+                    .HasColumnName("alasan_hapus")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.IdPenghapusan).HasColumnName("id_penghapusan");
+
+                entity.Property(e => e.KodeBarang).HasColumnName("kode_barang");
+
+                entity.Property(e => e.KodeInventaris)
+                    .HasColumnName("kode_inventaris")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaBarang)
+                    .HasColumnName("nama_barang")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NamaPenyetuju)
+                    .HasColumnName("nama_penyetuju")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalHapus)
+                    .HasColumnName("tanggal_hapus")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<VTanahNonAktif>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("v_tanah_non_aktif");
+
+                entity.Property(e => e.IdTanahNonAktif).HasColumnName("id_tanah_non_aktif");
+
+                entity.Property(e => e.Keterangan)
+                    .HasColumnName("keterangan")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.KodeTanah)
+                    .HasColumnName("kode_tanah")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.LuasTanah).HasColumnName("luas_tanah");
+
+                entity.Property(e => e.NamaPemilik)
+                    .HasColumnName("nama_pemilik")
+                    .HasColumnType("varchar(150)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.NomorSertifikat)
+                    .HasColumnName("nomor_sertifikat")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Penyebab)
+                    .HasColumnName("penyebab")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TanggalNonaktif)
+                    .HasColumnName("tanggal_nonaktif")
+                    .HasColumnType("date");
             });
 
             OnModelCreatingPartial(modelBuilder);

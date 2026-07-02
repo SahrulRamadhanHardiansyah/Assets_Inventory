@@ -11,21 +11,24 @@ namespace Assets_Inventory.Models
     {
         public PengadaanHabisPakai()
         {
-            BarangKeluar = new HashSet<BarangKeluar>();
+            AsetHabisPakai = new HashSet<AsetHabisPakai>();
+            DetailPengadaanHp = new HashSet<DetailPengadaanHp>();
+            PengadaanPermintaanHp = new HashSet<PengadaanPermintaanHp>();
         }
 
-        public int IdPengadaanHp { get; set; }
-        public string KodeInventaris { get; set; }
+        public int IdPengadaan { get; set; }
         public DateTime TanggalPengadaan { get; set; }
-        public string KodeBarang { get; set; }
-        public int Jumlah { get; set; }
-        public decimal? HargaSatuan { get; set; }
-        public int? IdPemasok { get; set; }
+        public int? IdTahunAjaran { get; set; }
+        public decimal? TotalHarga { get; set; }
         public string KodeGudang { get; set; }
+        public int? IdSumberPerolehan { get; set; }
+        public string Status { get; set; }
         public string Keterangan { get; set; }
 
-        public virtual Pemasok IdPemasokNavigation { get; set; }
+        public virtual TahunAjaran IdTahunAjaranNavigation { get; set; }
         public virtual Gudang KodeGudangNavigation { get; set; }
-        public virtual ICollection<BarangKeluar> BarangKeluar { get; set; }
+        public virtual ICollection<AsetHabisPakai> AsetHabisPakai { get; set; }
+        public virtual ICollection<DetailPengadaanHp> DetailPengadaanHp { get; set; }
+        public virtual ICollection<PengadaanPermintaanHp> PengadaanPermintaanHp { get; set; }
     }
 }

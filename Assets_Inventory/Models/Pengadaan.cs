@@ -17,6 +17,7 @@ namespace Assets_Inventory.Models
 
         public int IdPengadaan { get; set; }
         public DateTime TanggalPengadaan { get; set; }
+        public int? IdTahunAjaran { get; set; }
         public decimal? TotalHarga { get; set; }
         public string Keterangan { get; set; }
         public string KodeGudang { get; set; }
@@ -24,6 +25,7 @@ namespace Assets_Inventory.Models
         public string Status { get; set; }
 
         public virtual SumberPerolehan IdSumberPerolehanNavigation { get; set; }
+        public virtual TahunAjaran IdTahunAjaranNavigation { get; set; }
         public virtual Gudang KodeGudangNavigation { get; set; }
         public virtual ICollection<DetailPengadaan> DetailPengadaan { get; set; }
         public virtual ICollection<PengadaanPermintaan> PengadaanPermintaan { get; set; }

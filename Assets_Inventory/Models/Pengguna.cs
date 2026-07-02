@@ -16,12 +16,15 @@ namespace Assets_Inventory.Models
             Kerusakan = new HashSet<Kerusakan>();
             OpnameStok = new HashSet<OpnameStok>();
             PenghapusanAset = new HashSet<PenghapusanAset>();
+            PermintaanHpIdPenggunaNavigation = new HashSet<PermintaanHp>();
+            PermintaanHpIdPenyetujuNavigation = new HashSet<PermintaanHp>();
             PermintaanIdPenggunaNavigation = new HashSet<Permintaan>();
             PermintaanIdPenyetujuNavigation = new HashSet<Permintaan>();
         }
 
         public int IdPengguna { get; set; }
         public string Username { get; set; }
+        public string FullName { get; set; }
         public string Password { get; set; }
         public int IdPeran { get; set; }
         public int? IdKelas { get; set; }
@@ -37,6 +40,8 @@ namespace Assets_Inventory.Models
         public virtual ICollection<Kerusakan> Kerusakan { get; set; }
         public virtual ICollection<OpnameStok> OpnameStok { get; set; }
         public virtual ICollection<PenghapusanAset> PenghapusanAset { get; set; }
+        public virtual ICollection<PermintaanHp> PermintaanHpIdPenggunaNavigation { get; set; }
+        public virtual ICollection<PermintaanHp> PermintaanHpIdPenyetujuNavigation { get; set; }
         public virtual ICollection<Permintaan> PermintaanIdPenggunaNavigation { get; set; }
         public virtual ICollection<Permintaan> PermintaanIdPenyetujuNavigation { get; set; }
     }

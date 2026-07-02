@@ -15,6 +15,7 @@ namespace Assets_Inventory.Models
         public int IdJurusanTujuan { get; set; }
         public DateTime TanggalMutasi { get; set; }
         public string AlasanMutasi { get; set; }
+        public bool? IsApproved { get; set; }
 
         public virtual Jurusan IdJurusanAsalNavigation { get; set; }
         public virtual Jurusan IdJurusanTujuanNavigation { get; set; }

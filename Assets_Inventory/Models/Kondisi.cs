@@ -13,7 +13,6 @@ namespace Assets_Inventory.Models
         {
             Aset = new HashSet<Aset>();
             AsetBangunan = new HashSet<AsetBangunan>();
-            AsetHabisPakai = new HashSet<AsetHabisPakai>();
             OpnameAset = new HashSet<OpnameAset>();
         }
 
@@ -23,7 +22,6 @@ namespace Assets_Inventory.Models
 
         public virtual ICollection<Aset> Aset { get; set; }
         public virtual ICollection<AsetBangunan> AsetBangunan { get; set; }
-        public virtual ICollection<AsetHabisPakai> AsetHabisPakai { get; set; }
         public virtual ICollection<OpnameAset> OpnameAset { get; set; }
     }
 }

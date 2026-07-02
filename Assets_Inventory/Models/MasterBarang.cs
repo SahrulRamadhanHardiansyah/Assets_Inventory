@@ -14,7 +14,9 @@ namespace Assets_Inventory.Models
             Aset = new HashSet<Aset>();
             AsetHabisPakai = new HashSet<AsetHabisPakai>();
             DetailPengadaan = new HashSet<DetailPengadaan>();
+            DetailPengadaanHp = new HashSet<DetailPengadaanHp>();
             DetailPermintaan = new HashSet<DetailPermintaan>();
+            DetailPermintaanHp = new HashSet<DetailPermintaanHp>();
             OpnameStok = new HashSet<OpnameStok>();
         }
 
@@ -32,7 +34,9 @@ namespace Assets_Inventory.Models
         public virtual ICollection<Aset> Aset { get; set; }
         public virtual ICollection<AsetHabisPakai> AsetHabisPakai { get; set; }
         public virtual ICollection<DetailPengadaan> DetailPengadaan { get; set; }
+        public virtual ICollection<DetailPengadaanHp> DetailPengadaanHp { get; set; }
         public virtual ICollection<DetailPermintaan> DetailPermintaan { get; set; }
+        public virtual ICollection<DetailPermintaanHp> DetailPermintaanHp { get; set; }
         public virtual ICollection<OpnameStok> OpnameStok { get; set; }
     }
 }

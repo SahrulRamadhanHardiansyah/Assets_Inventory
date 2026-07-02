@@ -11,7 +11,7 @@ namespace Assets_Inventory.Models
     {
         public int NoTransaksi { get; set; }
         public DateTime TanggalKeluar { get; set; }
-        public string KodeInventaris { get; set; }
+        public string KodeBarang { get; set; }
         public int JumlahKeluar { get; set; }
         public string Keterangan { get; set; }
         public int? IdRuang { get; set; }
@@ -20,8 +20,8 @@ namespace Assets_Inventory.Models
         public string KodeGudang { get; set; }
 
         public virtual Ruang IdRuangNavigation { get; set; }
+        public virtual AsetHabisPakai KodeBarangNavigation { get; set; }
         public virtual Gudang KodeGudangNavigation { get; set; }
-        public virtual PengadaanHabisPakai KodeInventarisNavigation { get; set; }
         public virtual Pengguna NamaPenerimaNavigation { get; set; }
         public virtual Pengguna PetugasNavigation { get; set; }
     }

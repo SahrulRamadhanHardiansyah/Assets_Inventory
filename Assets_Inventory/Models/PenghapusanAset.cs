@@ -10,7 +10,7 @@ namespace Assets_Inventory.Models
     public partial class PenghapusanAset
     {
         public int IdPenghapusan { get; set; }
-        public string KodeBarang { get; set; }
+        public int KodeBarang { get; set; }
         public DateTime TanggalHapus { get; set; }
         public string AlasanHapus { get; set; }
         public int IdPenyetuju { get; set; }

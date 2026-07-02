@@ -12,7 +12,6 @@ namespace Assets_Inventory.Models
         public DetailPengadaan()
         {
             Aset = new HashSet<Aset>();
-            AsetHabisPakai = new HashSet<AsetHabisPakai>();
         }
 
         public int IdDetailPengadaan { get; set; }
@@ -21,11 +20,11 @@ namespace Assets_Inventory.Models
         public int IdMasterBarang { get; set; }
         public int JumlahMasuk { get; set; }
         public decimal HargaSatuan { get; set; }
+        public bool? Status { get; set; }
 
         public virtual MasterBarang IdMasterBarangNavigation { get; set; }
         public virtual Pemasok IdPemasokNavigation { get; set; }
         public virtual Pengadaan IdPengadaanNavigation { get; set; }
         public virtual ICollection<Aset> Aset { get; set; }
-        public virtual ICollection<AsetHabisPakai> AsetHabisPakai { get; set; }
     }
 }

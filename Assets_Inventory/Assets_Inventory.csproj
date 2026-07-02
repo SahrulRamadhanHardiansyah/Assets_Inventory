@@ -36,7 +36,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app_icon %281%29.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt-Net-Next, Version=4.2.0.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
+      <HintPath>..\packages\BCrypt.Net-Next.4.2.0\lib\net48\BCrypt-Net-Next.dll</HintPath>
+    </Reference>
     <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
       <HintPath>..\packages\BouncyCastle.Cryptography.2.6.2\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
     </Reference>
@@ -299,6 +305,7 @@
     </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.ValueTuple" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -319,203 +326,273 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutForm.cs">
+    <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AboutForm.Designer.cs">
+    <Compile Include="Forms\AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AksesItemControl.cs">
+    <Compile Include="Forms\InputBarangAsetForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\InputBarangAsetForm.Designer.cs">
+      <DependentUpon>InputBarangAsetForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\InputBarangHabisPakaiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\InputBarangHabisPakaiForm.Designer.cs">
+      <DependentUpon>InputBarangHabisPakaiForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\InputBarangHabisPakaiKeluarForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\InputBarangHabisPakaiKeluarForm.Designer.cs">
+      <DependentUpon>InputBarangHabisPakaiKeluarForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\InputPengadaanBarangHabisPakaiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\InputPengadaanBarangHabisPakaiForm.Designer.cs">
+      <DependentUpon>InputPengadaanBarangHabisPakaiForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\InputPermintaanBarangHabisPakaiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\InputPermintaanBarangHabisPakaiForm.Designer.cs">
+      <DependentUpon>InputPermintaanBarangHabisPakaiForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\AuthManager.cs" />
+    <Compile Include="Models\DetailPengadaanHp.cs" />
+    <Compile Include="Models\DetailPermintaanHp.cs" />
+    <Compile Include="Models\PengadaanPermintaanHp.cs" />
+    <Compile Include="Models\PermintaanHp.cs" />
+    <Compile Include="Models\VAset.cs" />
+    <Compile Include="Models\VAsetBangunan.cs" />
+    <Compile Include="Models\VAsetHabisPakai.cs" />
+    <Compile Include="Models\VAsetTanah.cs" />
+    <Compile Include="Models\VBangunanNonAktif.cs" />
+    <Compile Include="Models\VBarangKeluar.cs" />
+    <Compile Include="Models\VBarangNonAktif.cs" />
+    <Compile Include="Models\VLaporanKerusakan.cs" />
+    <Compile Include="Models\VLaporanPeminjaman.cs" />
+    <Compile Include="Models\VLaporanPengembalian.cs" />
+    <Compile Include="Models\VLaporanPerbaikan.cs" />
+    <Compile Include="Models\VLaporanPermintaan.cs" />
+    <Compile Include="Models\VMutasi.cs" />
+    <Compile Include="Models\VOpnameAset.cs" />
+    <Compile Include="Models\VPengadaanAset.cs" />
+    <Compile Include="Models\VPenghapusanAset.cs" />
+    <Compile Include="Models\VTanahNonAktif.cs" />
+    <Compile Include="UserControls\DataBarangAsetUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="AksesItemControl.Designer.cs">
-      <DependentUpon>AksesItemControl.cs</DependentUpon>
+    <Compile Include="UserControls\DataBarangAsetUC.Designer.cs">
+      <DependentUpon>DataBarangAsetUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="AsetPerluDilengkapiUC.cs">
+    <Compile Include="UserControls\DataPermintaanBarangHabisPakaiUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="AsetPerluDilengkapiUC.Designer.cs">
+    <Compile Include="UserControls\DataPermintaanBarangHabisPakaiUC.Designer.cs">
+      <DependentUpon>DataPermintaanBarangHabisPakaiUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\DbTableControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\DbTableControl.Designer.cs">
+      <DependentUpon>DbTableControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\AsetPerluDilengkapiUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\AsetPerluDilengkapiUC.Designer.cs">
       <DependentUpon>AsetPerluDilengkapiUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="BackupDbForm.cs">
+    <Compile Include="Forms\BackupDbForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BackupDbForm.Designer.cs">
+    <Compile Include="Forms\BackupDbForm.Designer.cs">
       <DependentUpon>BackupDbForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="BarangForm.cs">
+    <Compile Include="Forms\BarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BarangForm.Designer.cs">
+    <Compile Include="Forms\BarangForm.Designer.cs">
       <DependentUpon>BarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataBarangHabisPakaiKeluarUC.cs">
+    <Compile Include="UserControls\DashboardUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DataBarangHabisPakaiKeluarUC.Designer.cs">
+    <Compile Include="UserControls\DashboardUC.Designer.cs">
+      <DependentUpon>DashboardUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\DataBarangHabisPakaiKeluarUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\DataBarangHabisPakaiKeluarUC.Designer.cs">
       <DependentUpon>DataBarangHabisPakaiKeluarUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataBarangHabisPakaiUC.cs">
+    <Compile Include="UserControls\DataBarangHabisPakaiUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DataBarangHabisPakaiUC.Designer.cs">
+    <Compile Include="UserControls\DataBarangHabisPakaiUC.Designer.cs">
       <DependentUpon>DataBarangHabisPakaiUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="DatabaseHelper.cs" />
-    <Compile Include="DataPengadaaanBarangHabisPakaiUC.cs">
+    <Compile Include="Helper\DatabaseHelper.cs" />
+    <Compile Include="UserControls\DataPengadaaanBarangHabisPakaiUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DataPengadaaanBarangHabisPakaiUC.Designer.cs">
+    <Compile Include="UserControls\DataPengadaaanBarangHabisPakaiUC.Designer.cs">
       <DependentUpon>DataPengadaaanBarangHabisPakaiUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="DetailPengadaanForm.cs">
+    <Compile Include="Forms\DetailPengadaanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DetailPengadaanForm.Designer.cs">
+    <Compile Include="Forms\DetailPengadaanForm.Designer.cs">
       <DependentUpon>DetailPengadaanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DetailPermintaanForm.cs">
+    <Compile Include="Forms\DetailPermintaanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DetailPermintaanForm.Designer.cs">
+    <Compile Include="Forms\DetailPermintaanForm.Designer.cs">
       <DependentUpon>DetailPermintaanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputPermintaanBarangForm.cs">
+    <Compile Include="Forms\InputPermintaanBarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InputPermintaanBarangForm.Designer.cs">
+    <Compile Include="Forms\InputPermintaanBarangForm.Designer.cs">
       <DependentUpon>InputPermintaanBarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="KartuInventarisRuanganUC.cs">
+    <Compile Include="UserControls\KartuInventarisRuanganUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="KartuInventarisRuanganUC.Designer.cs">
+    <Compile Include="UserControls\KartuInventarisRuanganUC.Designer.cs">
       <DependentUpon>KartuInventarisRuanganUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="KelengkapanAsetForm.cs">
+    <Compile Include="Forms\KelengkapanAsetForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="KelengkapanAsetForm.Designer.cs">
+    <Compile Include="Forms\KelengkapanAsetForm.Designer.cs">
       <DependentUpon>KelengkapanAsetForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanBangunanInventarisUC.cs">
+    <Compile Include="UserControls\LaporanBangunanInventarisUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanBangunanInventarisUC.Designer.cs">
+    <Compile Include="UserControls\LaporanBangunanInventarisUC.Designer.cs">
       <DependentUpon>LaporanBangunanInventarisUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanBangunanNonAktifUC.cs">
+    <Compile Include="UserControls\LaporanBangunanNonAktifUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanBangunanNonAktifUC.Designer.cs">
+    <Compile Include="UserControls\LaporanBangunanNonAktifUC.Designer.cs">
       <DependentUpon>LaporanBangunanNonAktifUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanBarangInventarisUC.cs">
+    <Compile Include="UserControls\LaporanBarangInventarisUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanBarangInventarisUC.Designer.cs">
+    <Compile Include="UserControls\LaporanBarangInventarisUC.Designer.cs">
       <DependentUpon>LaporanBarangInventarisUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanBarangNonAktifUC.cs">
+    <Compile Include="UserControls\LaporanBarangNonAktifUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanBarangNonAktifUC.Designer.cs">
+    <Compile Include="UserControls\LaporanBarangNonAktifUC.Designer.cs">
       <DependentUpon>LaporanBarangNonAktifUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanJatuhTempoPeminjamanUC.cs">
+    <Compile Include="UserControls\LaporanJatuhTempoPeminjamanUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanJatuhTempoPeminjamanUC.Designer.cs">
+    <Compile Include="UserControls\LaporanJatuhTempoPeminjamanUC.Designer.cs">
       <DependentUpon>LaporanJatuhTempoPeminjamanUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanMutasiBarangUC.cs">
+    <Compile Include="UserControls\LaporanMutasiBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanMutasiBarangUC.Designer.cs">
+    <Compile Include="UserControls\LaporanMutasiBarangUC.Designer.cs">
       <DependentUpon>LaporanMutasiBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanPeminjamanBarangUC.cs">
+    <Compile Include="UserControls\LaporanPeminjamanBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanPeminjamanBarangUC.Designer.cs">
+    <Compile Include="UserControls\LaporanPeminjamanBarangUC.Designer.cs">
       <DependentUpon>LaporanPeminjamanBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanPengadaanBarangUC.cs">
+    <Compile Include="UserControls\LaporanPengadaanBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanPengadaanBarangUC.Designer.cs">
+    <Compile Include="UserControls\LaporanPengadaanBarangUC.Designer.cs">
       <DependentUpon>LaporanPengadaanBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanPengembalianBarangUC.cs">
+    <Compile Include="UserControls\LaporanPengembalianBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanPengembalianBarangUC.Designer.cs">
+    <Compile Include="UserControls\LaporanPengembalianBarangUC.Designer.cs">
       <DependentUpon>LaporanPengembalianBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanPenyusutanNilaiBarangUC.cs">
+    <Compile Include="UserControls\LaporanPenyusutanNilaiBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanPenyusutanNilaiBarangUC.Designer.cs">
+    <Compile Include="UserControls\LaporanPenyusutanNilaiBarangUC.Designer.cs">
       <DependentUpon>LaporanPenyusutanNilaiBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanProsesOpnameUC.cs">
+    <Compile Include="UserControls\LaporanProsesOpnameUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanProsesOpnameUC.Designer.cs">
+    <Compile Include="UserControls\LaporanProsesOpnameUC.Designer.cs">
       <DependentUpon>LaporanProsesOpnameUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanStokBarangHabisPakaiUC.cs">
+    <Compile Include="UserControls\LaporanStokBarangHabisPakaiUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanStokBarangHabisPakaiUC.Designer.cs">
+    <Compile Include="UserControls\LaporanStokBarangHabisPakaiUC.Designer.cs">
       <DependentUpon>LaporanStokBarangHabisPakaiUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanStokMinimalBarangHabisPakaiUC.cs">
+    <Compile Include="UserControls\LaporanStokMinimalBarangHabisPakaiUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanStokMinimalBarangHabisPakaiUC.Designer.cs">
+    <Compile Include="UserControls\LaporanStokMinimalBarangHabisPakaiUC.Designer.cs">
       <DependentUpon>LaporanStokMinimalBarangHabisPakaiUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanTanahInventarisUC.cs">
+    <Compile Include="UserControls\LaporanTanahInventarisUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanTanahInventarisUC.Designer.cs">
+    <Compile Include="UserControls\LaporanTanahInventarisUC.Designer.cs">
       <DependentUpon>LaporanTanahInventarisUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanTanahNonAktifUC.cs">
+    <Compile Include="UserControls\LaporanTanahNonAktifUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LaporanTanahNonAktifUC.Designer.cs">
+    <Compile Include="UserControls\LaporanTanahNonAktifUC.Designer.cs">
       <DependentUpon>LaporanTanahNonAktifUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterGudangForm.cs">
+    <Compile Include="Forms\MasterGudangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterGudangForm.Designer.cs">
+    <Compile Include="Forms\MasterGudangForm.Designer.cs">
       <DependentUpon>MasterGudangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterRombelForm.cs">
+    <Compile Include="Forms\MasterRombelForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterRombelForm.Designer.cs">
+    <Compile Include="Forms\MasterRombelForm.Designer.cs">
       <DependentUpon>MasterRombelForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterSumberPerolehanForm.cs">
+    <Compile Include="Forms\MasterSumberPerolehanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterSumberPerolehanForm.Designer.cs">
+    <Compile Include="Forms\MasterSumberPerolehanForm.Designer.cs">
       <DependentUpon>MasterSumberPerolehanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterSupplierForm.cs">
+    <Compile Include="Forms\MasterSupplierForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterSupplierForm.Designer.cs">
+    <Compile Include="Forms\MasterSupplierForm.Designer.cs">
       <DependentUpon>MasterSupplierForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterTahunAjaranForm.cs">
+    <Compile Include="Forms\MasterTahunAjaranForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterTahunAjaranForm.Designer.cs">
+    <Compile Include="Forms\MasterTahunAjaranForm.Designer.cs">
       <DependentUpon>MasterTahunAjaranForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Akses.cs" />
@@ -573,395 +650,419 @@
     <Compile Include="Models\TahunAjaran.cs" />
     <Compile Include="Models\TanahNonAktif.cs" />
     <Compile Include="Models\Unit.cs" />
-    <Compile Include="PeminjamanBarangUC.cs">
+    <Compile Include="UserControls\PeminjamanBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PeminjamanBarangUC.Designer.cs">
+    <Compile Include="UserControls\PeminjamanBarangUC.Designer.cs">
       <DependentUpon>PeminjamanBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="GroupUserForm.cs">
+    <Compile Include="Forms\GroupUserForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GroupUserForm.Designer.cs">
+    <Compile Include="Forms\GroupUserForm.Designer.cs">
       <DependentUpon>GroupUserForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputBangunanForm.cs">
+    <Compile Include="Forms\InputBangunanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InputBangunanForm.Designer.cs">
+    <Compile Include="Forms\InputBangunanForm.Designer.cs">
       <DependentUpon>InputBangunanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputPengadaanBarangForm.cs">
+    <Compile Include="Forms\InputPengadaanBarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InputPengadaanBarangForm.Designer.cs">
+    <Compile Include="Forms\InputPengadaanBarangForm.Designer.cs">
       <DependentUpon>InputPengadaanBarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputTanahForm.cs">
+    <Compile Include="Forms\InputTanahForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InputTanahForm.Designer.cs">
+    <Compile Include="Forms\InputTanahForm.Designer.cs">
       <DependentUpon>InputTanahForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="KoneksiDbForm.cs">
+    <Compile Include="Forms\KoneksiDbForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="KoneksiDbForm.Designer.cs">
+    <Compile Include="Forms\KoneksiDbForm.Designer.cs">
       <DependentUpon>KoneksiDbForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LaporanForm.cs">
+    <Compile Include="Forms\LaporanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LaporanForm.Designer.cs">
+    <Compile Include="Forms\LaporanForm.Designer.cs">
       <DependentUpon>LaporanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LoginForm.cs">
+    <Compile Include="Forms\LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LoginForm.Designer.cs">
+    <Compile Include="Forms\LoginForm.Designer.cs">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterBarangForm.cs">
+    <Compile Include="Forms\MasterBarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterBarangForm.Designer.cs">
+    <Compile Include="Forms\MasterBarangForm.Designer.cs">
       <DependentUpon>MasterBarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterDataForm.cs">
+    <Compile Include="Forms\MasterDataForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterDataForm.Designer.cs">
+    <Compile Include="Forms\MasterDataForm.Designer.cs">
       <DependentUpon>MasterDataForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterKategoriForm.cs">
+    <Compile Include="Forms\MasterKategoriForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterKategoriForm.Designer.cs">
+    <Compile Include="Forms\MasterKategoriForm.Designer.cs">
       <DependentUpon>MasterKategoriForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterKondisiForm.cs">
+    <Compile Include="Forms\MasterKondisiForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterKondisiForm.Designer.cs">
+    <Compile Include="Forms\MasterKondisiForm.Designer.cs">
       <DependentUpon>MasterKondisiForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterLokasiForm.cs">
+    <Compile Include="Forms\MasterLokasiForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterLokasiForm.Designer.cs">
+    <Compile Include="Forms\MasterLokasiForm.Designer.cs">
       <DependentUpon>MasterLokasiForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterMerekForm.cs">
+    <Compile Include="Forms\MasterMerekForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterMerekForm.Designer.cs">
+    <Compile Include="Forms\MasterMerekForm.Designer.cs">
       <DependentUpon>MasterMerekForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterNonAktifForm.cs">
+    <Compile Include="Forms\MasterNonAktifForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterNonAktifForm.Designer.cs">
+    <Compile Include="Forms\MasterNonAktifForm.Designer.cs">
       <DependentUpon>MasterNonAktifForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterRuangForm.cs">
+    <Compile Include="Forms\MasterRuangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterRuangForm.Designer.cs">
+    <Compile Include="Forms\MasterRuangForm.Designer.cs">
       <DependentUpon>MasterRuangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MasterSatuanForm.cs">
+    <Compile Include="Forms\MasterSatuanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MasterSatuanForm.Designer.cs">
+    <Compile Include="Forms\MasterSatuanForm.Designer.cs">
       <DependentUpon>MasterSatuanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MutasiBarangForm.cs">
+    <Compile Include="Forms\MutasiBarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MutasiBarangForm.Designer.cs">
+    <Compile Include="Forms\MutasiBarangForm.Designer.cs">
       <DependentUpon>MutasiBarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NonAktifBangunanForm.cs">
+    <Compile Include="Forms\NonAktifBangunanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NonAktifBangunanForm.Designer.cs">
+    <Compile Include="Forms\NonAktifBangunanForm.Designer.cs">
       <DependentUpon>NonAktifBangunanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NonAktifBarangForm.cs">
+    <Compile Include="Forms\NonAktifBarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NonAktifBarangForm.Designer.cs">
+    <Compile Include="Forms\NonAktifBarangForm.Designer.cs">
       <DependentUpon>NonAktifBarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NonAktifTanahForm.cs">
+    <Compile Include="Forms\NonAktifTanahForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NonAktifTanahForm.Designer.cs">
+    <Compile Include="Forms\NonAktifTanahForm.Designer.cs">
       <DependentUpon>NonAktifTanahForm.cs</DependentUpon>
     </Compile>
     <Compile Include="OpenAPIs\docs.cs" />
-    <Compile Include="OpnameBarangForm.cs">
+    <Compile Include="Forms\OpnameBarangForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OpnameBarangForm.Designer.cs">
+    <Compile Include="Forms\OpnameBarangForm.Designer.cs">
       <DependentUpon>OpnameBarangForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PengadaanBarangUC.cs">
+    <Compile Include="UserControls\PengadaanBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PengadaanBarangUC.Designer.cs">
+    <Compile Include="UserControls\PengadaanBarangUC.Designer.cs">
       <DependentUpon>PengadaanBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="PengembalianBarangUC.cs">
+    <Compile Include="UserControls\PengembalianBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PengembalianBarangUC.Designer.cs">
+    <Compile Include="UserControls\PengembalianBarangUC.Designer.cs">
       <DependentUpon>PengembalianBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="PermintaanBarangUC.cs">
+    <Compile Include="UserControls\PermintaanBarangUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PermintaanBarangUC.Designer.cs">
+    <Compile Include="UserControls\PermintaanBarangUC.Designer.cs">
       <DependentUpon>PermintaanBarangUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="PersetujuanForm.cs">
+    <Compile Include="Forms\PersetujuanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PersetujuanForm.Designer.cs">
+    <Compile Include="Forms\PersetujuanForm.Designer.cs">
       <DependentUpon>PersetujuanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ProfilLembagaForm.cs">
+    <Compile Include="Forms\ProfilLembagaForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ProfilLembagaForm.Designer.cs">
+    <Compile Include="Forms\ProfilLembagaForm.Designer.cs">
       <DependentUpon>ProfilLembagaForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProsesNonAktifForm.cs">
+    <Compile Include="Forms\ProsesNonAktifForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ProsesNonAktifForm.Designer.cs">
+    <Compile Include="Forms\ProsesNonAktifForm.Designer.cs">
       <DependentUpon>ProsesNonAktifForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ResetDbForm.cs">
+    <Compile Include="Forms\ResetDbForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ResetDbForm.Designer.cs">
+    <Compile Include="Forms\ResetDbForm.Designer.cs">
       <DependentUpon>ResetDbForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="RestoreDbForm.cs">
+    <Compile Include="Forms\RestoreDbForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RestoreDbForm.Designer.cs">
+    <Compile Include="Forms\RestoreDbForm.Designer.cs">
       <DependentUpon>RestoreDbForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SortableBindingList.cs" />
-    <Compile Include="TransaksiPeminjamanForm.cs">
+    <Compile Include="Helper\SortableBindingList.cs" />
+    <Compile Include="Forms\TransaksiPeminjamanForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TransaksiPeminjamanForm.Designer.cs">
+    <Compile Include="Forms\TransaksiPeminjamanForm.Designer.cs">
       <DependentUpon>TransaksiPeminjamanForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TransaksiPengembalianForm.cs">
+    <Compile Include="Forms\TransaksiPengembalianForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TransaksiPengembalianForm.Designer.cs">
+    <Compile Include="Forms\TransaksiPengembalianForm.Designer.cs">
       <DependentUpon>TransaksiPengembalianForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UserForm.cs">
+    <Compile Include="Forms\UserForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UserForm.Designer.cs">
+    <Compile Include="Forms\UserForm.Designer.cs">
       <DependentUpon>UserForm.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="AboutForm.resx">
+    <EmbeddedResource Include="Forms\AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AksesItemControl.resx">
-      <DependentUpon>AksesItemControl.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\InputBarangAsetForm.resx">
+      <DependentUpon>InputBarangAsetForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AsetPerluDilengkapiUC.resx">
+    <EmbeddedResource Include="Forms\InputBarangHabisPakaiForm.resx">
+      <DependentUpon>InputBarangHabisPakaiForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\InputBarangHabisPakaiKeluarForm.resx">
+      <DependentUpon>InputBarangHabisPakaiKeluarForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\InputPengadaanBarangHabisPakaiForm.resx">
+      <DependentUpon>InputPengadaanBarangHabisPakaiForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\InputPermintaanBarangHabisPakaiForm.resx">
+      <DependentUpon>InputPermintaanBarangHabisPakaiForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\DashboardUC.resx">
+      <DependentUpon>DashboardUC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\DataBarangAsetUC.resx">
+      <DependentUpon>DataBarangAsetUC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\DataPermintaanBarangHabisPakaiUC.resx">
+      <DependentUpon>DataPermintaanBarangHabisPakaiUC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\DbTableControl.resx">
+      <DependentUpon>DbTableControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\AsetPerluDilengkapiUC.resx">
       <DependentUpon>AsetPerluDilengkapiUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BackupDbForm.resx">
+    <EmbeddedResource Include="Forms\BackupDbForm.resx">
       <DependentUpon>BackupDbForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BarangForm.resx">
+    <EmbeddedResource Include="Forms\BarangForm.resx">
       <DependentUpon>BarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DataBarangHabisPakaiKeluarUC.resx">
+    <EmbeddedResource Include="UserControls\DataBarangHabisPakaiKeluarUC.resx">
       <DependentUpon>DataBarangHabisPakaiKeluarUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DataBarangHabisPakaiUC.resx">
+    <EmbeddedResource Include="UserControls\DataBarangHabisPakaiUC.resx">
       <DependentUpon>DataBarangHabisPakaiUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DataPengadaaanBarangHabisPakaiUC.resx">
+    <EmbeddedResource Include="UserControls\DataPengadaaanBarangHabisPakaiUC.resx">
       <DependentUpon>DataPengadaaanBarangHabisPakaiUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DetailPengadaanForm.resx">
+    <EmbeddedResource Include="Forms\DetailPengadaanForm.resx">
       <DependentUpon>DetailPengadaanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DetailPermintaanForm.resx">
+    <EmbeddedResource Include="Forms\DetailPermintaanForm.resx">
       <DependentUpon>DetailPermintaanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="InputPermintaanBarangForm.resx">
+    <EmbeddedResource Include="Forms\InputPermintaanBarangForm.resx">
       <DependentUpon>InputPermintaanBarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KartuInventarisRuanganUC.resx">
+    <EmbeddedResource Include="UserControls\KartuInventarisRuanganUC.resx">
       <DependentUpon>KartuInventarisRuanganUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KelengkapanAsetForm.resx">
+    <EmbeddedResource Include="Forms\KelengkapanAsetForm.resx">
       <DependentUpon>KelengkapanAsetForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanBangunanInventarisUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanBangunanInventarisUC.resx">
       <DependentUpon>LaporanBangunanInventarisUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanBangunanNonAktifUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanBangunanNonAktifUC.resx">
       <DependentUpon>LaporanBangunanNonAktifUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanBarangInventarisUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanBarangInventarisUC.resx">
       <DependentUpon>LaporanBarangInventarisUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanBarangNonAktifUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanBarangNonAktifUC.resx">
       <DependentUpon>LaporanBarangNonAktifUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanJatuhTempoPeminjamanUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanJatuhTempoPeminjamanUC.resx">
       <DependentUpon>LaporanJatuhTempoPeminjamanUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanMutasiBarangUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanMutasiBarangUC.resx">
       <DependentUpon>LaporanMutasiBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanPeminjamanBarangUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanPeminjamanBarangUC.resx">
       <DependentUpon>LaporanPeminjamanBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanPengadaanBarangUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanPengadaanBarangUC.resx">
       <DependentUpon>LaporanPengadaanBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanPengembalianBarangUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanPengembalianBarangUC.resx">
       <DependentUpon>LaporanPengembalianBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanPenyusutanNilaiBarangUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanPenyusutanNilaiBarangUC.resx">
       <DependentUpon>LaporanPenyusutanNilaiBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanProsesOpnameUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanProsesOpnameUC.resx">
       <DependentUpon>LaporanProsesOpnameUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanStokBarangHabisPakaiUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanStokBarangHabisPakaiUC.resx">
       <DependentUpon>LaporanStokBarangHabisPakaiUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanStokMinimalBarangHabisPakaiUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanStokMinimalBarangHabisPakaiUC.resx">
       <DependentUpon>LaporanStokMinimalBarangHabisPakaiUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanTanahInventarisUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanTanahInventarisUC.resx">
       <DependentUpon>LaporanTanahInventarisUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanTanahNonAktifUC.resx">
+    <EmbeddedResource Include="UserControls\LaporanTanahNonAktifUC.resx">
       <DependentUpon>LaporanTanahNonAktifUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterGudangForm.resx">
+    <EmbeddedResource Include="Forms\MasterGudangForm.resx">
       <DependentUpon>MasterGudangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterRombelForm.resx">
+    <EmbeddedResource Include="Forms\MasterRombelForm.resx">
       <DependentUpon>MasterRombelForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterSumberPerolehanForm.resx">
+    <EmbeddedResource Include="Forms\MasterSumberPerolehanForm.resx">
       <DependentUpon>MasterSumberPerolehanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterSupplierForm.resx">
+    <EmbeddedResource Include="Forms\MasterSupplierForm.resx">
       <DependentUpon>MasterSupplierForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterTahunAjaranForm.resx">
+    <EmbeddedResource Include="Forms\MasterTahunAjaranForm.resx">
       <DependentUpon>MasterTahunAjaranForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PeminjamanBarangUC.resx">
+    <EmbeddedResource Include="UserControls\PeminjamanBarangUC.resx">
       <DependentUpon>PeminjamanBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GroupUserForm.resx">
+    <EmbeddedResource Include="Forms\GroupUserForm.resx">
       <DependentUpon>GroupUserForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="InputBangunanForm.resx">
+    <EmbeddedResource Include="Forms\InputBangunanForm.resx">
       <DependentUpon>InputBangunanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="InputPengadaanBarangForm.resx">
+    <EmbeddedResource Include="Forms\InputPengadaanBarangForm.resx">
       <DependentUpon>InputPengadaanBarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="InputTanahForm.resx">
+    <EmbeddedResource Include="Forms\InputTanahForm.resx">
       <DependentUpon>InputTanahForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KoneksiDbForm.resx">
+    <EmbeddedResource Include="Forms\KoneksiDbForm.resx">
       <DependentUpon>KoneksiDbForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LaporanForm.resx">
+    <EmbeddedResource Include="Forms\LaporanForm.resx">
       <DependentUpon>LaporanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoginForm.resx">
+    <EmbeddedResource Include="Forms\LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterBarangForm.resx">
+    <EmbeddedResource Include="Forms\MasterBarangForm.resx">
       <DependentUpon>MasterBarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterDataForm.resx">
+    <EmbeddedResource Include="Forms\MasterDataForm.resx">
       <DependentUpon>MasterDataForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterKategoriForm.resx">
+    <EmbeddedResource Include="Forms\MasterKategoriForm.resx">
       <DependentUpon>MasterKategoriForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterKondisiForm.resx">
+    <EmbeddedResource Include="Forms\MasterKondisiForm.resx">
       <DependentUpon>MasterKondisiForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterLokasiForm.resx">
+    <EmbeddedResource Include="Forms\MasterLokasiForm.resx">
       <DependentUpon>MasterLokasiForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterMerekForm.resx">
+    <EmbeddedResource Include="Forms\MasterMerekForm.resx">
       <DependentUpon>MasterMerekForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterNonAktifForm.resx">
+    <EmbeddedResource Include="Forms\MasterNonAktifForm.resx">
       <DependentUpon>MasterNonAktifForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterRuangForm.resx">
+    <EmbeddedResource Include="Forms\MasterRuangForm.resx">
       <DependentUpon>MasterRuangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MasterSatuanForm.resx">
+    <EmbeddedResource Include="Forms\MasterSatuanForm.resx">
       <DependentUpon>MasterSatuanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MutasiBarangForm.resx">
+    <EmbeddedResource Include="Forms\MutasiBarangForm.resx">
       <DependentUpon>MutasiBarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NonAktifBangunanForm.resx">
+    <EmbeddedResource Include="Forms\NonAktifBangunanForm.resx">
       <DependentUpon>NonAktifBangunanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NonAktifBarangForm.resx">
+    <EmbeddedResource Include="Forms\NonAktifBarangForm.resx">
       <DependentUpon>NonAktifBarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NonAktifTanahForm.resx">
+    <EmbeddedResource Include="Forms\NonAktifTanahForm.resx">
       <DependentUpon>NonAktifTanahForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OpnameBarangForm.resx">
+    <EmbeddedResource Include="Forms\OpnameBarangForm.resx">
       <DependentUpon>OpnameBarangForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PengadaanBarangUC.resx">
+    <EmbeddedResource Include="UserControls\PengadaanBarangUC.resx">
       <DependentUpon>PengadaanBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PengembalianBarangUC.resx">
+    <EmbeddedResource Include="UserControls\PengembalianBarangUC.resx">
       <DependentUpon>PengembalianBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PermintaanBarangUC.resx">
+    <EmbeddedResource Include="UserControls\PermintaanBarangUC.resx">
       <DependentUpon>PermintaanBarangUC.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PersetujuanForm.resx">
+    <EmbeddedResource Include="Forms\PersetujuanForm.resx">
       <DependentUpon>PersetujuanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ProfilLembagaForm.resx">
+    <EmbeddedResource Include="Forms\ProfilLembagaForm.resx">
       <DependentUpon>ProfilLembagaForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -973,28 +1074,30 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ProsesNonAktifForm.resx">
+    <EmbeddedResource Include="Forms\ProsesNonAktifForm.resx">
       <DependentUpon>ProsesNonAktifForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ResetDbForm.resx">
+    <EmbeddedResource Include="Forms\ResetDbForm.resx">
       <DependentUpon>ResetDbForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="RestoreDbForm.resx">
+    <EmbeddedResource Include="Forms\RestoreDbForm.resx">
       <DependentUpon>RestoreDbForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TransaksiPeminjamanForm.resx">
+    <EmbeddedResource Include="Forms\TransaksiPeminjamanForm.resx">
       <DependentUpon>TransaksiPeminjamanForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TransaksiPengembalianForm.resx">
+    <EmbeddedResource Include="Forms\TransaksiPengembalianForm.resx">
       <DependentUpon>TransaksiPengembalianForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserForm.resx">
+    <EmbeddedResource Include="Forms\UserForm.resx">
       <DependentUpon>UserForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Aset.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.AsetBangunan.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.AsetTanah.datasource" />
+    <None Include="Properties\DataSources\Assets_Inventory.Models.BangunanNonAktif.datasource" />
+    <None Include="Properties\DataSources\Assets_Inventory.Models.BarangNonAktif.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.DetailPengadaan.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.DetailPermintaan.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Gudang.datasource" />
@@ -1008,6 +1111,7 @@
     <None Include="Properties\DataSources\Assets_Inventory.Models.MasterBarang.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Merek.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Mutasi.datasource" />
+    <None Include="Properties\DataSources\Assets_Inventory.Models.OpnameAset.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Pemasok.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Pengadaan.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Pengaturan.datasource" />
@@ -1020,6 +1124,7 @@
     <None Include="Properties\DataSources\Assets_Inventory.Models.StatusBarang.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.SumberPerolehan.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.TahunAjaran.datasource" />
+    <None Include="Properties\DataSources\Assets_Inventory.Models.TanahNonAktif.datasource" />
     <None Include="Properties\DataSources\Assets_Inventory.Models.Unit.datasource" />
     <None Include="Properties\DataSources\GudangResource.datasource" />
     <None Include="Properties\DataSources\KategoriResource.datasource" />
@@ -1059,6 +1164,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app_icon %281%29.ico" />
+    <Content Include="app_icon.ico" />
     <Content Include="Resources\mysql.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -1072,10 +1179,7 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Forms\" />
-    <Folder Include="UserControls\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

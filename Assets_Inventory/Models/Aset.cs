@@ -19,11 +19,14 @@ namespace Assets_Inventory.Models
             PenghapusanAset = new HashSet<PenghapusanAset>();
         }
 
-        public string KodeBarang { get; set; }
+        public int KodeBarang { get; set; }
+        public string KodeBarang2 { get; set; }
         public int? IdDetailPengadaan { get; set; }
         public int IdMasterBarang { get; set; }
         public int? IdJurusan { get; set; }
         public int? IdRuang { get; set; }
+        public int? IdLemari { get; set; }
+        public string NomorRak { get; set; }
         public int? IdLokasi { get; set; }
         public string NoSeri { get; set; }
         public decimal? HargaSatuan { get; set; }
@@ -39,6 +42,7 @@ namespace Assets_Inventory.Models
         public virtual DetailPengadaan IdDetailPengadaanNavigation { get; set; }
         public virtual Jurusan IdJurusanNavigation { get; set; }
         public virtual Kondisi IdKondisiNavigation { get; set; }
+        public virtual Lemari IdLemariNavigation { get; set; }
         public virtual Lokasi IdLokasiNavigation { get; set; }
         public virtual MasterBarang IdMasterBarangNavigation { get; set; }
         public virtual Ruang IdRuangNavigation { get; set; }

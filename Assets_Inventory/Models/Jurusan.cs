@@ -17,6 +17,7 @@ namespace Assets_Inventory.Models
             MutasiIdJurusanTujuanNavigation = new HashSet<Mutasi>();
             Pengguna = new HashSet<Pengguna>();
             Permintaan = new HashSet<Permintaan>();
+            PermintaanHp = new HashSet<PermintaanHp>();
             Rombel = new HashSet<Rombel>();
         }
 
@@ -29,6 +30,7 @@ namespace Assets_Inventory.Models
         public virtual ICollection<Mutasi> MutasiIdJurusanTujuanNavigation { get; set; }
         public virtual ICollection<Pengguna> Pengguna { get; set; }
         public virtual ICollection<Permintaan> Permintaan { get; set; }
+        public virtual ICollection<PermintaanHp> PermintaanHp { get; set; }
         public virtual ICollection<Rombel> Rombel { get; set; }
     }
 }

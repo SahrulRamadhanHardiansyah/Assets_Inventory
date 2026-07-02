@@ -9,12 +9,17 @@ namespace Assets_Inventory.Models
 {
     public partial class Lemari
     {
+        public Lemari()
+        {
+            Aset = new HashSet<Aset>();
+        }
+
         public int IdLemari { get; set; }
         public string KodeLemari { get; set; }
         public string Nama { get; set; }
         public int? IdRuang { get; set; }
-        public string NomorRak { get; set; }
 
         public virtual Ruang IdRuangNavigation { get; set; }
+        public virtual ICollection<Aset> Aset { get; set; }
     }
 }

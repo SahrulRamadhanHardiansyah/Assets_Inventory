@@ -19,6 +19,7 @@ namespace Assets_Inventory.Models
         public int? IdPengguna { get; set; }
         public int? IdJurusan { get; set; }
         public DateTime TanggalPermintaan { get; set; }
+        public int? IdTahunAjaran { get; set; }
         public string KeteranganKeperluan { get; set; }
         public string StatusPersetujuan { get; set; }
         public DateTime? TanggalPersetujuan { get; set; }
@@ -28,6 +29,7 @@ namespace Assets_Inventory.Models
         public virtual Jurusan IdJurusanNavigation { get; set; }
         public virtual Pengguna IdPenggunaNavigation { get; set; }
         public virtual Pengguna IdPenyetujuNavigation { get; set; }
+        public virtual TahunAjaran IdTahunAjaranNavigation { get; set; }
         public virtual ICollection<DetailPermintaan> DetailPermintaan { get; set; }
         public virtual ICollection<PengadaanPermintaan> PengadaanPermintaan { get; set; }
     }

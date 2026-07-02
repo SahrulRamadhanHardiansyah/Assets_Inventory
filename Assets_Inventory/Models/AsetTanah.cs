@@ -25,6 +25,7 @@ namespace Assets_Inventory.Models
         public string Penggunaan { get; set; }
         public DateTime? TanggalPerolehan { get; set; }
         public string SumberPerolehan { get; set; }
+        public string Status { get; set; }
 
         public virtual Lokasi IdLokasiNavigation { get; set; }
         public virtual ICollection<TanahNonAktif> TanahNonAktif { get; set; }

@@ -22,5 +22,6 @@ namespace Assets_Inventory.Models
         public string Nip { get; set; }
         public string BagianInventaris { get; set; }
         public string PaketGolongan { get; set; }
+        public string KustomPrefix { get; set; }
     }
 }

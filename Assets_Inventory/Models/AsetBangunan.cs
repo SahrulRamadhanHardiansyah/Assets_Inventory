@@ -25,6 +25,7 @@ namespace Assets_Inventory.Models
         public decimal? UkuranP { get; set; }
         public decimal? UkuranL { get; set; }
         public string Konstruksi { get; set; }
+        public string Status { get; set; }
 
         public virtual Kondisi IdKondisiNavigation { get; set; }
         public virtual ICollection<BangunanNonAktif> BangunanNonAktif { get; set; }

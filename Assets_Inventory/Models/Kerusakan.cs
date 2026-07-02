@@ -15,7 +15,7 @@ namespace Assets_Inventory.Models
         }
 
         public int IdKerusakan { get; set; }
-        public string KodeBarang { get; set; }
+        public int KodeBarang { get; set; }
         public DateTime TanggalLapor { get; set; }
         public int IdPelapor { get; set; }
         public string DeskripsiKerusakan { get; set; }

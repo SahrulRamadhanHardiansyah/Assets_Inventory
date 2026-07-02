@@ -11,7 +11,7 @@ namespace Assets_Inventory.Models
     {
         public int IdDetailPinjam { get; set; }
         public string NomorPeminjaman { get; set; }
-        public string KodeBarang { get; set; }
+        public int KodeBarang { get; set; }
 
         public virtual Aset KodeBarangNavigation { get; set; }
         public virtual Peminjaman NomorPeminjamanNavigation { get; set; }
