@@ -183,94 +183,106 @@ namespace Assets_Inventory.Forms
                 return;
             }
 
-            try
+            // ponytail: validate TryParse return before use
+            int umurEkonomi = 0;
+            bool hasUmurEkonomi = false;
+            if (!string.IsNullOrWhiteSpace(txtUmurEkonomi.Text))
             {
-                var masterDb = db.MasterBarang.FirstOrDefault(m => m.NamaBarang.ToLower() == namaInput.ToLower());
-                int finalIdMaster;
-
-                if (masterDb == null)
+                if (!int.TryParse(txtUmurEkonomi.Text, out umurEkonomi))
                 {
-                    var newMaster = new MasterBarang { NamaBarang = namaInput };
-                    db.MasterBarang.Add(newMaster);
-                    db.SaveChanges();
-                    finalIdMaster = newMaster.IdMasterBarang;
+                    MessageBox.Show("Umur Ekonomi harus berupa angka valid!", "Validasi Form", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
-                else
-                {
-                    finalIdMaster = masterDb.IdMasterBarang;
-                }
-
-                int.TryParse(txtUmurEkonomi.Text, out int umurEkonomi);
-                decimal.TryParse(txtNilaiResidu.Text, out decimal nilaiResidu);
-
-                if (selectedAset == null)
-                {
-                    Aset asetBaru = new Aset
-                    {
-                        IdMasterBarang = finalIdMaster,
-                        KodeInventaris = txtKodeInventaris.Text.Trim(),
-                        NoSeri = string.IsNullOrWhiteSpace(txtNoSeri.Text) ? null : txtNoSeri.Text.Trim(),
-                        UmurEkonomi = string.IsNullOrWhiteSpace(txtUmurEkonomi.Text) ? (int?)null : umurEkonomi,
-                        NilaiResidu = nilaiResidu,
-                        IdJurusan = cmbJurusan.SelectedIndex != -1 ? (int?)cmbJurusan.SelectedValue : null,
-                        IdRuang = cmbRuang.SelectedIndex != -1 ? (int?)cmbRuang.SelectedValue : null,
-                        IdLokasi = cmbLokasi.SelectedIndex != -1 ? (int?)cmbLokasi.SelectedValue : null,
-                        IdLemari = (cmbLemari.Enabled && cmbLemari.SelectedIndex != -1) ? (int?)cmbLemari.SelectedValue : null,
-                        NomorRak = (txtNomorRak.Enabled && !string.IsNullOrWhiteSpace(txtNomorRak.Text)) ? txtNomorRak.Text.Trim() : null,
-                        Status = cmbStatus.SelectedItem?.ToString() ?? "Aktif",
-                        Keterangan = txtKeterangan.Text.Trim(),
-                        Gambar = base64Image,
-                        TanggalRegistrasi = DateTime.Now,
-                        KodeBarang2 = Guid.NewGuid().ToString("N").Substring(0, 20).ToUpper()
-                    };
-
-                    db.Aset.Add(asetBaru);
-                    db.SaveChanges();
-                    MessageBox.Show("Aset manual berhasil ditambahkan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    var existingAset = db.Aset.Find(selectedAset.KodeBarang);
-                    if (existingAset != null)
-                    {
-                        existingAset.IdMasterBarang = finalIdMaster;
-                        existingAset.KodeInventaris = txtKodeInventaris.Text.Trim();
-                        existingAset.NoSeri = string.IsNullOrWhiteSpace(txtNoSeri.Text) ? null : txtNoSeri.Text.Trim();
-                        existingAset.UmurEkonomi = string.IsNullOrWhiteSpace(txtUmurEkonomi.Text) ? (int?)null : umurEkonomi;
-                        existingAset.NilaiResidu = nilaiResidu;
-                        existingAset.IdJurusan = cmbJurusan.SelectedIndex != -1 ? (int?)cmbJurusan.SelectedValue : null;
-                        existingAset.IdRuang = cmbRuang.SelectedIndex != -1 ? (int?)cmbRuang.SelectedValue : null;
-                        existingAset.IdLokasi = cmbLokasi.SelectedIndex != -1 ? (int?)cmbLokasi.SelectedValue : null;
-                        existingAset.IdLemari = (cmbLemari.Enabled && cmbLemari.SelectedIndex != -1) ? (int?)cmbLemari.SelectedValue : null;
-                        existingAset.NomorRak = (txtNomorRak.Enabled && !string.IsNullOrWhiteSpace(txtNomorRak.Text)) ? txtNomorRak.Text.Trim() : null;
-                        existingAset.Status = cmbStatus.SelectedItem?.ToString() ?? "Aktif";
-                        existingAset.Keterangan = txtKeterangan.Text.Trim();
-                        existingAset.Gambar = base64Image;
-
-                        db.SaveChanges();
-                        MessageBox.Show("Data Aset berhasil diperbarui!", "Sukses Update", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                hasUmurEkonomi = true;
             }
-            catch (Exception ex)
+
+            decimal nilaiResidu = 0;
+            if (!string.IsNullOrWhiteSpace(txtNilaiResidu.Text))
             {
-                db.Dispose();
-                db = new AppDbContext();
-
-                string errorMsg = ex.Message;
-                if (ex.InnerException != null)
+                if (!decimal.TryParse(txtNilaiResidu.Text, out nilaiResidu))
                 {
-                    errorMsg += "\n\nDetail:\n" + ex.InnerException.Message;
-                    if (ex.InnerException.InnerException != null)
-                    {
-                        errorMsg += "\n" + ex.InnerException.InnerException.Message;
-                    }
+                    MessageBox.Show("Nilai Residu harus berupa angka valid!", "Validasi Form", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+            }
 
-                MessageBox.Show("Terjadi kesalahan database:\n\n" + errorMsg, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            using (var tx = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    var masterDb = db.MasterBarang.FirstOrDefault(m => m.NamaBarang.ToLower() == namaInput.ToLower());
+                    int finalIdMaster;
+
+                    if (masterDb == null)
+                    {
+                        var newMaster = new MasterBarang { NamaBarang = namaInput };
+                        db.MasterBarang.Add(newMaster);
+                        db.SaveChanges();
+                        finalIdMaster = newMaster.IdMasterBarang;
+                    }
+                    else
+                    {
+                        finalIdMaster = masterDb.IdMasterBarang;
+                    }
+
+                    if (selectedAset == null)
+                    {
+                        Aset asetBaru = new Aset
+                        {
+                            IdMasterBarang = finalIdMaster,
+                            KodeInventaris = txtKodeInventaris.Text.Trim(),
+                            NoSeri = string.IsNullOrWhiteSpace(txtNoSeri.Text) ? null : txtNoSeri.Text.Trim(),
+                            UmurEkonomi = hasUmurEkonomi ? (int?)umurEkonomi : null,
+                            NilaiResidu = nilaiResidu,
+                            IdJurusan = cmbJurusan.SelectedIndex != -1 ? (int?)cmbJurusan.SelectedValue : null,
+                            IdRuang = cmbRuang.SelectedIndex != -1 ? (int?)cmbRuang.SelectedValue : null,
+                            IdLokasi = cmbLokasi.SelectedIndex != -1 ? (int?)cmbLokasi.SelectedValue : null,
+                            IdLemari = (cmbLemari.Enabled && cmbLemari.SelectedIndex != -1) ? (int?)cmbLemari.SelectedValue : null,
+                            NomorRak = (txtNomorRak.Enabled && !string.IsNullOrWhiteSpace(txtNomorRak.Text)) ? txtNomorRak.Text.Trim() : null,
+                            Status = cmbStatus.SelectedItem?.ToString() ?? "Aktif",
+                            Keterangan = txtKeterangan.Text.Trim(),
+                            Gambar = base64Image,
+                            TanggalRegistrasi = DateTime.Now,
+                            KodeBarang2 = Guid.NewGuid().ToString("N").Substring(0, 20).ToUpper()
+                        };
+
+                        db.Aset.Add(asetBaru);
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        var existingAset = db.Aset.Find(selectedAset.KodeBarang);
+                        if (existingAset != null)
+                        {
+                            existingAset.IdMasterBarang = finalIdMaster;
+                            existingAset.KodeInventaris = txtKodeInventaris.Text.Trim();
+                            existingAset.NoSeri = string.IsNullOrWhiteSpace(txtNoSeri.Text) ? null : txtNoSeri.Text.Trim();
+                            existingAset.UmurEkonomi = hasUmurEkonomi ? (int?)umurEkonomi : null;
+                            existingAset.NilaiResidu = nilaiResidu;
+                            existingAset.IdJurusan = cmbJurusan.SelectedIndex != -1 ? (int?)cmbJurusan.SelectedValue : null;
+                            existingAset.IdRuang = cmbRuang.SelectedIndex != -1 ? (int?)cmbRuang.SelectedValue : null;
+                            existingAset.IdLokasi = cmbLokasi.SelectedIndex != -1 ? (int?)cmbLokasi.SelectedValue : null;
+                            existingAset.IdLemari = (cmbLemari.Enabled && cmbLemari.SelectedIndex != -1) ? (int?)cmbLemari.SelectedValue : null;
+                            existingAset.NomorRak = (txtNomorRak.Enabled && !string.IsNullOrWhiteSpace(txtNomorRak.Text)) ? txtNomorRak.Text.Trim() : null;
+                            existingAset.Status = cmbStatus.SelectedItem?.ToString() ?? "Aktif";
+                            existingAset.Keterangan = txtKeterangan.Text.Trim();
+                            existingAset.Gambar = base64Image;
+
+                            db.SaveChanges();
+                        }
+                    }
+
+                    tx.Commit();
+                    MessageBox.Show(selectedAset == null ? "Aset manual berhasil ditambahkan!" : "Data Aset berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                catch (Exception ex)
+                {
+                    try { tx.Rollback(); } catch { }
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    MessageBox.Show("Terjadi kesalahan sistem", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

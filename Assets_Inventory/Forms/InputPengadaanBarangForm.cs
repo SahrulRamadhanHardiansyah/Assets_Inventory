@@ -334,7 +334,11 @@ namespace Assets_Inventory
 
             try
             {
-                if (selectedPengadaan == null)
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        if (selectedPengadaan == null)
                 {
                     var pengadaan = new Pengadaan
                     {
@@ -372,7 +376,8 @@ namespace Assets_Inventory
                     }
 
                     db.SaveChanges();
-                    MessageBox.Show("Bon pengadaan berhasil dibuat! Silakan proses belanja di menu utama.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            transaction.Commit();
+                            MessageBox.Show("Bon pengadaan berhasil dibuat! Silakan proses belanja di menu utama.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -416,7 +421,15 @@ namespace Assets_Inventory
                     }
 
                     db.SaveChanges();
-                    MessageBox.Show("Data pengadaan berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            transaction.Commit();
+                            MessageBox.Show("Data pengadaan berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                    catch
+                    {
+                        try { transaction.Rollback(); } catch { }
+                        throw;
+                    }
                 }
 
                 this.DialogResult = DialogResult.OK;
@@ -424,7 +437,8 @@ namespace Assets_Inventory
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Terjadi kesalahan sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine("Error: " + ex.Message);
+                MessageBox.Show("Terjadi kesalahan saat menyimpan pengadaan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
