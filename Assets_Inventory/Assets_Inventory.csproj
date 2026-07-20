@@ -920,6 +920,7 @@
     <Compile Include="Helper\ImageValidator.cs" />
     <Compile Include="Helper\QrCodeHelper.cs" />
     <Compile Include="Helper\NotificationService.cs" />
+    <Compile Include="Helper\ApprovalWorkflowHelper.cs" />
     <Compile Include="Helper\AuditHelper.cs" />
     <Compile Include="Helper\ConnectionStringProtector.cs" />
     <Compile Include="Forms\ApprovalWorkflowConfigForm.cs">
@@ -927,6 +928,12 @@
     </Compile>
     <Compile Include="Forms\ApprovalWorkflowConfigForm.Designer.cs">
       <DependentUpon>ApprovalWorkflowConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ApprovalStepForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ApprovalStepForm.Designer.cs">
+      <DependentUpon>ApprovalStepForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\TransaksiPeminjamanForm.cs">
       <SubType>Form</SubType>
@@ -1167,6 +1174,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\PermintaanBarangUC.resx">
       <DependentUpon>PermintaanBarangUC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ApprovalWorkflowConfigForm.resx">
+      <DependentUpon>ApprovalWorkflowConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ApprovalStepForm.resx">
+      <DependentUpon>ApprovalStepForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\PersetujuanForm.resx">
       <DependentUpon>PersetujuanForm.cs</DependentUpon>
