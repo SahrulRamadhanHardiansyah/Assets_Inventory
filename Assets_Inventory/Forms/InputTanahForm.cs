@@ -184,7 +184,15 @@ namespace Assets_Inventory
                 return;
             }
 
-            decimal.TryParse(txtHarga.Text, out decimal hargaAset);
+            decimal hargaAset = 0;
+            if (!string.IsNullOrWhiteSpace(txtHarga.Text))
+            {
+                if (!decimal.TryParse(txtHarga.Text, out hargaAset))
+                {
+                    MessageBox.Show("Harga harus berupa angka valid.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
 
             if (bindingSource1.Current is AsetTanah k)
             {
@@ -313,7 +321,7 @@ namespace Assets_Inventory
                                 if (data.Length < 8) { dilewati++; continue; }
                                 if (string.IsNullOrWhiteSpace(data[0])) { dilewati++; continue; }
                                 if (!int.TryParse(data[2].Trim(), out int luas) || luas <= 0) { dilewati++; continue; }
-                                decimal.TryParse(data[7].Trim(), out decimal nilai);
+                                if (!decimal.TryParse(data[7].Trim(), out decimal nilai)) nilai = 0;
 
                                 db.AsetTanah.Add(new AsetTanah
                                 {
@@ -348,7 +356,7 @@ namespace Assets_Inventory
                                         if (row.ItemArray.Length < 8) { dilewati++; continue; }
                                         if (string.IsNullOrWhiteSpace(row[0]?.ToString())) { dilewati++; continue; }
                                         if (!int.TryParse(row[2]?.ToString().Trim(), out int luas) || luas <= 0) { dilewati++; continue; }
-                                        decimal.TryParse(row[7]?.ToString().Trim(), out decimal nilai);
+                                        if (!decimal.TryParse(row[7]?.ToString().Trim(), out decimal nilai)) nilai = 0;
 
                                         db.AsetTanah.Add(new AsetTanah
                                         {

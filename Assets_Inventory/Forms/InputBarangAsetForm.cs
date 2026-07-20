@@ -53,7 +53,7 @@ namespace Assets_Inventory.Forms
         }
         private void SetupAutoComplete()
         {
-            var listBarang = db.MasterBarang.Select(b => b.NamaBarang).ToArray();
+            var listBarang = db.MasterBarang.Select(b => b.NamaBarang).Take(100).ToArray();
 
             var source = new AutoCompleteStringCollection();
             source.AddRange(listBarang);
@@ -65,17 +65,17 @@ namespace Assets_Inventory.Forms
 
         private void SetupComboBoxes()
         {
-            cmbJurusan.DataSource = db.Jurusan.ToList();
+            cmbJurusan.DataSource = db.Jurusan.Take(100).ToList();
             cmbJurusan.DisplayMember = "NamaJurusan";
             cmbJurusan.ValueMember = "IdJurusan";
             cmbJurusan.SelectedIndex = -1;
 
-            cmbRuang.DataSource = db.Ruang.ToList();
+            cmbRuang.DataSource = db.Ruang.Take(100).ToList();
             cmbRuang.DisplayMember = "NamaRuang";
             cmbRuang.ValueMember = "IdRuang";
             cmbRuang.SelectedIndex = -1;
 
-            cmbLokasi.DataSource = db.Lokasi.ToList();
+            cmbLokasi.DataSource = db.Lokasi.Take(100).ToList();
             cmbLokasi.DisplayMember = "NamaLokasi";
             cmbLokasi.ValueMember = "IdLokasi";
             cmbLokasi.SelectedIndex = -1;
@@ -95,7 +95,7 @@ namespace Assets_Inventory.Forms
         {
             if (cmbRuang.SelectedValue != null && cmbRuang.SelectedValue is int idRuangTepilih)
             {
-                var listLemari = db.Lemari.Where(L => L.IdRuang == idRuangTepilih).ToList();
+                var listLemari = db.Lemari.Where(L => L.IdRuang == idRuangTepilih).Take(100).ToList();
 
                 if (listLemari.Count > 0)
                 {

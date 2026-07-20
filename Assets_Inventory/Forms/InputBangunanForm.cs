@@ -51,10 +51,10 @@ namespace Assets_Inventory
         private void loadDgv()
         {
             var cari = txtCari.Text.ToLower().Trim();
-            var data = db.AsetBangunan
-                         .Include(b => b.IdKondisiNavigation)
-                         .Where(a => a.NamaBangunan.ToLower().Contains(cari) || a.KodeBangunan.ToString().Contains(cari))
-                         .ToList();
+            IQueryable<AsetBangunan> q = db.AsetBangunan.Include(b => b.IdKondisiNavigation);
+            if (!string.IsNullOrEmpty(cari))
+                q = q.Where(a => a.NamaBangunan.ToLower().Contains(cari) || a.KodeBangunan.ToString().Contains(cari));
+            var data = q.Take(500).ToList();
 
             dg.DataSource = new SortableBindingList<AsetBangunan>(data);
             lblRecord.Text = $"Total Record: {data.Count}";
@@ -391,6 +391,7 @@ namespace Assets_Inventory
                         int berhasil = 0;
                         int dilewati = 0;
                         const int batchSize = 500;
+                        var batch = new List<AsetBangunan>(batchSize);
 
                         if (fileExtension == ".csv")
                         {
@@ -411,7 +412,7 @@ namespace Assets_Inventory
                                 if (statusInput != "Milik Sendiri" && statusInput != "Sewa" && statusInput != "Lainnya")
                                     statusInput = "Lainnya";
 
-                                db.AsetBangunan.Add(new AsetBangunan
+                                batch.Add(new AsetBangunan
                                 {
                                     NamaBangunan = data[0].Trim(),
                                     LuasBangunan = luas,
@@ -423,8 +424,13 @@ namespace Assets_Inventory
                                     Konstruksi = data[7].Trim(),
                                     TanggalBangunan = DateTime.Now.Date
                                 });
-                                berhasil++;
-                                if (berhasil % batchSize == 0) db.SaveChanges();
+                                if (batch.Count >= batchSize)
+                                {
+                                    db.AsetBangunan.AddRange(batch);
+                                    db.SaveChanges();
+                                    berhasil += batch.Count;
+                                    batch.Clear();
+                                }
                             }
                         }
                         else if (fileExtension == ".xlsx" || fileExtension == ".xls")
@@ -452,7 +458,7 @@ namespace Assets_Inventory
                                         if (statusInput != "Milik Sendiri" && statusInput != "Sewa" && statusInput != "Lainnya")
                                             statusInput = "Lainnya";
 
-                                        db.AsetBangunan.Add(new AsetBangunan
+                                        batch.Add(new AsetBangunan
                                         {
                                             NamaBangunan = row[0]?.ToString().Trim(),
                                             LuasBangunan = luas,
@@ -464,8 +470,13 @@ namespace Assets_Inventory
                                             Konstruksi = row[7]?.ToString().Trim(),
                                             TanggalBangunan = DateTime.Now.Date
                                         });
-                                        berhasil++;
-                                        if (berhasil % batchSize == 0) db.SaveChanges();
+                                        if (batch.Count >= batchSize)
+                                        {
+                                            db.AsetBangunan.AddRange(batch);
+                                            db.SaveChanges();
+                                            berhasil += batch.Count;
+                                            batch.Clear();
+                                        }
                                     }
                                 }
                             }
@@ -476,7 +487,12 @@ namespace Assets_Inventory
                             return;
                         }
 
-                        db.SaveChanges();
+                        if (batch.Count > 0)
+                        {
+                            db.AsetBangunan.AddRange(batch);
+                            db.SaveChanges();
+                            berhasil += batch.Count;
+                        }
                         string info = dilewati > 0 ? $" ({dilewati} baris dilewati karena luas tidak valid)" : "";
                         MessageBox.Show($"Import selesai! {berhasil} data berhasil ditambahkan{info}.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

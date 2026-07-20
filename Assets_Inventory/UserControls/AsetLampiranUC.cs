@@ -10,23 +10,26 @@ namespace Assets_Inventory.UserControls
 {
     public partial class AsetLampiranUC : UserControl
     {
-        private int _refId;
+        private int _kodeBarang;
         private string _tipeAset;
-        private string _refKode;
+        private readonly string[] _imgExts = { ".jpg", ".jpeg", ".png", ".bmp" };
+        private readonly string[] _allowedExts = { ".jpg", ".jpeg", ".png", ".bmp", ".pdf" };
 
-        public AsetLampiranUC(int refId, string tipeAset, string refKode = null)
+        public AsetLampiranUC(int kodeBarang, string tipeAset)
         {
-            _refId = refId;
+            _kodeBarang = kodeBarang;
             _tipeAset = tipeAset ?? "Aset";
-            _refKode = refKode ?? refId.ToString();
             InitializeComponent();
         }
 
+        // Designer & legacy compatibility
         public AsetLampiranUC() : this(0, "Aset") { }
+        public AsetLampiranUC(int refId, string tipeAset, string refKode) : this(refId, tipeAset) { }
 
         private void AsetLampiranUC_Load(object sender, EventArgs e)
         {
-            lblInfo.Text = $"Lampiran untuk {_tipeAset} - {_refKode}";
+            if (lblInfo != null)
+                lblInfo.Text = $"Lampiran [{_tipeAset}] Kode: {_kodeBarang}";
             LoadData();
         }
 
@@ -34,24 +37,39 @@ namespace Assets_Inventory.UserControls
         {
             try
             {
+                if (_kodeBarang <= 0)
+                {
+                    dgLampiran.DataSource = null;
+                    ClearPreview();
+                    return;
+                }
+
                 using (var db = new AppDbContext())
                 {
                     var list = db.AsetLampiran
-                        .Where(a => a.RefId == _refId && a.TipeAset == _tipeAset)
+                        .Where(a => a.RefId == _kodeBarang && a.TipeAset == _tipeAset)
                         .OrderByDescending(a => a.CreatedAt)
                         .ToList();
 
-                    dgLampiran.DataSource = list.Select(l => new
+                    // ponytail: anonymous bind keeps diff minimal; typed view when paging/sorting needed
+                    var bind = list.Select(l => new
                     {
                         l.Id,
-                        l.TipeAset,
                         l.OriginalFileName,
                         l.FileType,
                         FileSizeKB = $"{l.FileSize / 1024} KB",
                         l.CreatedAt,
                         l.Keterangan
                     }).ToList();
+
+                    dgLampiran.DataSource = bind;
+                    if (dgLampiran.Columns["Id"] != null) dgLampiran.Columns["Id"].HeaderText = "ID";
+                    if (dgLampiran.Columns["OriginalFileName"] != null) dgLampiran.Columns["OriginalFileName"].HeaderText = "Nama File";
+                    if (dgLampiran.Columns["FileType"] != null) dgLampiran.Columns["FileType"].HeaderText = "Tipe";
+                    if (dgLampiran.Columns["CreatedAt"] != null) dgLampiran.Columns["CreatedAt"].HeaderText = "Tgl";
                 }
+
+                if (dgLampiran.Rows.Count == 0) ClearPreview();
             }
             catch (Exception ex)
             {
@@ -59,105 +77,207 @@ namespace Assets_Inventory.UserControls
             }
         }
 
+        private int GetSelectedId()
+        {
+            if (dgLampiran.CurrentRow == null) return 0;
+            try
+            {
+                var r = dgLampiran.CurrentRow;
+                if (r.Cells["Id"] != null && r.Cells["Id"].Value != null)
+                    return Convert.ToInt32(r.Cells["Id"].Value);
+
+                var item = r.DataBoundItem;
+                var prop = item?.GetType().GetProperty("Id");
+                if (prop != null) return (int)prop.GetValue(item);
+            }
+            catch { }
+            return 0;
+        }
+
+        private void dgLampiran_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdatePreview();
+        }
+
+        private void UpdatePreview()
+        {
+            try
+            {
+                int id = GetSelectedId();
+                if (id == 0) { ClearPreview(); return; }
+
+                using (var db = new AppDbContext())
+                {
+                    var lamp = db.AsetLampiran.Find(id);
+                    if (lamp == null || !File.Exists(lamp.FilePath))
+                    {
+                        ClearPreview();
+                        return;
+                    }
+
+                    string ext = Path.GetExtension(lamp.FilePath).ToLowerInvariant();
+                    if (_imgExts.Contains(ext))
+                        SetPreviewImage(lamp.FilePath);
+                    else
+                        ClearPreview();
+                }
+            }
+            catch { ClearPreview(); }
+        }
+
+        private void SetPreviewImage(string path)
+        {
+            try
+            {
+                if (picPreview == null) return;
+                picPreview.Image?.Dispose();
+                picPreview.Image = null;
+
+                byte[] bytes = File.ReadAllBytes(path);
+                using (var ms = new MemoryStream(bytes))
+                using (var img = Image.FromStream(ms))
+                {
+                    picPreview.Image = new Bitmap(img);
+                }
+            }
+            catch
+            {
+                ClearPreview();
+            }
+        }
+
+        private void ClearPreview()
+        {
+            if (picPreview == null) return;
+            try { picPreview.Image?.Dispose(); } catch { }
+            picPreview.Image = null;
+        }
+
         private void btnTambah_Click(object sender, EventArgs e)
         {
+            if (_kodeBarang <= 0)
+            {
+                MessageBox.Show("Kode barang belum diatur.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using (var ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Semua File|*.*|Gambar|*.jpg;*.jpeg;*.png;*.bmp|Dokumen|*.pdf;*.docx;*.xlsx";
-                ofd.Title = "Pilih File Lampiran";
+                ofd.Title = "Pilih File Lampiran (image/pdf)";
+                ofd.Filter = "Image & PDF|*.jpg;*.jpeg;*.png;*.bmp;*.pdf|Gambar|*.jpg;*.jpeg;*.png;*.bmp|PDF|*.pdf";
+                ofd.Multiselect = false;
 
-                if (ofd.ShowDialog() == DialogResult.OK)
+                if (ofd.ShowDialog() != DialogResult.OK) return;
+
+                try
                 {
-                    try
+                    var fi = new FileInfo(ofd.FileName);
+                    if (fi.Length > AppConstants.MaxAttachmentFileSizeBytes)
                     {
-                        var fi = new FileInfo(ofd.FileName);
-                        if (fi.Length > AppConstants.MaxAttachmentFileSizeBytes)
+                        MessageBox.Show($"File terlalu besar (max {AppConstants.MaxAttachmentFileSizeBytes / 1024 / 1024}MB).", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    string ext = Path.GetExtension(ofd.FileName).ToLowerInvariant();
+                    if (!_allowedExts.Contains(ext))
+                    {
+                        MessageBox.Show("Tipe file tidak diizinkan. Hanya gambar (jpg/png/bmp) dan pdf.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    bool isImg = _imgExts.Contains(ext);
+                    if (isImg)
+                    {
+                        // ImageValidator validates magic bytes + structure
+                        if (!ImageValidator.IsValidImageFile(ofd.FileName, AppConstants.MaxAttachmentFileSizeBytes))
                         {
-                            MessageBox.Show($"File terlalu besar (max {AppConstants.MaxAttachmentFileSizeBytes / 1024 / 1024}MB).", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("File gambar tidak valid atau rusak.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
-
-                        string ext = Path.GetExtension(ofd.FileName).ToLower();
-                        string fileType = ".jpg .jpeg .png .bmp".Contains(ext) ? "Foto" : "Dokumen";
-
-                        // Save to Attachments/{kode}/
-                        string baseFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Attachments", _refKode);
-                        if (!Directory.Exists(baseFolder)) Directory.CreateDirectory(baseFolder);
-
-                        string safeName = Guid.NewGuid().ToString("N") + ext;
-                        string destPath = Path.Combine(baseFolder, safeName);
-                        File.Copy(ofd.FileName, destPath, true);
-
-                        using (var db = new AppDbContext())
-                        {
-                            db.AsetLampiran.Add(new AsetLampiran
-                            {
-                                TipeAset = _tipeAset,
-                                RefId = _refId,
-                                RefKode = _refKode,
-                                FilePath = destPath,
-                                OriginalFileName = Path.GetFileName(ofd.FileName),
-                                FileType = fileType,
-                                FileSize = fi.Length,
-                                CreatedAt = DateTime.Now,
-                                CreatedBy = AuthManager.CurrentUserId != 0 ? (int?)AuthManager.CurrentUserId : null,
-                                Keterangan = txtKeterangan.Text
-                            });
-                            db.SaveChanges();
-                        }
-
-                        AuditHelper.Log("aset_lampiran", _refId.ToString(), "INSERT", (object)null, (object)new { file = safeName }, "Lampiran");
-                        LoadData();
-                        MessageBox.Show("Lampiran berhasil ditambahkan.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                    catch (Exception ex)
+
+                    string baseFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Attachments", _kodeBarang.ToString());
+                    Directory.CreateDirectory(baseFolder);
+
+                    string safeName = Guid.NewGuid().ToString("N") + ext;
+                    string destPath = Path.Combine(baseFolder, safeName);
+                    File.Copy(ofd.FileName, destPath, false);
+
+                    string fileType = isImg ? "Foto" : "Dokumen";
+                    string keterangan = null;
+                    if (txtKeterangan != null) keterangan = txtKeterangan.Text?.Trim();
+
+                    using (var db = new AppDbContext())
                     {
-                        System.Diagnostics.Debug.WriteLine("Add lampiran error: " + ex.Message);
-                        MessageBox.Show("Gagal menambahkan lampiran.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        db.AsetLampiran.Add(new AsetLampiran
+                        {
+                            TipeAset = _tipeAset,
+                            RefId = _kodeBarang,
+                            RefKode = _kodeBarang.ToString(),
+                            FilePath = destPath,
+                            OriginalFileName = Path.GetFileName(ofd.FileName),
+                            FileType = fileType,
+                            FileSize = fi.Length,
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = AuthManager.CurrentUserId != 0 ? (int?)AuthManager.CurrentUserId : null,
+                            Keterangan = keterangan
+                        });
+                        db.SaveChanges();
                     }
+
+                    try { AuditHelper.Log("aset_lampiran", _kodeBarang.ToString(), "INSERT", (object)null, (object)new { file = safeName }, "Lampiran"); } catch { }
+
+                    if (txtKeterangan != null) txtKeterangan.Clear();
+                    LoadData();
+                    MessageBox.Show("Lampiran berhasil ditambahkan.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Add lampiran error: " + ex.Message);
+                    MessageBox.Show("Gagal menambahkan lampiran: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void btnLihat_Click(object sender, EventArgs e)
         {
-            if (dgLampiran.CurrentRow == null) return;
+            int id = GetSelectedId();
+            if (id == 0) return;
             try
             {
-                var row = dgLampiran.CurrentRow;
-                // Get full entity
                 using (var db = new AppDbContext())
                 {
-                    var idProp = row.DataBoundItem?.GetType().GetProperty("Id");
-                    if (idProp == null) return;
-                    int id = (int)idProp.GetValue(row.DataBoundItem);
                     var lamp = db.AsetLampiran.Find(id);
                     if (lamp != null && File.Exists(lamp.FilePath))
                     {
-                        var psi = new System.Diagnostics.ProcessStartInfo { FileName = lamp.FilePath, UseShellExecute = true };
+                        var psi = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = lamp.FilePath,
+                            UseShellExecute = true
+                        };
                         System.Diagnostics.Process.Start(psi);
                     }
                     else
                     {
-                        MessageBox.Show("File tidak ditemukan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("File tidak ditemukan di disk.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
-            catch { MessageBox.Show("Gagal membuka file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal membuka file: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnHapus_Click(object sender, EventArgs e)
         {
-            if (dgLampiran.CurrentRow == null) return;
+            int id = GetSelectedId();
+            if (id == 0) return;
+
             if (MessageBox.Show("Hapus lampiran ini?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
 
             try
             {
-                var row = dgLampiran.CurrentRow;
-                var idProp = row.DataBoundItem?.GetType().GetProperty("Id");
-                if (idProp == null) return;
-                int id = (int)idProp.GetValue(row.DataBoundItem);
-
                 using (var db = new AppDbContext())
                 {
                     var lamp = db.AsetLampiran.Find(id);
@@ -169,15 +289,25 @@ namespace Assets_Inventory.UserControls
                     }
                 }
 
-                AuditHelper.Log("aset_lampiran", id.ToString(), "DELETE", (object)null, (object)null, "Lampiran");
+                try { AuditHelper.Log("aset_lampiran", id.ToString(), "DELETE", (object)null, (object)null, "Lampiran"); } catch { }
+                ClearPreview();
                 LoadData();
             }
-            catch { MessageBox.Show("Gagal menghapus.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal menghapus: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void dgLampiran_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            btnLihat_Click(sender, e);
+            if (e.RowIndex >= 0) btnLihat_Click(sender, e);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            ClearPreview();
+            base.OnHandleDestroyed(e);
         }
     }
 }

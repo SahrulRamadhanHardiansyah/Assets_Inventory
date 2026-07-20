@@ -393,6 +393,7 @@ namespace Assets_Inventory
                     }
 
                     db.SaveChanges();
+                    try { AuditHelper.Log("pengguna", k.Username ?? txtUsername.Text.Trim(), k.IdPengguna==0?"INSERT":"UPDATE", null, new { Username = k.Username, FullName = k.FullName }, "User"); } catch {}
 
                     MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -431,7 +432,9 @@ namespace Assets_Inventory
                     try
                     {
                         db.Pengguna.Remove(k);
+                        var oldUser = k.Username;
                         db.SaveChanges();
+                        try { AuditHelper.Log("pengguna", oldUser, "DELETE", new { Username = oldUser }, null, "User"); } catch {}
 
                         MessageBox.Show("Berhasil dihapus!");
                         loadDgv();

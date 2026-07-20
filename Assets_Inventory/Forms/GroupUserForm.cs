@@ -338,6 +338,7 @@ namespace Assets_Inventory
                     }
 
                     db.SaveChanges();
+                    try { AuditHelper.Log("peran", peranDatabase.NamaPeran, k.IdPeran==0?"INSERT":"UPDATE", null, new { Peran = peranDatabase.NamaPeran, Count = aksesBaru.Count }, "Group User"); } catch {}
 
                     MessageBox.Show("Data dan Hak Akses berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadDgv();

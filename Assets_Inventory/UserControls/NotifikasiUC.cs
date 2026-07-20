@@ -11,73 +11,82 @@ namespace Assets_Inventory.UserControls
         public NotifikasiUC()
         {
             InitializeComponent();
+            dgNotif.CellDoubleClick += dgNotif_CellDoubleClick;
         }
 
         private void NotifikasiUC_Load(object sender, EventArgs e)
         {
             LoadData();
+            tmrAuto.Start(); // ponytail: auto refresh 5 menit; MainForm bisa pakai SetAutoRefresh(false) dan call LoadData() sendiri
         }
 
-        private void LoadData()
+        public void LoadData()
         {
             try
             {
-                var data = NotificationService.GetAllUnread(100);
-                dgNotif.DataSource = data.Select(n => new
-                {
-                    n.Id,
-                    n.Type,
-                    n.Title,
-                    n.Message,
-                    n.RefTable,
-                    n.RefId,
-                    n.CreatedAt,
-                    n.IsRead
-                }).ToList();
-
-                lblUnread.Text = $"Belum dibaca: {data.Count}";
-                if (dgNotif.Columns["Message"] != null) dgNotif.Columns["Message"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                var data = NotificationService.GetAllUnread(50);
+                dgNotif.DataSource = data;
+                if (dgNotif.Columns["IdPenerima"] != null) dgNotif.Columns["IdPenerima"].Visible = false;
+                if (dgNotif.Columns["IdPenerimaNavigation"] != null) dgNotif.Columns["IdPenerimaNavigation"].Visible = false;
                 if (dgNotif.Columns["IsRead"] != null) dgNotif.Columns["IsRead"].Visible = false;
+                if (dgNotif.Columns["CreatedBy"] != null) dgNotif.Columns["CreatedBy"].Visible = false;
+                if (dgNotif.Columns["Message"] != null) dgNotif.Columns["Message"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                lblUnread.Text = $"{data.Count} belum dibaca";
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Load notif error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("NotifikasiUC load: " + ex.Message);
             }
+        }
+
+        private int? GetSelectedId()
+        {
+            if (dgNotif.CurrentRow?.DataBoundItem is Notifikasi n) return n.Id;
+            return null;
         }
 
         private void btnRefresh_Click(object sender, EventArgs e) => LoadData();
 
         private void btnTandaiBaca_Click(object sender, EventArgs e)
         {
-            if (dgNotif.CurrentRow != null)
+            var id = GetSelectedId();
+            if (id == null) return;
+            NotificationService.MarkAsRead(id.Value);
+            LoadData();
+        }
+
+        private void btnHapusDibaca_Click(object sender, EventArgs e)
+        {
+            try
             {
-                try
+                if (MessageBox.Show("Hapus semua notifikasi yang sudah dibaca?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                using (var db = new AppDbContext())
                 {
-                    var row = dgNotif.CurrentRow;
-                    var idProp = row.DataBoundItem?.GetType().GetProperty("Id");
-                    if (idProp != null)
-                    {
-                        int id = (int)idProp.GetValue(row.DataBoundItem);
-                        NotificationService.MarkAsRead(id);
-                        LoadData();
-                    }
+                    var read = db.Notifikasi.Where(x => x.IsRead).ToList();
+                    if (read.Count == 0) return;
+                    db.Notifikasi.RemoveRange(read);
+                    db.SaveChanges();
                 }
-                catch { }
+                LoadData();
+            }
+            catch { }
+        }
+
+        private void dgNotif_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (dgNotif.Rows[e.RowIndex].DataBoundItem is Notifikasi row)
+            {
+                NotificationService.MarkAsRead(row.Id);
+                LoadData();
             }
         }
 
-        private void btnTandaiSemua_Click(object sender, EventArgs e)
-        {
-            NotificationService.MarkAllAsRead();
-            LoadData();
-        }
+        private void tmrAuto_Tick(object sender, EventArgs e) => LoadData();
 
-        private void btnCekUlang_Click(object sender, EventArgs e)
+        public void SetAutoRefresh(bool enabled)
         {
-            NotificationService.CheckOverduePeminjaman();
-            NotificationService.CheckStokMinimal();
-            LoadData();
-            MessageBox.Show("Pengecekan notifikasi selesai.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (enabled) tmrAuto.Start(); else tmrAuto.Stop();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Assets_Inventory
 
         private async void MasterBarangForm_Load(object sender, EventArgs e)
         {
-            cmbKategori.DataSource = db.Kategori.ToList();
+            cmbKategori.DataSource = await db.Kategori.ToListAsync();
             cmbKategori.SelectedIndex = -1;
             loadData();
             SetMode("View");
@@ -37,7 +37,13 @@ namespace Assets_Inventory
         private async void loadData()
         {
             var cari = txtCari.Text.Trim().ToLower();
-            dg.DataSource = new SortableBindingList<MasterBarang>(db.MasterBarang.Where(mb => mb.NamaBarang.ToLower().Contains(cari) || mb.IdKategoriNavigation.NamaKategori.ToLower().Contains(cari)).ToList());
+            var data = await db.MasterBarang
+                .Include(mb => mb.IdKategoriNavigation)
+                .Include(mb => mb.IdMerekNavigation)
+                .Include(mb => mb.IdSatuanNavigation)
+                .Where(mb => mb.NamaBarang.ToLower().Contains(cari) || mb.IdKategoriNavigation.NamaKategori.ToLower().Contains(cari))
+                .ToListAsync();
+            dg.DataSource = new SortableBindingList<MasterBarang>(data);
         }
 
         private void SetMode(string mode)
@@ -214,26 +220,23 @@ namespace Assets_Inventory
                                 });
 
                                 DataTable dt = result.Tables[0];
+                                var batch = new List<MasterBarang>();
 
                                 foreach (DataRow row in dt.Rows)
                                 {
-                                    Application.DoEvents();
-
                                     string nama = row[0]?.ToString().Trim();
                                     string strKategori = row[1]?.ToString().Trim();
                                     string keterangan = row[2]?.ToString().Trim();
 
                                     if (!string.IsNullOrEmpty(nama) && int.TryParse(strKategori, out int IdKategori))
                                     {
-                                        var barangImpor = new MasterBarang
+                                        batch.Add(new MasterBarang
                                         {
                                             NamaBarang = nama,
                                             IdKategori = IdKategori,
                                             Keterangan = keterangan,
                                             JenisBarang = "Aset"
-                                        };
-
-                                        db.MasterBarang.Add(barangImpor);
+                                        });
                                         sukses++;
                                     }
                                     else
@@ -242,6 +245,7 @@ namespace Assets_Inventory
                                     }
                                 }
 
+                                db.MasterBarang.AddRange(batch);
                                 db.SaveChanges();
                             }
                         }
@@ -327,8 +331,6 @@ namespace Assets_Inventory
                             int baris = 2;
                             foreach (var item in dataList)
                             {
-                                Application.DoEvents();
-
                                 worksheet.Cells[baris, 1].Value = item.NamaBarang;
                                 worksheet.Cells[baris, 2].Value = item.IdKategoriNavigation?.NamaKategori ?? "Tanpa Kategori";
                                 worksheet.Cells[baris, 3].Value = item.Keterangan;

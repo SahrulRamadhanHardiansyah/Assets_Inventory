@@ -979,6 +979,9 @@
     <EmbeddedResource Include="UserControls\AsetPerluDilengkapiUC.resx">
       <DependentUpon>AsetPerluDilengkapiUC.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\AsetLampiranUC.resx">
+      <DependentUpon>AsetLampiranUC.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\BackupDbForm.resx">
       <DependentUpon>BackupDbForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -1008,6 +1011,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KelengkapanAsetForm.resx">
       <DependentUpon>KelengkapanAsetForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\AuditLogUC.resx">
+      <DependentUpon>AuditLogUC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\NotifikasiUC.resx">
+      <DependentUpon>NotifikasiUC.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\LaporanBangunanInventarisUC.resx">
       <DependentUpon>LaporanBangunanInventarisUC.cs</DependentUpon>
@@ -1261,6 +1270,15 @@
     <None Include="Resources\panduan.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- dotnet SDK 8+ requires this for net48 WinForms resx with BinaryFormatter images -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Resources.Extensions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Resources.Extensions.8.0.0\lib\net462\System.Resources.Extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

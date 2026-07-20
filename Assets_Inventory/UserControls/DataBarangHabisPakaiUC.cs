@@ -22,7 +22,6 @@ namespace Assets_Inventory
 {
     public partial class DataBarangHabisPakaiUC : UserControl
     {
-        AppDbContext db = new AppDbContext();
         private int _currentPage = 0;
         private const int _pageSize = 100;
         private int _totalRecords = 0;
@@ -82,38 +81,39 @@ namespace Assets_Inventory
         private void loadData(bool resetPage = true)
         {
             if (resetPage) _currentPage = 0;
-            // ponytail: reuse db context, recreate only if disposed (fault tolerance)
-            try { if (db == null) db = new AppDbContext(); } catch { db = new AppDbContext(); }
-
             var cari = txtCari.Text.Trim();
 
-            IQueryable<AsetHabisPakai> q = db.AsetHabisPakai
-                .Include(a => a.IdMasterBarangNavigation)
-                .Include(a => a.IdRuangNavigation)
-                .AsNoTracking();
-
-            if (!string.IsNullOrEmpty(cari))
-                q = q.Where(a => a.KodeBarang.Contains(cari) || a.IdMasterBarangNavigation.NamaBarang.Contains(cari));
-
-            _totalRecords = q.Count();
-
-            var page = q.OrderByDescending(a => a.KodeBarang)
-                        .Skip(_currentPage * _pageSize)
-                        .Take(_pageSize)
-                        .ToList();
-
-            var dataTampil = page.Select(a => new BarangHabisPakaiViewModel
+            List<BarangHabisPakaiViewModel> dataTampil;
+            using (var db = new AppDbContext())
             {
-                KodeBarang = a.KodeBarang,
-                NamaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : "N/A",
-                StokAwal = a.Stok,
-                StokAktual = a.StokAktual,
-                Ruang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : "-",
-                Status = a.Status ?? "Tersedia",
-                DapatDipinjam = (a.IsReturnable.HasValue && a.IsReturnable.Value) ? "Ya" : "Tidak",
-                TanggalMasuk = a.TanggalRegistrasi,
-                ObjekAsli = a
-            }).ToList();
+                IQueryable<AsetHabisPakai> q = db.AsetHabisPakai
+                    .Include(a => a.IdMasterBarangNavigation)
+                    .Include(a => a.IdRuangNavigation)
+                    .AsNoTracking();
+
+                if (!string.IsNullOrEmpty(cari))
+                    q = q.Where(a => a.KodeBarang.Contains(cari) || a.IdMasterBarangNavigation.NamaBarang.Contains(cari));
+
+                _totalRecords = q.Count();
+
+                var page = q.OrderByDescending(a => a.KodeBarang)
+                            .Skip(_currentPage * _pageSize)
+                            .Take(_pageSize)
+                            .ToList();
+
+                dataTampil = page.Select(a => new BarangHabisPakaiViewModel
+                {
+                    KodeBarang = a.KodeBarang,
+                    NamaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : "N/A",
+                    StokAwal = a.Stok,
+                    StokAktual = a.StokAktual,
+                    Ruang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : "-",
+                    Status = a.Status ?? "Tersedia",
+                    DapatDipinjam = (a.IsReturnable.HasValue && a.IsReturnable.Value) ? "Ya" : "Tidak",
+                    TanggalMasuk = a.TanggalRegistrasi,
+                    ObjekAsli = a
+                }).ToList();
+            }
 
             dg.DataSource = new SortableBindingList<BarangHabisPakaiViewModel>(dataTampil);
             int totalPages = System.Math.Max(1, (int)System.Math.Ceiling((double)_totalRecords / _pageSize));
@@ -188,7 +188,11 @@ namespace Assets_Inventory
         {
             if (dg.CurrentRow != null && dg.CurrentRow.DataBoundItem is BarangHabisPakaiViewModel vm)
             {
-                var aset = db.AsetHabisPakai.Find(vm.KodeBarang);
+                AsetHabisPakai aset;
+                using (var db = new AppDbContext())
+                {
+                    aset = db.AsetHabisPakai.Find(vm.KodeBarang);
+                }
                 InputBarangHabisPakaiForm form = new InputBarangHabisPakaiForm();
                 form.selectedAset = aset;
                 if (form.ShowDialog() == DialogResult.OK) loadData();
@@ -207,9 +211,13 @@ namespace Assets_Inventory
                 {
                     try
                     {
-                        var aset = db.AsetHabisPakai.Find(vm.KodeBarang);
-                        db.AsetHabisPakai.Remove(aset);
-                        db.SaveChanges();
+                        using (var db = new AppDbContext())
+                        {
+                            var aset = db.AsetHabisPakai.Find(vm.KodeBarang);
+                            if (aset == null) return;
+                            db.AsetHabisPakai.Remove(aset);
+                            db.SaveChanges();
+                        }
                         try { AuditHelper.Log("Data Barang Habis Pakai", vm.KodeBarang?.ToString(), "DELETE", AuditHelper.SerializeObject(vm), null, "Data Barang Habis Pakai"); } catch {}
                         MessageBox.Show("Data berhasil dihapus.");
                         loadData();
@@ -326,54 +334,54 @@ namespace Assets_Inventory
                     {
                         this.Cursor = Cursors.WaitCursor;
                         int berhasil = 0;
-                        string ekstensi = Path.GetExtension(ofd.FileName).ToLower();
 
-                        using (var stream = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read))
+                        using (var db = new AppDbContext())
                         {
-                            using (var reader = ExcelReaderFactory.CreateReader(stream))
+                            using (var stream = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read))
                             {
-                                var result = reader.AsDataSet(new ExcelDataSetConfiguration()
+                                using (var reader = ExcelReaderFactory.CreateReader(stream))
                                 {
-                                    ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
-                                });
-
-                                DataTable dt = result.Tables[0];
-
-                                foreach (DataRow row in dt.Rows)
-                                {
-                                    Application.DoEvents();
-
-                                    // Template Excel Baru: IdMasterBarang | Stok | IdRuang | IsReturnable (Ya/Tidak) | Keterangan
-                                    string idMasterStr = row[0]?.ToString().Trim();
-                                    string stokStr = row[1]?.ToString().Trim();
-                                    string idRuangStr = row[2]?.ToString().Trim();
-                                    string returnableStr = row[3]?.ToString().Trim().ToLower();
-                                    string ket = row[4]?.ToString().Trim();
-
-                                    if (int.TryParse(idMasterStr, out int idMaster))
+                                    var result = reader.AsDataSet(new ExcelDataSetConfiguration()
                                     {
-                                        int stok = int.TryParse(stokStr, out int st) ? st : 0;
-                                        var baru = new AsetHabisPakai
-                                        {
-                                            KodeBarang = "KB-HP-" + DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + Guid.NewGuid().ToString().Substring(0, 4),
-                                            IdMasterBarang = idMaster,
-                                            Stok = stok,
-                                            StokAktual = stok,
-                                            IdRuang = int.TryParse(idRuangStr, out int idR) ? idR : (int?)null,
-                                            IsReturnable = (returnableStr == "ya" || returnableStr == "true" || returnableStr == "1"),
-                                            Keterangan = ket,
-                                            Status = stok > 0 ? "Tersedia" : "Habis",
-                                            TanggalRegistrasi = DateTime.Now
-                                        };
+                                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
+                                    });
 
-                                        db.AsetHabisPakai.Add(baru);
-                                        berhasil++;
+                                    DataTable dt = result.Tables[0];
+
+                                    foreach (DataRow row in dt.Rows)
+                                    {
+                                        string idMasterStr = row[0]?.ToString().Trim();
+                                        string stokStr = row[1]?.ToString().Trim();
+                                        string idRuangStr = row[2]?.ToString().Trim();
+                                        string returnableStr = row[3]?.ToString().Trim().ToLower();
+                                        string ket = row[4]?.ToString().Trim();
+
+                                        if (int.TryParse(idMasterStr, out int idMaster))
+                                        {
+                                            int stok = int.TryParse(stokStr, out int st) ? st : 0;
+                                            var baru = new AsetHabisPakai
+                                            {
+                                                KodeBarang = "KB-HP-" + DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + Guid.NewGuid().ToString().Substring(0, 4),
+                                                IdMasterBarang = idMaster,
+                                                Stok = stok,
+                                                StokAktual = stok,
+                                                IdRuang = int.TryParse(idRuangStr, out int idR) ? idR : (int?)null,
+                                                IsReturnable = (returnableStr == "ya" || returnableStr == "true" || returnableStr == "1"),
+                                                Keterangan = ket,
+                                                Status = stok > 0 ? "Tersedia" : "Habis",
+                                                TanggalRegistrasi = DateTime.Now
+                                            };
+
+                                            db.AsetHabisPakai.Add(baru);
+                                            berhasil++;
+                                        }
                                     }
                                 }
                             }
+
+                            db.SaveChanges();
                         }
 
-                        db.SaveChanges();
                         MessageBox.Show($"Import selesai! {berhasil} data stok habis pakai berhasil ditambahkan.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         loadData();
                     }
@@ -416,10 +424,16 @@ namespace Assets_Inventory
                         this.Enabled = false;
                         this.Cursor = Cursors.WaitCursor;
 
-                        var dictBarang = db.MasterBarang.ToDictionary(b => b.IdMasterBarang, b => b.NamaBarang);
-                        var dictRuang = db.Ruang.ToDictionary(r => r.IdRuang, r => r.NamaRuang);
+                        Dictionary<int, string> dictBarang;
+                        Dictionary<int, string> dictRuang;
+                        List<AsetHabisPakai> dataList;
 
-                        var dataList = db.AsetHabisPakai.AsNoTracking().ToList();
+                        using (var db = new AppDbContext())
+                        {
+                            dictBarang = db.MasterBarang.ToDictionary(b => b.IdMasterBarang, b => b.NamaBarang);
+                            dictRuang = db.Ruang.ToDictionary(r => r.IdRuang, r => r.NamaRuang);
+                            dataList = db.AsetHabisPakai.AsNoTracking().ToList();
+                        }
 
                         using (var package = new OfficeOpenXml.ExcelPackage())
                         {
@@ -441,8 +455,6 @@ namespace Assets_Inventory
                             int baris = 2;
                             foreach (var item in dataList)
                             {
-                                Application.DoEvents();
-
                                 string namaBrg = dictBarang.ContainsKey(item.IdMasterBarang) ? dictBarang[item.IdMasterBarang] : "N/A";
                                 string namaRuang = (item.IdRuang.HasValue && dictRuang.ContainsKey(item.IdRuang.Value)) ? dictRuang[item.IdRuang.Value] : "-";
                                 string dptDipinjam = (item.IsReturnable.HasValue && item.IsReturnable.Value) ? "Ya" : "Tidak";
