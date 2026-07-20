@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Models;
+using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
 using System;
 using System.Collections.Generic;
@@ -437,8 +437,8 @@ namespace Assets_Inventory
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Error: " + ex.Message);
-                MessageBox.Show("Terjadi kesalahan saat menyimpan pengadaan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                MessageBox.Show("Terjadi kesalahan sistem", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

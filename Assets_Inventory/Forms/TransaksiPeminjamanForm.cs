@@ -102,7 +102,12 @@ namespace Assets_Inventory
             else
             {
                 string lastNumber = lastData.NomorPeminjaman.Substring(lastData.NomorPeminjaman.Length - 3);
-                int nextNumber = int.Parse(lastNumber) + 1;
+                // ponytail: validate TryParse return
+                if (!int.TryParse(lastNumber, out int nextNumber))
+                {
+                    return $"PMJ-{datePrefix}-001";
+                }
+                nextNumber += 1;
                 return $"PMJ-{datePrefix}-{nextNumber:D3}";
             }
         }
@@ -121,25 +126,45 @@ namespace Assets_Inventory
                 .AsNoTracking()
                 .ToList();
 
+            // ponytail: N+1 fix - dictionary preload
+            var kodeBarangs = details.Select(d => d.KodeBarang).Distinct().ToList();
+            var dictAset = db.Aset.AsNoTracking()
+                .Where(a => kodeBarangs.Contains(a.KodeBarang))
+                .ToDictionary(a => a.KodeBarang, a => a);
+
+            var masterIds = dictAset.Values.Select(a => a.IdMasterBarang).Distinct().ToList();
+            var dictMaster = db.MasterBarang.AsNoTracking()
+                .Where(m => masterIds.Contains(m.IdMasterBarang))
+                .ToDictionary(m => m.IdMasterBarang, m => m.NamaBarang);
+
+            var kondisiIds = dictAset.Values
+                .Where(a => a.IdKondisi.HasValue)
+                .Select(a => a.IdKondisi.Value)
+                .Distinct()
+                .ToList();
+            var dictKondisi = db.Kondisi.AsNoTracking()
+                .Where(k => kondisiIds.Contains(k.IdKondisi))
+                .ToDictionary(k => k.IdKondisi, k => k.NamaKondisi);
+
             listKeranjang.Clear();
             foreach (var d in details)
             {
-                var aset = db.Aset.AsNoTracking().FirstOrDefault(a => a.KodeBarang == d.KodeBarang);
                 string namaBrg = "Tidak Diketahui";
                 string namaKondisi = "-";
                 string kodeInv = "Tidak Diketahui";
 
-                if (aset != null)
+                if (dictAset.TryGetValue(d.KodeBarang, out var aset))
                 {
                     kodeInv = aset.KodeInventaris;
 
-                    var master = db.MasterBarang.AsNoTracking().FirstOrDefault(m => m.IdMasterBarang == aset.IdMasterBarang);
-                    if (master != null) namaBrg = master.NamaBarang;
-
-                    if (aset.IdKondisi.HasValue)
+                    if (dictMaster.TryGetValue(aset.IdMasterBarang, out var nama))
                     {
-                        var kondisi = db.Kondisi.AsNoTracking().FirstOrDefault(k => k.IdKondisi == aset.IdKondisi.Value);
-                        if (kondisi != null) namaKondisi = kondisi.NamaKondisi;
+                        namaBrg = nama;
+                    }
+
+                    if (aset.IdKondisi.HasValue && dictKondisi.TryGetValue(aset.IdKondisi.Value, out var kondisiNama))
+                    {
+                        namaKondisi = kondisiNama;
                     }
                 }
 
@@ -181,12 +206,13 @@ namespace Assets_Inventory
                 return;
             }
 
-            int.TryParse(kodeInput, out int idBarangAnka);
+            // ponytail: validate TryParse return before use
+            bool isParsed = int.TryParse(kodeInput, out int idBarangAngka);
 
             var aset = db.Aset.FirstOrDefault(a => a.KodeInventaris == kodeInput ||
                                                    a.NoSeri == kodeInput ||
                                                    a.KodeBarang2 == kodeInput ||
-                                                   (idBarangAnka > 0 && a.KodeBarang == idBarangAnka));
+                                                   (isParsed && a.KodeBarang == idBarangAngka));
 
             if (aset == null)
             {
@@ -249,76 +275,102 @@ namespace Assets_Inventory
                 return;
             }
 
+            // ponytail: validate TryParse return before use
             int lamaPinjam = 1;
-            int.TryParse(txtLamaPinjam.Text, out lamaPinjam);
+            if (!string.IsNullOrWhiteSpace(txtLamaPinjam.Text))
+            {
+                if (!int.TryParse(txtLamaPinjam.Text, out lamaPinjam))
+                {
+                    MessageBox.Show("Lama pinjam harus berupa angka valid!", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (lamaPinjam <= 0)
+                {
+                    MessageBox.Show("Lama pinjam harus lebih dari 0!", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
 
             try
             {
                 using (var saveDb = new AppDbContext())
                 {
-                    if (selectedPeminjaman == null)
+                    using (var tx = saveDb.Database.BeginTransaction())
                     {
-                        var peminjamanBaru = new Peminjaman
+                        try
                         {
-                            NomorPeminjaman = txtNoPeminjaman.Text,
-                            TanggalPinjam = dtpTglPinjam.Value,
-                            NamaPeminjam = txtNamaPeminjam.Text,
-                            NomorTelepon = txtNoTelepon.Text,
-                            LamaPinjamHari = lamaPinjam,
-                            Keterangan = txtKeterangan.Text,
-                            StatusPeminjaman = "Sedang Dipinjam"
-                        };
-
-                        saveDb.Peminjaman.Add(peminjamanBaru);
-                        saveDb.SaveChanges();
-
-                        foreach (var item in listKeranjang)
-                        {
-                            saveDb.DetailPeminjaman.Add(new DetailPeminjaman
+                            if (selectedPeminjaman == null)
                             {
-                                NomorPeminjaman = peminjamanBaru.NomorPeminjaman,
-                                KodeBarang = item.KodeBarangGUID
-                            });
-
-                            var asetDb = saveDb.Aset.Find(item.KodeBarangGUID);
-                            if (asetDb != null) asetDb.Status = "Dipinjam";
-                        }
-                        saveDb.SaveChanges();
-                    }
-                    else
-                    {
-                        var existingPeminjaman = saveDb.Peminjaman.Find(selectedPeminjaman.NomorPeminjaman);
-                        if (existingPeminjaman != null)
-                        {
-                            existingPeminjaman.NamaPeminjam = txtNamaPeminjam.Text;
-                            existingPeminjaman.NomorTelepon = txtNoTelepon.Text;
-                            existingPeminjaman.LamaPinjamHari = lamaPinjam;
-                            existingPeminjaman.Keterangan = txtKeterangan.Text;
-
-                            var oldDetails = saveDb.DetailPeminjaman
-                                .Where(d => d.NomorPeminjaman == existingPeminjaman.NomorPeminjaman)
-                                .ToList();
-
-                            foreach (var old in oldDetails)
-                            {
-                                var asetLama = saveDb.Aset.Find(old.KodeBarang);
-                                if (asetLama != null) asetLama.Status = "Di Gudang";
-                            }
-                            saveDb.DetailPeminjaman.RemoveRange(oldDetails);
-                            saveDb.SaveChanges();
-
-                            foreach (var item in listKeranjang)
-                            {
-                                saveDb.DetailPeminjaman.Add(new DetailPeminjaman
+                                var peminjamanBaru = new Peminjaman
                                 {
-                                    NomorPeminjaman = existingPeminjaman.NomorPeminjaman,
-                                    KodeBarang = item.KodeBarangGUID
-                                });
+                                    NomorPeminjaman = txtNoPeminjaman.Text,
+                                    TanggalPinjam = dtpTglPinjam.Value,
+                                    NamaPeminjam = txtNamaPeminjam.Text,
+                                    NomorTelepon = txtNoTelepon.Text,
+                                    LamaPinjamHari = lamaPinjam,
+                                    Keterangan = txtKeterangan.Text,
+                                    StatusPeminjaman = "Sedang Dipinjam"
+                                };
 
-                                var asetBaru = saveDb.Aset.Find(item.KodeBarangGUID);
-                                if (asetBaru != null) asetBaru.Status = "Dipinjam";
+                                saveDb.Peminjaman.Add(peminjamanBaru);
+                                saveDb.SaveChanges();
+
+                                foreach (var item in listKeranjang)
+                                {
+                                    saveDb.DetailPeminjaman.Add(new DetailPeminjaman
+                                    {
+                                        NomorPeminjaman = peminjamanBaru.NomorPeminjaman,
+                                        KodeBarang = item.KodeBarangGUID
+                                    });
+
+                                    var asetDb = saveDb.Aset.Find(item.KodeBarangGUID);
+                                    if (asetDb != null) asetDb.Status = "Dipinjam";
+                                }
+                                saveDb.SaveChanges();
                             }
-                            saveDb.SaveChanges();
+                            else
+                            {
+                                var existingPeminjaman = saveDb.Peminjaman.Find(selectedPeminjaman.NomorPeminjaman);
+                                if (existingPeminjaman != null)
+                                {
+                                    existingPeminjaman.NamaPeminjam = txtNamaPeminjam.Text;
+                                    existingPeminjaman.NomorTelepon = txtNoTelepon.Text;
+                                    existingPeminjaman.LamaPinjamHari = lamaPinjam;
+                                    existingPeminjaman.Keterangan = txtKeterangan.Text;
+
+                                    var oldDetails = saveDb.DetailPeminjaman
+                                        .Where(d => d.NomorPeminjaman == existingPeminjaman.NomorPeminjaman)
+                                        .ToList();
+
+                                    foreach (var old in oldDetails)
+                                    {
+                                        var asetLama = saveDb.Aset.Find(old.KodeBarang);
+                                        if (asetLama != null) asetLama.Status = "Di Gudang";
+                                    }
+                                    saveDb.DetailPeminjaman.RemoveRange(oldDetails);
+                                    saveDb.SaveChanges();
+
+                                    foreach (var item in listKeranjang)
+                                    {
+                                        saveDb.DetailPeminjaman.Add(new DetailPeminjaman
+                                        {
+                                            NomorPeminjaman = existingPeminjaman.NomorPeminjaman,
+                                            KodeBarang = item.KodeBarangGUID
+                                        });
+
+                                        var asetBaru = saveDb.Aset.Find(item.KodeBarangGUID);
+                                        if (asetBaru != null) asetBaru.Status = "Dipinjam";
+                                    }
+                                    saveDb.SaveChanges();
+                                }
+                            }
+
+                            tx.Commit();
+                        }
+                        catch
+                        {
+                            try { tx.Rollback(); } catch { }
+                            throw;
                         }
                     }
                 }
@@ -330,7 +382,8 @@ namespace Assets_Inventory
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Terjadi kesalahan sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                MessageBox.Show("Terjadi kesalahan sistem", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

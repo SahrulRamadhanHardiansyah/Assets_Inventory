@@ -145,15 +145,20 @@ namespace Assets_Inventory.UserControls
         {
             if (dgPermintaanPending == null) return;
 
-            var dictJurusan = db.Jurusan.ToDictionary(j => j.IdJurusan, j => j.NamaJurusan);
-            var dictPengguna = db.Pengguna.ToDictionary(p => p.IdPengguna, p => p.Username);
-
-            var pendingReq = db.Permintaan.AsNoTracking()
+            var pendingReqRaw = db.Permintaan.AsNoTracking()
                 .Where(p => p.StatusPersetujuan == "Menunggu")
                 .OrderBy(p => p.TanggalPermintaan)
                 .Take(30)
-                .ToList()
-                .Select(p => new
+                .ToList();
+
+            // Only load dictionaries for IDs actually needed (perf optimization)
+            var jurusanIds = pendingReqRaw.Where(p => p.IdJurusan.HasValue).Select(p => p.IdJurusan.Value).Distinct().ToList();
+            var penggunaIds = pendingReqRaw.Where(p => p.IdPengguna.HasValue).Select(p => p.IdPengguna.Value).Distinct().ToList();
+
+            var dictJurusan = jurusanIds.Count > 0 ? db.Jurusan.Where(j => jurusanIds.Contains(j.IdJurusan)).ToDictionary(j => j.IdJurusan, j => j.NamaJurusan) : new System.Collections.Generic.Dictionary<int, string>();
+            var dictPengguna = penggunaIds.Count > 0 ? db.Pengguna.Where(u => penggunaIds.Contains(u.IdPengguna)).ToDictionary(u => u.IdPengguna, u => u.Username) : new System.Collections.Generic.Dictionary<int, string>();
+
+            var pendingReq = pendingReqRaw.Select(p => new
                 {
                     p.KodePermintaan,
                     Peminta = (p.IdPengguna.HasValue && dictPengguna.ContainsKey(p.IdPengguna.Value)) ? dictPengguna[p.IdPengguna.Value] : "N/A",

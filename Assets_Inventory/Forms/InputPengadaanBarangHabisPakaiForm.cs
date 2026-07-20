@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Models;
+using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
 using System;
 using System.Collections.Generic;
@@ -318,115 +318,115 @@ namespace Assets_Inventory.Forms
 
             try
             {
-                using (var transaction = db.Database.BeginTransaction())
+                using (var tx = db.Database.BeginTransaction())
                 {
                     try
                     {
                         if (selectedPengadaan == null)
-                {
-                    var pengadaan = new PengadaanHabisPakai
-                    {
-                        TanggalPengadaan = dtpTglPengadaan.Value,
-                        IdTahunAjaran = idTahunAjaranTerpilih,
-                        TotalHarga = listDetailBon.Sum(x => x.TotalHarga),
-                        Keterangan = txtKeterangan.Text,
-                        KodeGudang = cmbGudang.SelectedValue.ToString(),
-                        IdSumberPerolehan = (int)cmbSumber.SelectedValue,
-                        Status = "Menunggu Proses"
-                    };
-
-                    db.PengadaanHabisPakai.Add(pengadaan);
-                    db.SaveChanges();
-
-                    foreach (var item in listDetailBon)
-                    {
-                        db.DetailPengadaanHp.Add(new DetailPengadaanHp
                         {
-                            IdPengadaanHp = pengadaan.IdPengadaan,
-                            IdMasterBarang = item.IdMasterBarang,
-                            JumlahMasuk = item.JumlahMasuk,
-                            HargaSatuan = item.HargaSatuan,
-                            IdPemasok = item.IdPemasok
-                        });
-                    }
+                            var pengadaan = new PengadaanHabisPakai
+                            {
+                                TanggalPengadaan = dtpTglPengadaan.Value,
+                                IdTahunAjaran = idTahunAjaranTerpilih,
+                                TotalHarga = listDetailBon.Sum(x => x.TotalHarga),
+                                Keterangan = txtKeterangan.Text,
+                                KodeGudang = cmbGudang.SelectedValue.ToString(),
+                                IdSumberPerolehan = (int)cmbSumber.SelectedValue,
+                                Status = "Menunggu Proses"
+                            };
 
-                    foreach (var permintaan in selectedPermintaanList)
-                    {
-                        db.PengadaanPermintaanHp.Add(new PengadaanPermintaanHp
-                        {
-                            IdPengadaanHp = pengadaan.IdPengadaan,
-                            KodePermintaanHp = permintaan.KodePermintaanHp
-                        });
-                    }
+                            db.PengadaanHabisPakai.Add(pengadaan);
+                            db.SaveChanges();
 
-                    db.SaveChanges();
-                            transaction.Commit();
+                            foreach (var item in listDetailBon)
+                            {
+                                db.DetailPengadaanHp.Add(new DetailPengadaanHp
+                                {
+                                    IdPengadaanHp = pengadaan.IdPengadaan,
+                                    IdMasterBarang = item.IdMasterBarang,
+                                    JumlahMasuk = item.JumlahMasuk,
+                                    HargaSatuan = item.HargaSatuan,
+                                    IdPemasok = item.IdPemasok
+                                });
+                            }
+
+                            foreach (var permintaan in selectedPermintaanList)
+                            {
+                                db.PengadaanPermintaanHp.Add(new PengadaanPermintaanHp
+                                {
+                                    IdPengadaanHp = pengadaan.IdPengadaan,
+                                    KodePermintaanHp = permintaan.KodePermintaanHp
+                                });
+                            }
+
+                            db.SaveChanges();
+                            tx.Commit();
                             MessageBox.Show("Bon pengadaan HP berhasil dibuat! Silakan proses belanja di menu utama.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    var updatePgd = db.PengadaanHabisPakai.Find(selectedPengadaan.IdPengadaan);
-                    if (updatePgd == null) return;
-
-                    updatePgd.TanggalPengadaan = dtpTglPengadaan.Value;
-                    updatePgd.IdTahunAjaran = idTahunAjaranTerpilih;
-                    updatePgd.TotalHarga = listDetailBon.Sum(x => x.TotalHarga);
-                    updatePgd.Keterangan = txtKeterangan.Text;
-                    updatePgd.KodeGudang = cmbGudang.SelectedValue.ToString();
-                    updatePgd.IdSumberPerolehan = (int)cmbSumber.SelectedValue;
-
-                    var oldDetails = db.DetailPengadaanHp.Where(d => d.IdPengadaanHp == updatePgd.IdPengadaan);
-                    db.DetailPengadaanHp.RemoveRange(oldDetails);
-
-                    var oldPermintaanLinks = db.PengadaanPermintaanHp.Where(p => p.IdPengadaanHp == updatePgd.IdPengadaan);
-                    db.PengadaanPermintaanHp.RemoveRange(oldPermintaanLinks);
-
-                    db.SaveChanges();
-
-                    foreach (var item in listDetailBon)
-                    {
-                        db.DetailPengadaanHp.Add(new DetailPengadaanHp
+                        }
+                        else
                         {
-                            IdPengadaanHp = updatePgd.IdPengadaan,
-                            IdMasterBarang = item.IdMasterBarang,
-                            JumlahMasuk = item.JumlahMasuk,
-                            HargaSatuan = item.HargaSatuan,
-                            IdPemasok = item.IdPemasok
-                        });
-                    }
+                            var updatePgd = db.PengadaanHabisPakai.Find(selectedPengadaan.IdPengadaan);
+                            if (updatePgd == null) return;
 
-                    foreach (var permintaan in selectedPermintaanList)
-                    {
-                        db.PengadaanPermintaanHp.Add(new PengadaanPermintaanHp
-                        {
-                            IdPengadaanHp = updatePgd.IdPengadaan,
-                            KodePermintaanHp = permintaan.KodePermintaanHp
-                        });
-                    }
+                            updatePgd.TanggalPengadaan = dtpTglPengadaan.Value;
+                            updatePgd.IdTahunAjaran = idTahunAjaranTerpilih;
+                            updatePgd.TotalHarga = listDetailBon.Sum(x => x.TotalHarga);
+                            updatePgd.Keterangan = txtKeterangan.Text;
+                            updatePgd.KodeGudang = cmbGudang.SelectedValue.ToString();
+                            updatePgd.IdSumberPerolehan = (int)cmbSumber.SelectedValue;
 
-                    db.SaveChanges();
-                            transaction.Commit();
+                            var oldDetails = db.DetailPengadaanHp.Where(d => d.IdPengadaanHp == updatePgd.IdPengadaan);
+                            db.DetailPengadaanHp.RemoveRange(oldDetails);
+
+                            var oldPermintaanLinks = db.PengadaanPermintaanHp.Where(p => p.IdPengadaanHp == updatePgd.IdPengadaan);
+                            db.PengadaanPermintaanHp.RemoveRange(oldPermintaanLinks);
+
+                            db.SaveChanges();
+
+                            foreach (var item in listDetailBon)
+                            {
+                                db.DetailPengadaanHp.Add(new DetailPengadaanHp
+                                {
+                                    IdPengadaanHp = updatePgd.IdPengadaan,
+                                    IdMasterBarang = item.IdMasterBarang,
+                                    JumlahMasuk = item.JumlahMasuk,
+                                    HargaSatuan = item.HargaSatuan,
+                                    IdPemasok = item.IdPemasok
+                                });
+                            }
+
+                            foreach (var permintaan in selectedPermintaanList)
+                            {
+                                db.PengadaanPermintaanHp.Add(new PengadaanPermintaanHp
+                                {
+                                    IdPengadaanHp = updatePgd.IdPengadaan,
+                                    KodePermintaanHp = permintaan.KodePermintaanHp
+                                });
+                            }
+
+                            db.SaveChanges();
+                            tx.Commit();
                             MessageBox.Show("Data pengadaan berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
+                        }
                     }
                     catch
                     {
-                        try { transaction.Rollback(); } catch { }
+                        try { tx.Rollback(); } catch { }
                         throw;
                     }
                 }
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Error: " + ex.Message);
-                MessageBox.Show("Terjadi kesalahan sistem saat menyimpan data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                MessageBox.Show("Terjadi kesalahan sistem", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void LoadDataPengadaan()
+                private void LoadDataPengadaan()
         {
             txtId.Text = selectedPengadaan.IdPengadaan.ToString();
             dtpTglPengadaan.Value = selectedPengadaan.TanggalPengadaan;

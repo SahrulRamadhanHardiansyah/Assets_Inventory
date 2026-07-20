@@ -21,6 +21,12 @@ namespace Assets_Inventory.UserControls
     public partial class DataBarangAsetUC : UserControl
     {
         AppDbContext db = new AppDbContext();
+        private int _currentPage = 0;
+        private const int _pageSize = 100;
+        private int _totalRecords = 0;
+        private Button _btnPrev;
+        private Button _btnNext;
+        private bool _pagingControlsCreated = false;
 
         public class AsetViewModel
         {
@@ -65,44 +71,82 @@ namespace Assets_Inventory.UserControls
             cmbJenisBarcode.Items.Add("QR Code");
             cmbJenisBarcode.SelectedIndex = 0;
 
+            _btnPrev = new Button { Text = "< Prev", Size = new Size(65, 23), FlatStyle = FlatStyle.Flat };
+            _btnNext = new Button { Text = "Next >", Size = new Size(65, 23), FlatStyle = FlatStyle.Flat };
+            // ponytail: anchor relative to lblTotal, simple fixed offset — no layout engine needed
+            var lblPos = lblTotal.Location;
+            _btnPrev.Location = new Point(lblPos.X + 220, lblPos.Y - 2);
+            _btnNext.Location = new Point(lblPos.X + 290, lblPos.Y - 2);
+            _btnPrev.Click += BtnPrev_Click;
+            _btnNext.Click += BtnNext_Click;
+            lblTotal.Parent.Controls.Add(_btnPrev);
+            lblTotal.Parent.Controls.Add(_btnNext);
+
             loadData();
         }
 
-        private void loadData()
+        private void BtnPrev_Click(object sender, EventArgs e)
         {
-            if (db != null) db.Dispose();
-            db = new AppDbContext();
+            if (_currentPage > 0) { _currentPage--; loadData(false); }
+        }
 
-            var cari = txtCari.Text.ToLower().Trim();
+        private void BtnNext_Click(object sender, EventArgs e)
+        {
+            if ((_currentPage + 1) * _pageSize < _totalRecords) { _currentPage++; loadData(false); }
+        }
 
-            var rawAset = db.Aset.AsNoTracking().ToList();
-            var dictBarang = db.MasterBarang.ToDictionary(m => m.IdMasterBarang, m => m.NamaBarang);
-            var dictJurusan = db.Jurusan.ToDictionary(j => j.IdJurusan, j => j.NamaJurusan);
-            var dictRuang = db.Ruang.ToDictionary(r => r.IdRuang, r => r.NamaRuang);
+        private void RefreshDbIfNeeded()
+        {
+            try
+            {
+                // EF Core 3.1 - check if context disposed via simple query
+                if (db == null) db = new AppDbContext();
+            }
+            catch { db = new AppDbContext(); }
+        }
 
-            var dataList = rawAset.Select(a => {
-                string namaBrg = dictBarang.ContainsKey(a.IdMasterBarang) ? dictBarang[a.IdMasterBarang] : "Unknown";
-                string namaJur = (a.IdJurusan.HasValue && dictJurusan.ContainsKey(a.IdJurusan.Value)) ? dictJurusan[a.IdJurusan.Value] : "-";
-                string namaRng = (a.IdRuang.HasValue && dictRuang.ContainsKey(a.IdRuang.Value)) ? dictRuang[a.IdRuang.Value] : "-";
+        private void loadData(bool resetPage = true)
+        {
+            // resetPage=false keeps current page when paging
+            if (resetPage) _currentPage = 0;
+            RefreshDbIfNeeded();
 
-                return new AsetViewModel
-                {
-                    KodeBarang = a.KodeBarang,
-                    KodeInventaris = a.KodeInventaris,
-                    NamaBarang = namaBrg,
-                    NoSeri = a.NoSeri ?? "-",
-                    NamaJurusan = namaJur,
-                    LokasiRuang = namaRng,
-                    Status = a.Status ?? "Aktif",
-                    ObjekAsli = a
-                };
-            })
-            .Where(x => x.NamaBarang.ToLower().Contains(cari) || x.KodeInventaris.ToLower().Contains(cari))
-            .OrderByDescending(x => x.KodeBarang)
-            .ToList();
+            var cari = txtCari.Text.Trim();
+
+            IQueryable<Aset> q = db.Aset
+                .Include(a => a.IdMasterBarangNavigation)
+                .Include(a => a.IdJurusanNavigation)
+                .Include(a => a.IdRuangNavigation)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(cari))
+                q = q.Where(a => a.KodeInventaris.Contains(cari) || a.IdMasterBarangNavigation.NamaBarang.Contains(cari));
+
+            _totalRecords = q.Count();
+
+            var page = q.OrderByDescending(a => a.KodeBarang)
+                        .Skip(_currentPage * _pageSize)
+                        .Take(_pageSize)
+                        .ToList();
+
+            var dataList = page.Select(a => new AsetViewModel
+            {
+                KodeBarang = a.KodeBarang,
+                KodeInventaris = a.KodeInventaris,
+                NamaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : "Unknown",
+                NoSeri = a.NoSeri ?? "-",
+                NamaJurusan = a.IdJurusanNavigation != null ? a.IdJurusanNavigation.NamaJurusan : "-",
+                LokasiRuang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : "-",
+                Status = a.Status ?? "Aktif",
+                ObjekAsli = a
+            }).ToList();
 
             dg.DataSource = new SortableBindingList<AsetViewModel>(dataList);
-            lblTotal.Text = $"Total Record : {dataList.Count}";
+            int totalPages = Math.Max(1, (int)Math.Ceiling((double)_totalRecords / _pageSize));
+            lblTotal.Text = $"Total Record : {_totalRecords}  |  Page {_currentPage + 1}/{totalPages} (showing {dataList.Count})";
+
+            if (_btnPrev != null) _btnPrev.Enabled = _currentPage > 0;
+            if (_btnNext != null) _btnNext.Enabled = (_currentPage + 1) * _pageSize < _totalRecords;
 
             if (dg.Columns["KodeBarang"] != null) dg.Columns["KodeBarang"].Visible = false;
             if (dg.Columns["ObjekAsli"] != null) dg.Columns["ObjekAsli"].Visible = false;
@@ -113,6 +157,8 @@ namespace Assets_Inventory.UserControls
             if (dg.Columns["LokasiRuang"] != null) dg.Columns["LokasiRuang"].HeaderText = "Ruang Saat Ini";
             if (dg.Columns["Status"] != null) dg.Columns["Status"].HeaderText = "Status Aset";
         }
+
+        private void loadDataNextPage() => loadData(false);
 
         private void btnCari_Click(object sender, EventArgs e)
         {
