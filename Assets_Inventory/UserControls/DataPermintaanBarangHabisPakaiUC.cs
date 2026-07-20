@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.Forms;
 using ComponentFactory.Krypton.Toolkit;
@@ -421,6 +421,8 @@ namespace Assets_Inventory.UserControls
                     Format = formatBarcode,
                     Options = new EncodingOptions { Height = tinggi, Width = lebar, Margin = 1 }
                 };
+                Image MakeBarcode2(string kd) { if (jenisPilihan == "QR Code" || (typeof(BarcodeFormat).Name!=null && jenisPilihan=="QR Code")) return QrCodeHelper.GenerateQrCode(kd, lebar>0?lebar:200, tinggi>0?tinggi:200); return QrCodeHelper.GenerateBarcode128(kd, lebar>0?lebar:300, tinggi>0?tinggi:100); }
+
 
                 PrintDocument pd = new PrintDocument();
                 int currentItemIndex = 0;
@@ -434,7 +436,7 @@ namespace Assets_Inventory.UserControls
                     while (currentItemIndex < daftarKode.Count)
                     {
                         string kode = daftarKode[currentItemIndex];
-                        Image img = writer.Write(kode);
+                        Image img = MakeBarcode2(kode) ?? writer.Write(kode);
 
                         ev.Graphics.DrawImage(img, x, y, lebar, tinggi);
 

@@ -12,6 +12,8 @@ namespace Assets_Inventory.Helper
         public bool HakBaca { get; set; }
         public bool HakUbah { get; set; }
         public bool HakHapus { get; set; }
+        public bool HakApprove { get; set; }
+        public bool HakExport { get; set; }
     }
 
     public static class AuthManager
@@ -77,7 +79,9 @@ namespace Assets_Inventory.Helper
                                          HakBuat = pa.HakBuat,
                                          HakBaca = pa.HakBaca,
                                          HakUbah = pa.HakUbah,
-                                         HakHapus = pa.HakHapus
+                                         HakHapus = pa.HakHapus,
+                                         HakApprove = pa.HakApprove,
+                                         HakExport = pa.HakExport
                                      }).ToList();
 
                     lock (_sync)
@@ -91,7 +95,9 @@ namespace Assets_Inventory.Helper
                                     HakBuat = item.HakBuat == true,
                                     HakBaca = item.HakBaca == true,
                                     HakUbah = item.HakUbah == true,
-                                    HakHapus = item.HakHapus == true
+                                    HakHapus = item.HakHapus == true,
+                                    HakApprove = item.HakApprove == true,
+                                    HakExport = item.HakExport == true
                                 };
                             }
                         }
@@ -117,7 +123,7 @@ namespace Assets_Inventory.Helper
             {
                 if (!IsAuthenticatedInternal())
                 {
-                    return new ModulAkses { HakBuat = false, HakBaca = false, HakUbah = false, HakHapus = false };
+                    return new ModulAkses { HakBuat = false, HakBaca = false, HakUbah = false, HakHapus = false, HakApprove = false, HakExport = false };
                 }
 
                 if (_hakAkses.TryGetValue(namaModul, out ModulAkses akses))
@@ -128,11 +134,13 @@ namespace Assets_Inventory.Helper
                         HakBuat = akses.HakBuat,
                         HakBaca = akses.HakBaca,
                         HakUbah = akses.HakUbah,
-                        HakHapus = akses.HakHapus
+                        HakHapus = akses.HakHapus,
+                        HakApprove = akses.HakApprove,
+                        HakExport = akses.HakExport
                     };
                 }
 
-                return new ModulAkses { HakBuat = false, HakBaca = false, HakUbah = false, HakHapus = false };
+                return new ModulAkses { HakBuat = false, HakBaca = false, HakUbah = false, HakHapus = false, HakApprove = false, HakExport = false };
             }
         }
 

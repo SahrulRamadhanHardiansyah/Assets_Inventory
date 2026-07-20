@@ -59,6 +59,8 @@ namespace Assets_Inventory
                         cNode.Nodes.Add(new TreeNode("Baca Data (Read)") { Tag = "CRUD" });
                         cNode.Nodes.Add(new TreeNode("Ubah Data (Update)") { Tag = "CRUD" });
                         cNode.Nodes.Add(new TreeNode("Hapus Data (Delete)") { Tag = "CRUD" });
+                        cNode.Nodes.Add(new TreeNode("Approve Data") { Tag = "CRUD" });
+                        cNode.Nodes.Add(new TreeNode("Export Data") { Tag = "CRUD" });
 
                         pNode.Nodes.Add(cNode);
                     }
@@ -194,6 +196,8 @@ namespace Assets_Inventory
                                             cNode.Nodes[1].Checked = aksesPivot.HakBaca == true;
                                             cNode.Nodes[2].Checked = aksesPivot.HakUbah == true;
                                             cNode.Nodes[3].Checked = aksesPivot.HakHapus == true;
+                                            if (cNode.Nodes.Count > 4) cNode.Nodes[4].Checked = aksesPivot.HakApprove == true;
+                                            if (cNode.Nodes.Count > 5) cNode.Nodes[5].Checked = aksesPivot.HakExport == true;
                                         }
                                     }
                                 }
@@ -284,6 +288,8 @@ namespace Assets_Inventory
                         bool isRead = cNode.Nodes[1].Checked;
                         bool isUpdate = cNode.Nodes[2].Checked;
                         bool isDelete = cNode.Nodes[3].Checked;
+                        bool isApprove = cNode.Nodes.Count > 4 ? cNode.Nodes[4].Checked : false;
+                        bool isExport = cNode.Nodes.Count > 5 ? cNode.Nodes[5].Checked : false;
                         if (cNode.Checked || isCreate || isRead || isUpdate || isDelete)
                         {
                             aksesBaru.Add(new PeranAkses
@@ -292,7 +298,9 @@ namespace Assets_Inventory
                                 HakBuat = isCreate,
                                 HakBaca = isRead,
                                 HakUbah = isUpdate,
-                                HakHapus = isDelete
+                                HakHapus = isDelete,
+                                HakApprove = isApprove,
+                                HakExport = isExport
                             });
                         }
                     }

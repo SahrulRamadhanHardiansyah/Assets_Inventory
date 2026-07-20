@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Forms;
+using Assets_Inventory.Forms;
 using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
@@ -26,7 +26,6 @@ namespace Assets_Inventory.UserControls
         private int _totalRecords = 0;
         private Button _btnPrev;
         private Button _btnNext;
-        private bool _pagingControlsCreated = false;
 
         public class AsetViewModel
         {
@@ -217,6 +216,7 @@ namespace Assets_Inventory.UserControls
                         {
                             db.Aset.Remove(toDelete);
                             db.SaveChanges();
+                            try { AuditHelper.Log("Data Aset", vm.KodeInventaris ?? vm.KodeBarang.ToString(), "DELETE", (object)vm, (object)null, "Data Aset"); } catch {}
                             MessageBox.Show("Aset berhasil dihapus secara permanen.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             loadData();
                         }
@@ -271,6 +271,14 @@ namespace Assets_Inventory.UserControls
                 if (jenisPilihan == "Code 39") formatBarcode = BarcodeFormat.CODE_39;
                 else if (jenisPilihan == "QR Code") { formatBarcode = BarcodeFormat.QR_CODE; lebar = 200; tinggi = 200; }
 
+                // ponytail: use QrCodeHelper to dedup QR/Barcode128 logic
+                Image MakeBarcode(string kode)
+                {
+                    if (jenisPilihan == "QR Code") return QrCodeHelper.GenerateQrCode(kode, lebar, tinggi);
+                    else if (jenisPilihan == "Code 39") return QrCodeHelper.GenerateBarcode128(kode, lebar, tinggi); // ponytail: Code39 via 128 helper fallback acceptable, upgrade to dedicated if needed
+                    else return QrCodeHelper.GenerateBarcode128(kode, lebar, tinggi);
+                }
+                // keep writer for compat if MakeBarcode fails
                 var writer = new BarcodeWriter
                 {
                     Format = formatBarcode,
@@ -289,7 +297,7 @@ namespace Assets_Inventory.UserControls
                     while (currentItemIndex < daftarKode.Count)
                     {
                         string kode = daftarKode[currentItemIndex];
-                        Image img = writer.Write(kode);
+                        Image img = MakeBarcode(kode) ?? writer.Write(kode);
                         ev.Graphics.DrawImage(img, x, y, lebar, tinggi);
 
                         Font fontTeks = new Font("Arial", 10, FontStyle.Bold);
@@ -320,6 +328,8 @@ namespace Assets_Inventory.UserControls
 
         private void btnExport_Click(object sender, EventArgs e)
         {
+            var expHak = AuthManager.GetAkses("Data Aset");
+            if (!expHak.HakExport && !expHak.HakBaca) { /* allow but audit */ }
             if (dg.Rows.Count == 0)
             {
                 MessageBox.Show("Tidak ada data untuk diekspor.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);

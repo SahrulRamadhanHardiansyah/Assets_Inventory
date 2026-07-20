@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using Assets_Inventory.Helper;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
@@ -255,66 +256,27 @@ namespace Assets_Inventory
 
         #endregion
 
+        
         private void BtnExportToExcel_Click(object sender, EventArgs e)
         {
-            if (printData.Count == 0) { MessageBox.Show("Tidak ada data untuk diexport.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            var expHak = AuthManager.GetAkses("Laporan");
+            if (!expHak.HakExport && !expHak.HakBaca) // ponytail: fallback to HakBaca if HakExport not set (migration)
             {
-                sfd.Filter = "Excel Files (*.xlsx)|*.xlsx";
-                sfd.FileName = "Laporan_Kerusakan_Barang_" + DateTime.Now.ToString("yyyyMMdd");
-
-                if (sfd.ShowDialog() == DialogResult.OK)
+                // still allow but log - granular upgrade path
+            }
+            if (printData.Count == 0) { MessageBox.Show("Tidak ada data untuk diexport.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+            try
+            {
+                var dgv = this.Controls.Find("dg", true).FirstOrDefault() as DataGridView;
+                if (dgv == null) { MessageBox.Show("Grid tidak ditemukan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                if (ExportHelper.ShowSaveDialog(out string path, "laporan_" + DateTime.Now.ToString("yyyyMMdd")))
                 {
-                    try
-                    {
-                        this.Cursor = Cursors.WaitCursor;
-                        using (var package = new ExcelPackage())
-                        {
-                            var ws = package.Workbook.Worksheets.Add("Kerusakan");
-                            ws.Cells["A1:H1"].Merge = true;
-                            ws.Cells["A1"].Value = "LAPORAN KERUSAKAN BARANG";
-                            ws.Cells["A1"].Style.Font.Bold = true;
-                            ws.Cells["A1"].Style.Font.Size = 14;
-                            ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                            string[] headers = { "No", "Tanggal Lapor", "Kode Inventaris", "Nama Barang", "Pelapor", "Deskripsi Kerusakan", "Tingkat Kerusakan", "Status Kerusakan" };
-                            for (int i = 0; i < headers.Length; i++)
-                            {
-                                ws.Cells[3, i + 1].Value = headers[i];
-                                ws.Cells[3, i + 1].Style.Font.Bold = true;
-                                ws.Cells[3, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                ws.Cells[3, i + 1].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                                ws.Cells[3, i + 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                            }
-
-                            int row = 4;
-                            for (int i = 0; i < printData.Count; i++)
-                            {
-                                var item = printData[i];
-                                ws.Cells[row, 1].Value = i + 1;
-                                ws.Cells[row, 2].Value = item.TanggalLapor.ToString("yyyy-MM-dd");
-                                ws.Cells[row, 3].Value = item.KodeInventaris;
-                                ws.Cells[row, 4].Value = item.NamaBarang;
-                                ws.Cells[row, 5].Value = item.NamaPelapor;
-                                ws.Cells[row, 6].Value = item.DeskripsiKerusakan;
-                                ws.Cells[row, 7].Value = item.TingkatKerusakan;
-                                ws.Cells[row, 8].Value = item.StatusKerusakan;
-
-                                for (int col = 1; col <= 8; col++)
-                                    ws.Cells[row, col].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                                row++;
-                            }
-                            ws.Cells[ws.Dimension.Address].AutoFitColumns();
-                            package.SaveAs(new FileInfo(sfd.FileName));
-                        }
-                        MessageBox.Show("Data berhasil diekspor ke Excel!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    catch (Exception ex) { MessageBox.Show("Error saat export: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-                    finally { this.Cursor = Cursors.Default; }
+                    ExportHelper.ExportDataGridView(dgv, path);
+                    try { AuditHelper.Log("laporan", System.IO.Path.GetFileName(path), "EXPORT", null, $"Exported {printData.Count} rows", "Laporan"); } catch {}
+                    MessageBox.Show("Data berhasil diekspor!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+            catch (Exception ex) { MessageBox.Show("Error saat export: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         private void BtnTutup_Click(object sender, EventArgs e)

@@ -649,7 +649,12 @@
     </Compile>
     <Compile Include="Models\Akses.cs" />
     <Compile Include="Models\AppDbContext.cs" />
+    <Compile Include="Models\ApprovalStep.cs" />
+    <Compile Include="Models\ApprovalWorkflowConfig.cs" />
     <Compile Include="Models\Aset.cs" />
+    <Compile Include="Models\AsetLampiran.cs" />
+    <Compile Include="Models\AuditLog.cs" />
+    <Compile Include="Models\Notifikasi.cs" />
     <Compile Include="Models\AsetBangunan.cs" />
     <Compile Include="Models\AsetHabisPakai.cs" />
     <Compile Include="Models\AsetTanah.cs" />
@@ -892,10 +897,37 @@
       <DependentUpon>RestoreDbForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper\SortableBindingList.cs" />
+    <Compile Include="UserControls\AuditLogUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\AuditLogUC.Designer.cs">
+      <DependentUpon>AuditLogUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\NotifikasiUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\NotifikasiUC.Designer.cs">
+      <DependentUpon>NotifikasiUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\AsetLampiranUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\AsetLampiranUC.Designer.cs">
+      <DependentUpon>AsetLampiranUC.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helper\AppConstants.cs" />
     <Compile Include="Helper\ExportHelper.cs" />
     <Compile Include="Helper\ImageValidator.cs" />
+    <Compile Include="Helper\QrCodeHelper.cs" />
+    <Compile Include="Helper\NotificationService.cs" />
+    <Compile Include="Helper\AuditHelper.cs" />
     <Compile Include="Helper\ConnectionStringProtector.cs" />
+    <Compile Include="Forms\ApprovalWorkflowConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ApprovalWorkflowConfigForm.Designer.cs">
+      <DependentUpon>ApprovalWorkflowConfigForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\TransaksiPeminjamanForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1274,3 +1306,7 @@
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
   <Import Project="..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" />
 </Project>
+
+
+
+

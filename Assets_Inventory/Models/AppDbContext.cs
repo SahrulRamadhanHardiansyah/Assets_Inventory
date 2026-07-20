@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
@@ -78,6 +78,11 @@ namespace Assets_Inventory.Models
         public virtual DbSet<SumberPerolehan> SumberPerolehan { get; set; }
         public virtual DbSet<TahunAjaran> TahunAjaran { get; set; }
         public virtual DbSet<TanahNonAktif> TanahNonAktif { get; set; }
+        public virtual DbSet<AuditLog> AuditLog { get; set; }
+        public virtual DbSet<Notifikasi> Notifikasi { get; set; }
+        public virtual DbSet<AsetLampiran> AsetLampiran { get; set; }
+        public virtual DbSet<ApprovalWorkflowConfig> ApprovalWorkflowConfig { get; set; }
+        public virtual DbSet<ApprovalStep> ApprovalStep { get; set; }
         public virtual DbSet<VAset> VAset { get; set; }
         public virtual DbSet<VAsetBangunan> VAsetBangunan { get; set; }
         public virtual DbSet<VAsetHabisPakai> VAsetHabisPakai { get; set; }
@@ -2208,6 +2213,9 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.IdAkses).HasColumnName("id_akses");
 
                 entity.Property(e => e.IdPeran).HasColumnName("id_peran");
+                entity.Property(e => e.HakApprove).HasColumnName("hak_approve");
+                entity.Property(e => e.HakExport).HasColumnName("hak_export");
+
 
                 entity.HasOne(d => d.IdAksesNavigation)
                     .WithMany(p => p.PeranAkses)
@@ -3764,6 +3772,88 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.TanggalNonaktif)
                     .HasColumnName("tanggal_nonaktif")
                     .HasColumnType("date");
+            });
+
+            // Enterprise tables (Sprint 4)
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.ToTable("audit_log");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.TableName).HasColumnName("table_name").HasColumnType("varchar(100)");
+                entity.Property(e => e.RecordPK).HasColumnName("record_pk").HasColumnType("varchar(100)");
+                entity.Property(e => e.Action).HasColumnName("action").HasColumnType("varchar(20)");
+                entity.Property(e => e.OldJson).HasColumnName("old_json").HasColumnType("longtext");
+                entity.Property(e => e.NewJson).HasColumnName("new_json").HasColumnType("longtext");
+                entity.Property(e => e.IdPengguna).HasColumnName("id_pengguna");
+                entity.Property(e => e.Username).HasColumnName("username").HasColumnType("varchar(100)");
+                entity.Property(e => e.Timestamp).HasColumnName("timestamp").HasColumnType("datetime");
+                entity.Property(e => e.Modul).HasColumnName("modul").HasColumnType("varchar(100)");
+                entity.Property(e => e.IpAddress).HasColumnName("ip_address").HasColumnType("varchar(45)");
+                entity.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
+            });
+
+            modelBuilder.Entity<Notifikasi>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.ToTable("notifikasi");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Type).HasColumnName("type").HasColumnType("varchar(50)");
+                entity.Property(e => e.Title).HasColumnName("title").HasColumnType("varchar(255)");
+                entity.Property(e => e.Message).HasColumnName("message").HasColumnType("text");
+                entity.Property(e => e.RefTable).HasColumnName("ref_table").HasColumnType("varchar(100)");
+                entity.Property(e => e.RefId).HasColumnName("ref_id").HasColumnType("varchar(100)");
+                entity.Property(e => e.IsRead).HasColumnName("is_read");
+                entity.Property(e => e.IdPenerima).HasColumnName("id_penerima");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("datetime");
+                entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            });
+
+            modelBuilder.Entity<AsetLampiran>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.ToTable("aset_lampiran");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.TipeAset).HasColumnName("tipe_aset").HasColumnType("varchar(20)");
+                entity.Property(e => e.RefId).HasColumnName("ref_id");
+                entity.Property(e => e.RefKode).HasColumnName("ref_kode").HasColumnType("varchar(100)");
+                entity.Property(e => e.FilePath).HasColumnName("file_path").HasColumnType("varchar(500)");
+                entity.Property(e => e.OriginalFileName).HasColumnName("original_file_name").HasColumnType("varchar(255)");
+                entity.Property(e => e.FileType).HasColumnName("file_type").HasColumnType("varchar(50)");
+                entity.Property(e => e.FileSize).HasColumnName("file_size");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("datetime");
+                entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+                entity.Property(e => e.Keterangan).HasColumnName("keterangan").HasColumnType("text");
+            });
+
+            modelBuilder.Entity<ApprovalWorkflowConfig>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.ToTable("approval_workflow_config");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.WorkflowType).HasColumnName("workflow_type").HasColumnType("varchar(50)");
+                entity.Property(e => e.Level).HasColumnName("level");
+                entity.Property(e => e.IdPeranApprover).HasColumnName("id_peran_approver");
+                entity.Property(e => e.IsRequired).HasColumnName("is_required");
+                entity.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
+                entity.Property(e => e.IsActive).HasColumnName("is_active");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<ApprovalStep>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.ToTable("approval_step");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.WorkflowType).HasColumnName("workflow_type").HasColumnType("varchar(50)");
+                entity.Property(e => e.RefId).HasColumnName("ref_id").HasColumnType("varchar(100)");
+                entity.Property(e => e.Level).HasColumnName("level");
+                entity.Property(e => e.IdApprover).HasColumnName("id_approver");
+                entity.Property(e => e.IdPeranApprover).HasColumnName("id_peran_approver");
+                entity.Property(e => e.Status).HasColumnName("status").HasColumnType("varchar(20)");
+                entity.Property(e => e.Catatan).HasColumnName("catatan").HasColumnType("text");
+                entity.Property(e => e.TanggalKeputusan).HasColumnName("tanggal_keputusan").HasColumnType("datetime");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("datetime");
             });
 
             OnModelCreatingPartial(modelBuilder);

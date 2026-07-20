@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using Assets_Inventory.Helper;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
@@ -58,91 +59,43 @@ namespace Assets_Inventory
             printDoc.DefaultPageSettings.Landscape = true;
             printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
         }
-
         private void BtnTampilkanData_Click(object sender, EventArgs e)
         {
-            if (db != null) db.Dispose();
-            db = new AppDbContext();
-
+            // ponytail: reuse context, don't Dispose-recreate
+            if (db == null) db = new AppDbContext();
             printData = new List<RekapNilaiAsetViewModel>();
 
-            // 1. Aset Barang Inventaris (Aktif)
-            var asetBarang = db.Aset.AsNoTracking().Where(a => a.Status != "Nonaktif").ToList();
-            int jmlBarang = asetBarang.Count;
-            decimal nilaiBarang = asetBarang.Sum(a => a.HargaSatuan ?? 0m);
+            // DB-level aggregation: Count + Sum without loading entities
+            var qAsetAktif = db.Aset.AsNoTracking().Where(a => a.Status != "Nonaktif");
+            var qAsetNonaktif = db.Aset.AsNoTracking().Where(a => a.Status == "Nonaktif");
+            var qBangunanAktif = db.AsetBangunan.AsNoTracking().Where(b => b.Status != "Nonaktif");
+            var qBangunanNonaktif = db.AsetBangunan.AsNoTracking().Where(b => b.Status == "Nonaktif");
+            var qTanahAktif = db.AsetTanah.AsNoTracking().Where(t => t.Status != "Nonaktif");
+            var qTanahNonaktif = db.AsetTanah.AsNoTracking().Where(t => t.Status == "Nonaktif");
 
-            printData.Add(new RekapNilaiAsetViewModel
-            {
-                No = 1,
-                JenisAset = "Barang Inventaris (Aktif)",
-                JumlahUnit = jmlBarang,
-                TotalNilai = nilaiBarang
-            });
+            int jmlBarang = qAsetAktif.Count();
+            decimal nilaiBarang = qAsetAktif.Sum(a => (decimal?)(a.HargaSatuan ?? 0m)) ?? 0m;
+            printData.Add(new RekapNilaiAsetViewModel { No = 1, JenisAset = "Barang Inventaris (Aktif)", JumlahUnit = jmlBarang, TotalNilai = nilaiBarang });
 
-            // 2. Aset Bangunan / Gedung (Aktif)
-            var asetBangunan = db.AsetBangunan.AsNoTracking().Where(b => b.Status != "Nonaktif").ToList();
-            int jmlBangunan = asetBangunan.Count;
-            decimal nilaiBangunan = asetBangunan.Sum(b => b.NilaiAset ?? 0m);
+            int jmlBangunan = qBangunanAktif.Count();
+            decimal nilaiBangunan = qBangunanAktif.Sum(b => (decimal?)(b.NilaiAset ?? 0m)) ?? 0m;
+            printData.Add(new RekapNilaiAsetViewModel { No = 2, JenisAset = "Bangunan / Gedung (Aktif)", JumlahUnit = jmlBangunan, TotalNilai = nilaiBangunan });
 
-            printData.Add(new RekapNilaiAsetViewModel
-            {
-                No = 2,
-                JenisAset = "Bangunan / Gedung (Aktif)",
-                JumlahUnit = jmlBangunan,
-                TotalNilai = nilaiBangunan
-            });
+            int jmlTanah = qTanahAktif.Count();
+            decimal nilaiTanah = qTanahAktif.Sum(t => (decimal?)(t.NilaiAset ?? 0m)) ?? 0m;
+            printData.Add(new RekapNilaiAsetViewModel { No = 3, JenisAset = "Tanah (Aktif)", JumlahUnit = jmlTanah, TotalNilai = nilaiTanah });
 
-            // 3. Aset Tanah (Aktif)
-            var asetTanah = db.AsetTanah.AsNoTracking().Where(t => t.Status != "Nonaktif").ToList();
-            int jmlTanah = asetTanah.Count;
-            decimal nilaiTanah = asetTanah.Sum(t => t.NilaiAset ?? 0m);
+            int jmlBarangNA = qAsetNonaktif.Count();
+            decimal nilaiBarangNA = qAsetNonaktif.Sum(a => (decimal?)(a.HargaSatuan ?? 0m)) ?? 0m;
+            printData.Add(new RekapNilaiAsetViewModel { No = 4, JenisAset = "Barang Inventaris (Non Aktif)", JumlahUnit = jmlBarangNA, TotalNilai = nilaiBarangNA });
 
-            printData.Add(new RekapNilaiAsetViewModel
-            {
-                No = 3,
-                JenisAset = "Tanah (Aktif)",
-                JumlahUnit = jmlTanah,
-                TotalNilai = nilaiTanah
-            });
+            int jmlBangunanNA = qBangunanNonaktif.Count();
+            decimal nilaiBangunanNA = qBangunanNonaktif.Sum(b => (decimal?)(b.NilaiAset ?? 0m)) ?? 0m;
+            printData.Add(new RekapNilaiAsetViewModel { No = 5, JenisAset = "Bangunan / Gedung (Non Aktif)", JumlahUnit = jmlBangunanNA, TotalNilai = nilaiBangunanNA });
 
-            // 4. Barang Non Aktif
-            var barangNA = db.Aset.AsNoTracking().Where(a => a.Status == "Nonaktif").ToList();
-            int jmlBarangNA = barangNA.Count;
-            decimal nilaiBarangNA = barangNA.Sum(a => a.HargaSatuan ?? 0m);
-
-            printData.Add(new RekapNilaiAsetViewModel
-            {
-                No = 4,
-                JenisAset = "Barang Inventaris (Non Aktif)",
-                JumlahUnit = jmlBarangNA,
-                TotalNilai = nilaiBarangNA
-            });
-
-            // 5. Bangunan Non Aktif
-            var bangunanNA = db.AsetBangunan.AsNoTracking().Where(b => b.Status == "Nonaktif").ToList();
-            int jmlBangunanNA = bangunanNA.Count;
-            decimal nilaiBangunanNA = bangunanNA.Sum(b => b.NilaiAset ?? 0m);
-
-            printData.Add(new RekapNilaiAsetViewModel
-            {
-                No = 5,
-                JenisAset = "Bangunan / Gedung (Non Aktif)",
-                JumlahUnit = jmlBangunanNA,
-                TotalNilai = nilaiBangunanNA
-            });
-
-            // 6. Tanah Non Aktif
-            var tanahNA = db.AsetTanah.AsNoTracking().Where(t => t.Status == "Nonaktif").ToList();
-            int jmlTanahNA = tanahNA.Count;
-            decimal nilaiTanahNA = tanahNA.Sum(t => t.NilaiAset ?? 0m);
-
-            printData.Add(new RekapNilaiAsetViewModel
-            {
-                No = 6,
-                JenisAset = "Tanah (Non Aktif)",
-                JumlahUnit = jmlTanahNA,
-                TotalNilai = nilaiTanahNA
-            });
+            int jmlTanahNA = qTanahNonaktif.Count();
+            decimal nilaiTanahNA = qTanahNonaktif.Sum(t => (decimal?)(t.NilaiAset ?? 0m)) ?? 0m;
+            printData.Add(new RekapNilaiAsetViewModel { No = 6, JenisAset = "Tanah (Non Aktif)", JumlahUnit = jmlTanahNA, TotalNilai = nilaiTanahNA });
 
             var dgv = this.Controls.Find("dg", true).FirstOrDefault() as DataGridView;
             var lblRec = this.Controls.Find("lblRecord", true).FirstOrDefault() as Label;
@@ -150,16 +103,15 @@ namespace Assets_Inventory
             if (dgv != null)
             {
                 dgv.DataSource = new SortableBindingList<RekapNilaiAsetViewModel>(printData);
-
                 if (dgv.Columns["TotalNilai"] != null)
                 {
                     dgv.Columns["TotalNilai"].DefaultCellStyle.Format = "C2";
                     dgv.Columns["TotalNilai"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
             }
-
             if (lblRec != null) lblRec.Text = $"Total Nilai Aset Keseluruhan: {printData.Sum(x => x.TotalNilai).ToString("C2")}";
         }
+
 
         #region CETAK DOKUMEN (PRINT PREVIEW)
 
@@ -280,56 +232,20 @@ namespace Assets_Inventory
 
         private void BtnExportToExcel_Click(object sender, EventArgs e)
         {
+            var expHak = AuthManager.GetAkses("Laporan");
             if (printData.Count == 0) { MessageBox.Show("Tidak ada data untuk diexport.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            try
             {
-                sfd.Filter = "Excel Files (*.xlsx)|*.xlsx"; sfd.FileName = "Rekap_Nilai_Aset_" + DateTime.Now.ToString("yyyyMMdd");
-                if (sfd.ShowDialog() == DialogResult.OK)
+                var dgv = this.Controls.Find("dg", true).FirstOrDefault() as DataGridView ?? this.Controls.Find("dgvLaporan", true).FirstOrDefault() as DataGridView;
+                if (dgv == null) { MessageBox.Show("Grid tidak ditemukan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                if (ExportHelper.ShowSaveDialog(out string path, "laporan"))
                 {
-                    try
-                    {
-                        this.Cursor = Cursors.WaitCursor;
-                        using (var package = new ExcelPackage())
-                        {
-                            var ws = package.Workbook.Worksheets.Add("Rekap Nilai Aset");
-                            ws.Cells["A1:D1"].Merge = true; ws.Cells["A1"].Value = "REKAP NILAI ASET";
-                            ws.Cells["A1"].Style.Font.Bold = true; ws.Cells["A1"].Style.Font.Size = 14;
-                            ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                            string[] headers = { "No", "Jenis Aset", "Jumlah Unit", "Total Nilai Aset" };
-                            for (int i = 0; i < headers.Length; i++)
-                            {
-                                ws.Cells[3, i + 1].Value = headers[i]; ws.Cells[3, i + 1].Style.Font.Bold = true;
-                                ws.Cells[3, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                ws.Cells[3, i + 1].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                                ws.Cells[3, i + 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                            }
-                            int row = 4;
-                            for (int i = 0; i < printData.Count; i++)
-                            {
-                                var item = printData[i];
-                                ws.Cells[row, 1].Value = item.No; ws.Cells[row, 2].Value = item.JenisAset;
-                                ws.Cells[row, 3].Value = item.JumlahUnit;
-                                ws.Cells[row, 4].Value = item.TotalNilai; ws.Cells[row, 4].Style.Numberformat.Format = "Rp #,##0.00";
-                                for (int col = 1; col <= 4; col++) ws.Cells[row, col].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                                row++;
-                            }
-                            // Total
-                            ws.Cells[row, 1, row, 3].Merge = true; ws.Cells[row, 1].Value = "TOTAL KESELURUHAN";
-                            ws.Cells[row, 1].Style.Font.Bold = true; ws.Cells[row, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                            ws.Cells[row, 4].Value = printData.Sum(x => x.TotalNilai); ws.Cells[row, 4].Style.Font.Bold = true;
-                            ws.Cells[row, 4].Style.Numberformat.Format = "Rp #,##0.00";
-                            ws.Cells[row, 1, row, 4].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-
-                            ws.Cells[ws.Dimension.Address].AutoFitColumns(); package.SaveAs(new FileInfo(sfd.FileName));
-                        }
-                        MessageBox.Show("Data berhasil diekspor ke Excel!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    catch (Exception ex) { MessageBox.Show("Error saat export: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-                    finally { this.Cursor = Cursors.Default; }
+                    ExportHelper.ExportDataGridView(dgv, path);
+                    try { AuditHelper.Log("laporan", System.IO.Path.GetFileName(path), "EXPORT", (object)null, (object)($"Exported {printData.Count} rows"), "Laporan"); } catch {}
+                    MessageBox.Show("Data berhasil diekspor!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+            catch (Exception ex) { MessageBox.Show("Error saat export: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         private void BtnTutup_Click(object sender, EventArgs e)

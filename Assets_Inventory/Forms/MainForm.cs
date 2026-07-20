@@ -91,6 +91,8 @@ namespace Assets_Inventory
                 // Cache permissions once instead of 30x DB queries
                 TerapkanHakAksesMenu();
                 CekNotifikasiAset();
+                try { NotificationService.CheckOverduePeminjaman(); } catch {}
+                try { NotificationService.CheckStokMinimal(); } catch {}
                 DashboardUC uc = new DashboardUC();
                 ChangeView(uc);
             }
@@ -451,6 +453,18 @@ namespace Assets_Inventory
                 }
             }
         }
+        private void auditLogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var hak = AuthManager.GetAkses("Audit Log");
+            if (!hak.HakBaca && !AuthManager.GetAkses("Admin").HakBaca) { MessageBox.Show("Akses ditolak.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+            ChangeView(new AuditLogUC());
+        }
+
+        private void notifikasiToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChangeView(new NotifikasiUC());
+        }
+
 
         private void mutasiBarangToolStripMenuItem_Click(object sender, EventArgs e)
         {

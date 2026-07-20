@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ExcelDataReader;
@@ -198,6 +198,7 @@ namespace Assets_Inventory
                         var toDelete = db.Pengadaan.Find(k.IdPengadaan);
                         db.Pengadaan.Remove(toDelete);
                         db.SaveChanges();
+                        try { AuditHelper.Log("Pengadaan", k?.IdPengadaan.ToString() ?? "", "DELETE", AuditHelper.SerializeObject(k), null, "Pengadaan"); } catch {}
 
                         MessageBox.Show("Berhasil dihapus!");
                         loadData();
@@ -424,6 +425,8 @@ namespace Assets_Inventory
                     Format = formatBarcode,
                     Options = new EncodingOptions { Height = tinggi, Width = lebar, Margin = 1 }
                 };
+                Image MakeBarcode2(string kd) { if (jenisPilihan == "QR Code" || (typeof(BarcodeFormat).Name!=null && jenisPilihan=="QR Code")) return QrCodeHelper.GenerateQrCode(kd, lebar>0?lebar:200, tinggi>0?tinggi:200); return QrCodeHelper.GenerateBarcode128(kd, lebar>0?lebar:300, tinggi>0?tinggi:100); }
+
 
                 PrintDocument pd = new PrintDocument();
                 int currentItemIndex = 0;
@@ -437,7 +440,7 @@ namespace Assets_Inventory
                     while (currentItemIndex < daftarKode.Count)
                     {
                         string kode = daftarKode[currentItemIndex];
-                        Image img = writer.Write(kode);
+                        Image img = MakeBarcode2(kode) ?? writer.Write(kode);
                         ev.Graphics.DrawImage(img, x, y, lebar, tinggi);
 
                         Font fontTeks = new Font("Arial", 10, FontStyle.Bold);

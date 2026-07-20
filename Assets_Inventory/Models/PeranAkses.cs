@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 // Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
@@ -16,6 +16,8 @@ namespace Assets_Inventory.Models
         public bool? HakBaca { get; set; }
         public bool? HakUbah { get; set; }
         public bool? HakHapus { get; set; }
+        public bool? HakApprove { get; set; }
+        public bool? HakExport { get; set; }
 
         public virtual Akses IdAksesNavigation { get; set; }
         public virtual Peran IdPeranNavigation { get; set; }

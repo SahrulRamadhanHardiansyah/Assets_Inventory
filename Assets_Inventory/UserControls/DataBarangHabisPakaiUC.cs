@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Forms;
+using Assets_Inventory.Forms;
 using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
@@ -23,6 +23,11 @@ namespace Assets_Inventory
     public partial class DataBarangHabisPakaiUC : UserControl
     {
         AppDbContext db = new AppDbContext();
+        private int _currentPage = 0;
+        private const int _pageSize = 100;
+        private int _totalRecords = 0;
+        private Button _btnPrev;
+        private Button _btnNext;
 
         public class BarangHabisPakaiViewModel
         {
@@ -71,43 +76,51 @@ namespace Assets_Inventory
             cmbJenisBarcode.Items.Add("QR Code");
             cmbJenisBarcode.SelectedIndex = 0;
 
+            EnsurePagingControls();
             loadData();
         }
-
-        private void loadData()
+        private void loadData(bool resetPage = true)
         {
-            if (db != null) db.Dispose();
-            db = new AppDbContext();
+            if (resetPage) _currentPage = 0;
+            // ponytail: reuse db context, recreate only if disposed (fault tolerance)
+            try { if (db == null) db = new AppDbContext(); } catch { db = new AppDbContext(); }
 
-            var cari = txtCari.Text.ToLower().Trim();
+            var cari = txtCari.Text.Trim();
 
-            var dictBarang = db.MasterBarang.ToDictionary(b => b.IdMasterBarang, b => b.NamaBarang);
-            var dictRuang = db.Ruang.ToDictionary(r => r.IdRuang, r => r.NamaRuang);
+            IQueryable<AsetHabisPakai> q = db.AsetHabisPakai
+                .Include(a => a.IdMasterBarangNavigation)
+                .Include(a => a.IdRuangNavigation)
+                .AsNoTracking();
 
-            var rawData = db.AsetHabisPakai.AsNoTracking().ToList();
+            if (!string.IsNullOrEmpty(cari))
+                q = q.Where(a => a.KodeBarang.Contains(cari) || a.IdMasterBarangNavigation.NamaBarang.Contains(cari));
 
-            var dataTampil = rawData.Select(a => {
-                string namaBrg = dictBarang.ContainsKey(a.IdMasterBarang) ? dictBarang[a.IdMasterBarang] : "N/A";
-                string namaRuang = (a.IdRuang.HasValue && dictRuang.ContainsKey(a.IdRuang.Value)) ? dictRuang[a.IdRuang.Value] : "-";
+            _totalRecords = q.Count();
 
-                return new BarangHabisPakaiViewModel
-                {
-                    KodeBarang = a.KodeBarang,
-                    NamaBarang = namaBrg,
-                    StokAwal = a.Stok,
-                    StokAktual = a.StokAktual,
-                    Ruang = namaRuang,
-                    Status = a.Status ?? "Tersedia",
-                    DapatDipinjam = (a.IsReturnable.HasValue && a.IsReturnable.Value) ? "Ya" : "Tidak",
-                    TanggalMasuk = a.TanggalRegistrasi,
-                    ObjekAsli = a
-                };
-            })
-            .Where(x => x.KodeBarang.ToLower().Contains(cari) || x.NamaBarang.ToLower().Contains(cari))
-            .ToList();
+            var page = q.OrderByDescending(a => a.KodeBarang)
+                        .Skip(_currentPage * _pageSize)
+                        .Take(_pageSize)
+                        .ToList();
+
+            var dataTampil = page.Select(a => new BarangHabisPakaiViewModel
+            {
+                KodeBarang = a.KodeBarang,
+                NamaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : "N/A",
+                StokAwal = a.Stok,
+                StokAktual = a.StokAktual,
+                Ruang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : "-",
+                Status = a.Status ?? "Tersedia",
+                DapatDipinjam = (a.IsReturnable.HasValue && a.IsReturnable.Value) ? "Ya" : "Tidak",
+                TanggalMasuk = a.TanggalRegistrasi,
+                ObjekAsli = a
+            }).ToList();
 
             dg.DataSource = new SortableBindingList<BarangHabisPakaiViewModel>(dataTampil);
-            lblTotal.Text = $"Total Record : {dataTampil.Count}";
+            int totalPages = System.Math.Max(1, (int)System.Math.Ceiling((double)_totalRecords / _pageSize));
+            lblTotal.Text = $"Total Record : {_totalRecords}  |  Page {_currentPage + 1}/{totalPages} (showing {dataTampil.Count})";
+
+            if (_btnPrev != null) _btnPrev.Enabled = _currentPage > 0;
+            if (_btnNext != null) _btnNext.Enabled = (_currentPage + 1) * _pageSize < _totalRecords;
 
             if (dg.Columns["ObjekAsli"] != null) dg.Columns["ObjekAsli"].Visible = false;
 
@@ -134,6 +147,21 @@ namespace Assets_Inventory
                 dg.Columns["TanggalMasuk"].HeaderText = "Tgl. Registrasi";
                 dg.Columns["TanggalMasuk"].DefaultCellStyle.Format = "dd MMM yyyy";
             }
+        }
+
+        private void EnsurePagingControls()
+        {
+            if (_btnPrev != null) return;
+            _btnPrev = new Button { Text = "< Prev", Size = new Size(65, 23) };
+            _btnNext = new Button { Text = "Next >", Size = new Size(65, 23) };
+            _btnPrev.Click += (s, e) => { if (_currentPage > 0) { _currentPage--; loadData(false); } };
+            _btnNext.Click += (s, e) => { if ((_currentPage + 1) * _pageSize < _totalRecords) { _currentPage++; loadData(false); } };
+            var gp = lblTotal?.Parent ?? this;
+            var pos = lblTotal != null ? lblTotal.Location : new System.Drawing.Point(10, 10);
+            _btnPrev.Location = new System.Drawing.Point(pos.X + 220, pos.Y - 2);
+            _btnNext.Location = new System.Drawing.Point(pos.X + 290, pos.Y - 2);
+            gp.Controls.Add(_btnPrev);
+            gp.Controls.Add(_btnNext);
         }
 
         private void btnCari_Click(object sender, EventArgs e)
@@ -182,6 +210,7 @@ namespace Assets_Inventory
                         var aset = db.AsetHabisPakai.Find(vm.KodeBarang);
                         db.AsetHabisPakai.Remove(aset);
                         db.SaveChanges();
+                        try { AuditHelper.Log("Data Barang Habis Pakai", vm.KodeBarang?.ToString(), "DELETE", AuditHelper.SerializeObject(vm), null, "Data Barang Habis Pakai"); } catch {}
                         MessageBox.Show("Data berhasil dihapus.");
                         loadData();
                     }
@@ -236,6 +265,11 @@ namespace Assets_Inventory
                 if (jenisPilihan == "Code 39") formatBarcode = BarcodeFormat.CODE_39;
                 else if (jenisPilihan == "QR Code") { formatBarcode = BarcodeFormat.QR_CODE; lebar = 200; tinggi = 200; }
 
+                Image MakeBarcode(string kode)
+                {
+                    if (jenisPilihan == "QR Code") return QrCodeHelper.GenerateQrCode(kode, lebar, tinggi);
+                    return QrCodeHelper.GenerateBarcode128(kode, lebar, tinggi);
+                }
                 var writer = new BarcodeWriter { Format = formatBarcode, Options = new EncodingOptions { Height = tinggi, Width = lebar, Margin = 1 } };
                 PrintDocument pd = new PrintDocument();
                 int currentItemIndex = 0;
@@ -249,7 +283,7 @@ namespace Assets_Inventory
                     while (currentItemIndex < daftarKode.Count)
                     {
                         string kode = daftarKode[currentItemIndex];
-                        Image img = writer.Write(kode);
+                        Image img = MakeBarcode(kode) ?? writer.Write(kode);
                         ev.Graphics.DrawImage(img, x, y, lebar, tinggi);
 
                         Font fontTeks = new Font("Arial", 10, FontStyle.Bold);

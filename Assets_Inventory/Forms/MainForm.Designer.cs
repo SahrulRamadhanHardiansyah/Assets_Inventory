@@ -1,4 +1,4 @@
-﻿namespace Assets_Inventory
+namespace Assets_Inventory
 {
     partial class MainForm
     {
@@ -393,10 +393,27 @@
             // 
             // aDMINToolStripMenuItem
             // 
+
+            // auditLog - Audit Trail (Sprint 4 Enterprise)
+            this.auditLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.notifikasiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            // auditLog
+            this.auditLogToolStripMenuItem.Name = "auditLogToolStripMenuItem";
+            this.auditLogToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.auditLogToolStripMenuItem.Text = "Audit Log";
+            this.auditLogToolStripMenuItem.Click += new System.EventHandler(this.auditLogToolStripMenuItem_Click);
+            // notifikasi
+            this.notifikasiToolStripMenuItem.Name = "notifikasiToolStripMenuItem";
+            this.notifikasiToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.notifikasiToolStripMenuItem.Text = "Notifikasi";
+            this.notifikasiToolStripMenuItem.Click += new System.EventHandler(this.notifikasiToolStripMenuItem_Click);
+
             this.aDMINToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.masterDataToolStripMenuItem1,
             this.dataLembagaToolStripMenuItem,
             this.groupUserToolStripMenuItem,
+            this.auditLogToolStripMenuItem,
+            this.notifikasiToolStripMenuItem,
             this.userToolStripMenuItem,
             this.wallpaperToolStripMenuItem});
             this.aDMINToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -668,6 +685,8 @@
         private System.Windows.Forms.ToolStripMenuItem masterDataToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem dataLembagaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem groupUserToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem auditLogToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem notifikasiToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem userToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem wallpaperToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
