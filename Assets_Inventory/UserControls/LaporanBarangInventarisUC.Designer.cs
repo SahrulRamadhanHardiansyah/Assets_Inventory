@@ -59,17 +59,19 @@
             // 
             this.cmbFilterKategori.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFilterKategori.FormattingEnabled = true;
-            this.cmbFilterKategori.Location = new System.Drawing.Point(24, 55);
+            this.cmbFilterKategori.Location = new System.Drawing.Point(16, 36);
+            this.cmbFilterKategori.Margin = new System.Windows.Forms.Padding(2);
             this.cmbFilterKategori.Name = "cmbFilterKategori";
-            this.cmbFilterKategori.Size = new System.Drawing.Size(213, 28);
+            this.cmbFilterKategori.Size = new System.Drawing.Size(143, 21);
             this.cmbFilterKategori.TabIndex = 47;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(20, 30);
+            this.label3.Location = new System.Drawing.Point(13, 20);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(107, 20);
+            this.label3.Size = new System.Drawing.Size(71, 13);
             this.label3.TabIndex = 48;
             this.label3.Text = "Filter Kategori";
             // 
@@ -77,34 +79,38 @@
             // 
             this.cmbFilterNamaBarang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFilterNamaBarang.FormattingEnabled = true;
-            this.cmbFilterNamaBarang.Location = new System.Drawing.Point(24, 114);
+            this.cmbFilterNamaBarang.Location = new System.Drawing.Point(16, 74);
+            this.cmbFilterNamaBarang.Margin = new System.Windows.Forms.Padding(2);
             this.cmbFilterNamaBarang.Name = "cmbFilterNamaBarang";
-            this.cmbFilterNamaBarang.Size = new System.Drawing.Size(213, 28);
+            this.cmbFilterNamaBarang.Size = new System.Drawing.Size(143, 21);
             this.cmbFilterNamaBarang.TabIndex = 45;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(20, 89);
+            this.label6.Location = new System.Drawing.Point(13, 58);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(146, 20);
+            this.label6.Size = new System.Drawing.Size(97, 13);
             this.label6.TabIndex = 46;
             this.label6.Text = "Filter Nama Barang";
             // 
             // lblItem
             // 
             this.lblItem.AutoSize = true;
-            this.lblItem.Location = new System.Drawing.Point(233, 664);
+            this.lblItem.Location = new System.Drawing.Point(155, 432);
+            this.lblItem.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblItem.Name = "lblItem";
-            this.lblItem.Size = new System.Drawing.Size(101, 20);
+            this.lblItem.Size = new System.Drawing.Size(69, 13);
             this.lblItem.TabIndex = 31;
             this.lblItem.Text = "Total Item : 1";
             // 
             // btnTutup
             // 
-            this.btnTutup.Location = new System.Drawing.Point(24, 543);
+            this.btnTutup.Location = new System.Drawing.Point(16, 353);
+            this.btnTutup.Margin = new System.Windows.Forms.Padding(2);
             this.btnTutup.Name = "btnTutup";
-            this.btnTutup.Size = new System.Drawing.Size(213, 40);
+            this.btnTutup.Size = new System.Drawing.Size(142, 26);
             this.btnTutup.TabIndex = 33;
             this.btnTutup.Text = "Tutup";
             this.btnTutup.UseVisualStyleBackColor = true;
@@ -112,9 +118,10 @@
             // chkIncludeGambar
             // 
             this.chkIncludeGambar.AutoSize = true;
-            this.chkIncludeGambar.Location = new System.Drawing.Point(24, 461);
+            this.chkIncludeGambar.Location = new System.Drawing.Point(16, 300);
+            this.chkIncludeGambar.Margin = new System.Windows.Forms.Padding(2);
             this.chkIncludeGambar.Name = "chkIncludeGambar";
-            this.chkIncludeGambar.Size = new System.Drawing.Size(149, 24);
+            this.chkIncludeGambar.Size = new System.Drawing.Size(101, 17);
             this.chkIncludeGambar.TabIndex = 44;
             this.chkIncludeGambar.Text = "Include Gambar";
             this.chkIncludeGambar.UseVisualStyleBackColor = true;
@@ -123,26 +130,29 @@
             // 
             this.cmbFilterLokasi.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFilterLokasi.FormattingEnabled = true;
-            this.cmbFilterLokasi.Location = new System.Drawing.Point(24, 175);
+            this.cmbFilterLokasi.Location = new System.Drawing.Point(16, 114);
+            this.cmbFilterLokasi.Margin = new System.Windows.Forms.Padding(2);
             this.cmbFilterLokasi.Name = "cmbFilterLokasi";
-            this.cmbFilterLokasi.Size = new System.Drawing.Size(213, 28);
+            this.cmbFilterLokasi.Size = new System.Drawing.Size(143, 21);
             this.cmbFilterLokasi.TabIndex = 41;
             // 
             // cmbFilterRuang
             // 
             this.cmbFilterRuang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFilterRuang.FormattingEnabled = true;
-            this.cmbFilterRuang.Location = new System.Drawing.Point(24, 237);
+            this.cmbFilterRuang.Location = new System.Drawing.Point(16, 154);
+            this.cmbFilterRuang.Margin = new System.Windows.Forms.Padding(2);
             this.cmbFilterRuang.Name = "cmbFilterRuang";
-            this.cmbFilterRuang.Size = new System.Drawing.Size(213, 28);
+            this.cmbFilterRuang.Size = new System.Drawing.Size(143, 21);
             this.cmbFilterRuang.TabIndex = 39;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(20, 212);
+            this.label4.Location = new System.Drawing.Point(13, 138);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(96, 20);
+            this.label4.Size = new System.Drawing.Size(64, 13);
             this.label4.TabIndex = 40;
             this.label4.Text = "Filter Ruang";
             // 
@@ -150,9 +160,10 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(49, 63);
+            this.label1.Location = new System.Drawing.Point(33, 41);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(517, 25);
+            this.label1.Size = new System.Drawing.Size(375, 17);
             this.label1.TabIndex = 43;
             this.label1.Text = "Gunakan Form Ini Untuk Mencetak Data Barang Inventaris";
             // 
@@ -160,9 +171,10 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(49, 29);
+            this.label2.Location = new System.Drawing.Point(33, 19);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(405, 29);
+            this.label2.Size = new System.Drawing.Size(284, 20);
             this.label2.TabIndex = 42;
             this.label2.Text = "LAPORAN BARANG INVENTARIS";
             // 
@@ -183,9 +195,11 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.btnExportToExcel);
             this.groupBox2.Controls.Add(this.btnTampilkanData);
-            this.groupBox2.Location = new System.Drawing.Point(41, 103);
+            this.groupBox2.Location = new System.Drawing.Point(27, 67);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(269, 695);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
+            this.groupBox2.Size = new System.Drawing.Size(179, 452);
             this.groupBox2.TabIndex = 44;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Filter Cetak";
@@ -194,25 +208,28 @@
             // 
             this.cmbFilterKondisi.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFilterKondisi.FormattingEnabled = true;
-            this.cmbFilterKondisi.Location = new System.Drawing.Point(24, 299);
+            this.cmbFilterKondisi.Location = new System.Drawing.Point(16, 194);
+            this.cmbFilterKondisi.Margin = new System.Windows.Forms.Padding(2);
             this.cmbFilterKondisi.Name = "cmbFilterKondisi";
-            this.cmbFilterKondisi.Size = new System.Drawing.Size(213, 28);
+            this.cmbFilterKondisi.Size = new System.Drawing.Size(143, 21);
             this.cmbFilterKondisi.TabIndex = 49;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(20, 274);
+            this.label7.Location = new System.Drawing.Point(13, 178);
+            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(99, 20);
+            this.label7.Size = new System.Drawing.Size(66, 13);
             this.label7.TabIndex = 50;
             this.label7.Text = "Filter Kondisi";
             // 
             // btnPreview
             // 
-            this.btnPreview.Location = new System.Drawing.Point(24, 405);
+            this.btnPreview.Location = new System.Drawing.Point(16, 263);
+            this.btnPreview.Margin = new System.Windows.Forms.Padding(2);
             this.btnPreview.Name = "btnPreview";
-            this.btnPreview.Size = new System.Drawing.Size(213, 40);
+            this.btnPreview.Size = new System.Drawing.Size(142, 26);
             this.btnPreview.TabIndex = 43;
             this.btnPreview.Text = "Preview";
             this.btnPreview.UseVisualStyleBackColor = true;
@@ -220,26 +237,29 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(20, 150);
+            this.label5.Location = new System.Drawing.Point(13, 98);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(94, 20);
+            this.label5.Size = new System.Drawing.Size(63, 13);
             this.label5.TabIndex = 42;
             this.label5.Text = "Filter Lokasi";
             // 
             // btnExportToExcel
             // 
-            this.btnExportToExcel.Location = new System.Drawing.Point(24, 497);
+            this.btnExportToExcel.Location = new System.Drawing.Point(16, 323);
+            this.btnExportToExcel.Margin = new System.Windows.Forms.Padding(2);
             this.btnExportToExcel.Name = "btnExportToExcel";
-            this.btnExportToExcel.Size = new System.Drawing.Size(213, 40);
+            this.btnExportToExcel.Size = new System.Drawing.Size(142, 26);
             this.btnExportToExcel.TabIndex = 5;
             this.btnExportToExcel.Text = "Export To Excel";
             this.btnExportToExcel.UseVisualStyleBackColor = true;
             // 
             // btnTampilkanData
             // 
-            this.btnTampilkanData.Location = new System.Drawing.Point(24, 359);
+            this.btnTampilkanData.Location = new System.Drawing.Point(16, 233);
+            this.btnTampilkanData.Margin = new System.Windows.Forms.Padding(2);
             this.btnTampilkanData.Name = "btnTampilkanData";
-            this.btnTampilkanData.Size = new System.Drawing.Size(213, 40);
+            this.btnTampilkanData.Size = new System.Drawing.Size(142, 26);
             this.btnTampilkanData.TabIndex = 4;
             this.btnTampilkanData.Text = "Tampilkan Data";
             this.btnTampilkanData.UseVisualStyleBackColor = true;
@@ -247,9 +267,10 @@
             // lblRecord
             // 
             this.lblRecord.AutoSize = true;
-            this.lblRecord.Location = new System.Drawing.Point(16, 664);
+            this.lblRecord.Location = new System.Drawing.Point(11, 432);
+            this.lblRecord.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblRecord.Name = "lblRecord";
-            this.lblRecord.Size = new System.Drawing.Size(121, 20);
+            this.lblRecord.Size = new System.Drawing.Size(84, 13);
             this.lblRecord.TabIndex = 27;
             this.lblRecord.Text = "Total Record : 1";
             // 
@@ -258,13 +279,14 @@
             this.dg.AllowUserToAddRows = false;
             this.dg.AllowUserToDeleteRows = false;
             this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg.Location = new System.Drawing.Point(20, 35);
+            this.dg.Location = new System.Drawing.Point(13, 23);
+            this.dg.Margin = new System.Windows.Forms.Padding(2);
             this.dg.Name = "dg";
             this.dg.ReadOnly = true;
             this.dg.RowHeadersVisible = false;
             this.dg.RowHeadersWidth = 62;
             this.dg.RowTemplate.Height = 28;
-            this.dg.Size = new System.Drawing.Size(1140, 617);
+            this.dg.Size = new System.Drawing.Size(760, 401);
             this.dg.TabIndex = 30;
             // 
             // groupBox3
@@ -272,23 +294,26 @@
             this.groupBox3.Controls.Add(this.lblItem);
             this.groupBox3.Controls.Add(this.lblRecord);
             this.groupBox3.Controls.Add(this.dg);
-            this.groupBox3.Location = new System.Drawing.Point(327, 103);
+            this.groupBox3.Location = new System.Drawing.Point(218, 67);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(1186, 695);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
+            this.groupBox3.Size = new System.Drawing.Size(791, 452);
             this.groupBox3.TabIndex = 45;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Data Barang Inventaris";
             // 
             // LaporanBarangInventarisUC
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox3);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "LaporanBarangInventarisUC";
-            this.Size = new System.Drawing.Size(1561, 823);
+            this.Size = new System.Drawing.Size(1041, 535);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).EndInit();

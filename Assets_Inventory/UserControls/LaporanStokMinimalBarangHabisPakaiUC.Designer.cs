@@ -29,9 +29,8 @@
         private void InitializeComponent()
         {
             this.btnExport = new System.Windows.Forms.Button();
-            this.cmbGudang = new System.Windows.Forms.ComboBox();
+            this.txtGudang = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.btnTutup = new System.Windows.Forms.Button();
             this.btnCetak = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.lblTotal = new System.Windows.Forms.Label();
@@ -47,59 +46,54 @@
             // 
             // btnExport
             // 
-            this.btnExport.Location = new System.Drawing.Point(182, 33);
+            this.btnExport.Location = new System.Drawing.Point(121, 21);
+            this.btnExport.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(140, 40);
+            this.btnExport.Size = new System.Drawing.Size(93, 26);
             this.btnExport.TabIndex = 5;
             this.btnExport.Text = "Export";
             this.btnExport.UseVisualStyleBackColor = true;
-            // 
-            // cmbGudang
-            // 
-            this.cmbGudang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbGudang.FormattingEnabled = true;
-            this.cmbGudang.Location = new System.Drawing.Point(25, 56);
-            this.cmbGudang.Name = "cmbGudang";
-            this.cmbGudang.Size = new System.Drawing.Size(196, 28);
-            this.cmbGudang.TabIndex = 35;
+            //
+            // txtGudang
+            //
+            this.txtGudang.Location = new System.Drawing.Point(17, 36);
+            this.txtGudang.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtGudang.Name = "txtGudang";
+            this.txtGudang.Size = new System.Drawing.Size(132, 20);
+            this.txtGudang.TabIndex = 35;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(21, 31);
+            this.label4.Location = new System.Drawing.Point(14, 20);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(67, 20);
+            this.label4.Size = new System.Drawing.Size(45, 13);
             this.label4.TabIndex = 36;
             this.label4.Text = "Gudang";
             // 
-            // btnTutup
-            // 
-            this.btnTutup.Location = new System.Drawing.Point(1342, 736);
-            this.btnTutup.Name = "btnTutup";
-            this.btnTutup.Size = new System.Drawing.Size(140, 40);
-            this.btnTutup.TabIndex = 33;
-            this.btnTutup.Text = "Tutup";
-            this.btnTutup.UseVisualStyleBackColor = true;
-            // 
             // btnCetak
             // 
-            this.btnCetak.Location = new System.Drawing.Point(25, 33);
+            this.btnCetak.Location = new System.Drawing.Point(17, 21);
+            this.btnCetak.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnCetak.Name = "btnCetak";
-            this.btnCetak.Size = new System.Drawing.Size(140, 40);
+            this.btnCetak.Size = new System.Drawing.Size(93, 26);
             this.btnCetak.TabIndex = 4;
             this.btnCetak.Text = "Cetak";
             this.btnCetak.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.cmbGudang);
+            this.groupBox3.Controls.Add(this.txtGudang);
             this.groupBox3.Controls.Add(this.label4);
             this.groupBox3.Controls.Add(this.lblTotal);
             this.groupBox3.Controls.Add(this.btnCari);
             this.groupBox3.Controls.Add(this.dg);
-            this.groupBox3.Location = new System.Drawing.Point(49, 101);
+            this.groupBox3.Location = new System.Drawing.Point(33, 66);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(1458, 596);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Size = new System.Drawing.Size(972, 387);
             this.groupBox3.TabIndex = 37;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Data Stok Minimal Barang Habis Pakai";
@@ -107,39 +101,46 @@
             // lblTotal
             // 
             this.lblTotal.AutoSize = true;
-            this.lblTotal.Location = new System.Drawing.Point(21, 566);
+            this.lblTotal.Location = new System.Drawing.Point(14, 368);
+            this.lblTotal.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblTotal.Name = "lblTotal";
-            this.lblTotal.Size = new System.Drawing.Size(121, 20);
+            this.lblTotal.Size = new System.Drawing.Size(84, 13);
             this.lblTotal.TabIndex = 27;
             this.lblTotal.Text = "Total Record : 1";
             // 
             // btnCari
             // 
-            this.btnCari.Location = new System.Drawing.Point(237, 53);
+            this.btnCari.Location = new System.Drawing.Point(157, 35);
+            this.btnCari.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnCari.Name = "btnCari";
-            this.btnCari.Size = new System.Drawing.Size(106, 32);
+            this.btnCari.Size = new System.Drawing.Size(71, 21);
             this.btnCari.TabIndex = 3;
             this.btnCari.Text = "Cari";
             this.btnCari.UseVisualStyleBackColor = true;
             // 
             // dg
             // 
+            this.dg.AllowUserToAddRows = false;
+            this.dg.AllowUserToDeleteRows = false;
             this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg.Location = new System.Drawing.Point(25, 94);
+            this.dg.Location = new System.Drawing.Point(17, 61);
+            this.dg.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.dg.Name = "dg";
+            this.dg.ReadOnly = true;
             this.dg.RowHeadersVisible = false;
             this.dg.RowHeadersWidth = 62;
             this.dg.RowTemplate.Height = 28;
-            this.dg.Size = new System.Drawing.Size(1408, 462);
+            this.dg.Size = new System.Drawing.Size(939, 300);
             this.dg.TabIndex = 30;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(44, 61);
+            this.label1.Location = new System.Drawing.Point(29, 40);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(685, 25);
+            this.label1.Size = new System.Drawing.Size(494, 17);
             this.label1.TabIndex = 35;
             this.label1.Text = "Gunakan Form Ini Untuk Menampilkan Data Stok Minimal Barang Habis Pakai";
             // 
@@ -147,9 +148,10 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(44, 27);
+            this.label2.Location = new System.Drawing.Point(29, 18);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(597, 29);
+            this.label2.Size = new System.Drawing.Size(419, 20);
             this.label2.TabIndex = 34;
             this.label2.Text = "LAPORAN STOK MINIMAL BARANG HABIS PAKAI";
             // 
@@ -157,24 +159,27 @@
             // 
             this.groupBox2.Controls.Add(this.btnExport);
             this.groupBox2.Controls.Add(this.btnCetak);
-            this.groupBox2.Location = new System.Drawing.Point(49, 703);
+            this.groupBox2.Location = new System.Drawing.Point(33, 457);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(347, 88);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Size = new System.Drawing.Size(972, 57);
             this.groupBox2.TabIndex = 36;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Proses";
             // 
             // LaporanStokMinimalBarangHabisPakaiUC
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.btnTutup);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox2);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "LaporanStokMinimalBarangHabisPakaiUC";
-            this.Size = new System.Drawing.Size(1561, 823);
+            this.Size = new System.Drawing.Size(1041, 535);
+            this.Load += new System.EventHandler(this.LaporanStokMinimalBarangHabisPakaiUC_Load);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dg)).EndInit();
@@ -187,9 +192,8 @@
         #endregion
 
         private System.Windows.Forms.Button btnExport;
-        private System.Windows.Forms.ComboBox cmbGudang;
+        private System.Windows.Forms.TextBox txtGudang;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button btnTutup;
         private System.Windows.Forms.Button btnCetak;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label lblTotal;

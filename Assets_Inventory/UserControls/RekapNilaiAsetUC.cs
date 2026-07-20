@@ -15,26 +15,22 @@ using System.Windows.Forms;
 
 namespace Assets_Inventory
 {
-    public partial class LaporanTanahNonAktifUC : UserControl
+    public partial class RekapNilaiAsetUC : UserControl
     {
         AppDbContext db = new AppDbContext();
         PrintDocument printDoc = new PrintDocument();
-        List<LaporanTanahNonAktifViewModel> printData = new List<LaporanTanahNonAktifViewModel>();
+        List<RekapNilaiAsetViewModel> printData = new List<RekapNilaiAsetViewModel>();
         int currentPrintIndex = 0;
 
-        public class LaporanTanahNonAktifViewModel
+        public class RekapNilaiAsetViewModel
         {
-            public int IdTanahNonAktif { get; set; }
-            public int? KodeTanah { get; set; }
-            public string NomorSertifikat { get; set; }
-            public string NamaPemilik { get; set; }
-            public int? LuasTanah { get; set; }
-            public DateTime TanggalNonaktif { get; set; }
-            public string Penyebab { get; set; }
-            public string Keterangan { get; set; }
+            public int No { get; set; }
+            public string JenisAset { get; set; }
+            public int JumlahUnit { get; set; }
+            public decimal TotalNilai { get; set; }
         }
 
-        public LaporanTanahNonAktifUC()
+        public RekapNilaiAsetUC()
         {
             InitializeComponent();
             InitializeEvents();
@@ -42,7 +38,7 @@ namespace Assets_Inventory
 
         private void InitializeEvents()
         {
-            this.Load += LaporanTanahNonAktifUC_Load;
+            this.Load += RekapNilaiAsetUC_Load;
 
             if (this.Controls.Find("btnTampilkan", true).FirstOrDefault() is Button btnTampil)
                 btnTampil.Click += BtnTampilkanData_Click;
@@ -57,13 +53,8 @@ namespace Assets_Inventory
             printDoc.PrintPage += PrintDoc_PrintPage;
         }
 
-        private void LaporanTanahNonAktifUC_Load(object sender, EventArgs e)
+        private void RekapNilaiAsetUC_Load(object sender, EventArgs e)
         {
-            var dtAwal = this.Controls.Find("dtAwal", true).FirstOrDefault() as DateTimePicker;
-            var dtAkhir = this.Controls.Find("dtAkhir", true).FirstOrDefault() as DateTimePicker;
-            if (dtAwal != null) dtAwal.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            if (dtAkhir != null) dtAkhir.Value = DateTime.Now;
-
             printDoc.DefaultPageSettings.Landscape = true;
             printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
         }
@@ -73,37 +64,101 @@ namespace Assets_Inventory
             if (db != null) db.Dispose();
             db = new AppDbContext();
 
-            var dtAwal = this.Controls.Find("dtAwal", true).FirstOrDefault() as DateTimePicker;
-            var dtAkhir = this.Controls.Find("dtAkhir", true).FirstOrDefault() as DateTimePicker;
+            printData = new List<RekapNilaiAsetViewModel>();
 
-            DateTime tglAwal = dtAwal?.Value.Date ?? DateTime.MinValue;
-            DateTime tglAkhir = dtAkhir?.Value.Date.AddDays(1).AddTicks(-1) ?? DateTime.MaxValue;
+            // 1. Aset Barang Inventaris (Aktif)
+            var asetBarang = db.Aset.AsNoTracking().Where(a => a.Status != "Nonaktif").ToList();
+            int jmlBarang = asetBarang.Count;
+            decimal nilaiBarang = asetBarang.Sum(a => a.HargaSatuan ?? 0m);
 
-            var query = db.VTanahNonAktif.AsNoTracking()
-                        .Where(v => v.TanggalNonaktif >= tglAwal && v.TanggalNonaktif <= tglAkhir);
-
-            printData = query.ToList().Select(v => new LaporanTanahNonAktifViewModel
+            printData.Add(new RekapNilaiAsetViewModel
             {
-                IdTanahNonAktif = v.IdTanahNonAktif,
-                KodeTanah = v.KodeTanah,
-                NomorSertifikat = v.NomorSertifikat ?? "-",
-                NamaPemilik = v.NamaPemilik ?? "-",
-                LuasTanah = v.LuasTanah,
-                TanggalNonaktif = v.TanggalNonaktif,
-                Penyebab = v.Penyebab ?? "-",
-                Keterangan = v.Keterangan ?? "-"
-            }).OrderBy(x => x.TanggalNonaktif).ToList();
+                No = 1,
+                JenisAset = "Barang Inventaris (Aktif)",
+                JumlahUnit = jmlBarang,
+                TotalNilai = nilaiBarang
+            });
+
+            // 2. Aset Bangunan / Gedung (Aktif)
+            var asetBangunan = db.AsetBangunan.AsNoTracking().Where(b => b.Status != "Nonaktif").ToList();
+            int jmlBangunan = asetBangunan.Count;
+            decimal nilaiBangunan = asetBangunan.Sum(b => b.NilaiAset ?? 0m);
+
+            printData.Add(new RekapNilaiAsetViewModel
+            {
+                No = 2,
+                JenisAset = "Bangunan / Gedung (Aktif)",
+                JumlahUnit = jmlBangunan,
+                TotalNilai = nilaiBangunan
+            });
+
+            // 3. Aset Tanah (Aktif)
+            var asetTanah = db.AsetTanah.AsNoTracking().Where(t => t.Status != "Nonaktif").ToList();
+            int jmlTanah = asetTanah.Count;
+            decimal nilaiTanah = asetTanah.Sum(t => t.NilaiAset ?? 0m);
+
+            printData.Add(new RekapNilaiAsetViewModel
+            {
+                No = 3,
+                JenisAset = "Tanah (Aktif)",
+                JumlahUnit = jmlTanah,
+                TotalNilai = nilaiTanah
+            });
+
+            // 4. Barang Non Aktif
+            var barangNA = db.Aset.AsNoTracking().Where(a => a.Status == "Nonaktif").ToList();
+            int jmlBarangNA = barangNA.Count;
+            decimal nilaiBarangNA = barangNA.Sum(a => a.HargaSatuan ?? 0m);
+
+            printData.Add(new RekapNilaiAsetViewModel
+            {
+                No = 4,
+                JenisAset = "Barang Inventaris (Non Aktif)",
+                JumlahUnit = jmlBarangNA,
+                TotalNilai = nilaiBarangNA
+            });
+
+            // 5. Bangunan Non Aktif
+            var bangunanNA = db.AsetBangunan.AsNoTracking().Where(b => b.Status == "Nonaktif").ToList();
+            int jmlBangunanNA = bangunanNA.Count;
+            decimal nilaiBangunanNA = bangunanNA.Sum(b => b.NilaiAset ?? 0m);
+
+            printData.Add(new RekapNilaiAsetViewModel
+            {
+                No = 5,
+                JenisAset = "Bangunan / Gedung (Non Aktif)",
+                JumlahUnit = jmlBangunanNA,
+                TotalNilai = nilaiBangunanNA
+            });
+
+            // 6. Tanah Non Aktif
+            var tanahNA = db.AsetTanah.AsNoTracking().Where(t => t.Status == "Nonaktif").ToList();
+            int jmlTanahNA = tanahNA.Count;
+            decimal nilaiTanahNA = tanahNA.Sum(t => t.NilaiAset ?? 0m);
+
+            printData.Add(new RekapNilaiAsetViewModel
+            {
+                No = 6,
+                JenisAset = "Tanah (Non Aktif)",
+                JumlahUnit = jmlTanahNA,
+                TotalNilai = nilaiTanahNA
+            });
 
             var dgv = this.Controls.Find("dg", true).FirstOrDefault() as DataGridView;
             var lblRec = this.Controls.Find("lblRecord", true).FirstOrDefault() as Label;
 
             if (dgv != null)
             {
-                dgv.DataSource = new SortableBindingList<LaporanTanahNonAktifViewModel>(printData);
-                if (dgv.Columns["TanggalNonaktif"] != null)
-                    dgv.Columns["TanggalNonaktif"].DefaultCellStyle.Format = "dd MMM yyyy";
+                dgv.DataSource = new SortableBindingList<RekapNilaiAsetViewModel>(printData);
+
+                if (dgv.Columns["TotalNilai"] != null)
+                {
+                    dgv.Columns["TotalNilai"].DefaultCellStyle.Format = "C2";
+                    dgv.Columns["TotalNilai"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
             }
-            if (lblRec != null) lblRec.Text = $"Total Record : {printData.Count}";
+
+            if (lblRec != null) lblRec.Text = $"Total Nilai Aset Keseluruhan: {printData.Sum(x => x.TotalNilai).ToString("C2")}";
         }
 
         #region CETAK DOKUMEN (PRINT PREVIEW)
@@ -153,48 +208,59 @@ namespace Assets_Inventory
             g.DrawString(kota, fontHeaderNormal, Brushes.Black, new RectangleF(margin, yPos + 45, pageWidth, 20), formatCenter);
             yPos += 85; g.DrawLine(new Pen(Color.Black, 2), margin, yPos, margin + pageWidth, yPos); yPos += 20;
 
-            g.DrawString("LAPORAN TANAH NON AKTIF", new Font("Arial", 12, FontStyle.Bold), Brushes.Black, new RectangleF(margin, yPos, pageWidth, 20), formatCenter);
-            var dtpAwal = this.Controls.Find("dtAwal", true).FirstOrDefault() as DateTimePicker;
-            var dtpAkhir = this.Controls.Find("dtAkhir", true).FirstOrDefault() as DateTimePicker;
-            string tglStr = $"Periode: {dtpAwal?.Value.ToString("dd MMM yyyy")} s.d {dtpAkhir?.Value.ToString("dd MMM yyyy")}";
-            g.DrawString(tglStr, new Font("Arial", 10, FontStyle.Regular), Brushes.Black, new RectangleF(margin, yPos + 25, pageWidth, 20), formatCenter);
-            yPos += 55;
+            g.DrawString("REKAP NILAI ASET", new Font("Arial", 12, FontStyle.Bold), Brushes.Black, new RectangleF(margin, yPos, pageWidth, 20), formatCenter);
+            g.DrawString($"TAHUN {DateTime.Now.Year}", new Font("Arial", 10, FontStyle.Bold), Brushes.Black, new RectangleF(margin, yPos + 20, pageWidth, 20), formatCenter);
+            yPos += 50;
 
-            string[] headers = { "No", "Kode Tanah", "No Sertifikat", "Pemilik", "Luas (m²)", "Tgl Nonaktif", "Penyebab", "Keterangan" };
-            int[] colWidths = { 30, 80, 120, 150, 70, 100, 200, 220 };
+            string[] headers = { "No", "Jenis Aset", "Jumlah Unit", "Total Nilai Aset" };
+            int[] colWidths = { 40, 350, 100, 200 };
             int tableWidth = colWidths.Sum(); int startX = margin + ((pageWidth - tableWidth) / 2); int currentX = startX;
 
-            Font fontTableHead = new Font("Arial", 9, FontStyle.Bold); Font fontTableData = new Font("Arial", 9, FontStyle.Regular);
+            Font fontTableHead = new Font("Arial", 10, FontStyle.Bold); Font fontTableData = new Font("Arial", 10, FontStyle.Regular);
             SolidBrush headerBrush = new SolidBrush(Color.FromArgb(143, 188, 143));
-            g.FillRectangle(headerBrush, startX, yPos, tableWidth, 30); g.DrawRectangle(Pens.Black, startX, yPos, tableWidth, 30);
+            g.FillRectangle(headerBrush, startX, yPos, tableWidth, 35); g.DrawRectangle(Pens.Black, startX, yPos, tableWidth, 35);
             StringFormat formatMidCenter = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             StringFormat formatMidLeft = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+            StringFormat formatMidRight = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
 
             for (int i = 0; i < headers.Length; i++)
             {
-                RectangleF cellRect = new RectangleF(currentX, yPos, colWidths[i], 30);
-                g.DrawRectangle(Pens.Black, currentX, yPos, colWidths[i], 30);
+                RectangleF cellRect = new RectangleF(currentX, yPos, colWidths[i], 35);
+                g.DrawRectangle(Pens.Black, currentX, yPos, colWidths[i], 35);
                 g.DrawString(headers[i], fontTableHead, Brushes.Black, cellRect, formatMidCenter);
                 currentX += colWidths[i];
             }
-            yPos += 30; int rowHeight = 30;
+            yPos += 35; int rowHeight = 35;
 
             while (currentPrintIndex < printData.Count)
             {
-                if (yPos + rowHeight > e.MarginBounds.Bottom - 120) { e.HasMorePages = true; return; }
                 var item = printData[currentPrintIndex]; currentX = startX;
-                string[] rowData = { (currentPrintIndex + 1).ToString(), item.KodeTanah?.ToString() ?? "-", item.NomorSertifikat, item.NamaPemilik, item.LuasTanah?.ToString("N0") ?? "-", item.TanggalNonaktif.ToString("dd-MM-yyyy"), item.Penyebab, item.Keterangan };
+                string[] rowData = { item.No.ToString(), item.JenisAset, item.JumlahUnit.ToString("N0"), item.TotalNilai.ToString("N0") };
                 for (int i = 0; i < rowData.Length; i++)
                 {
                     RectangleF cellRect = new RectangleF(currentX, yPos, colWidths[i], rowHeight);
                     g.DrawRectangle(Pens.Black, currentX, yPos, colWidths[i], rowHeight);
-                    StringFormat fmt = (i == 0 || i == 1 || i == 4 || i == 5) ? formatMidCenter : formatMidLeft;
+                    StringFormat fmt = formatMidLeft;
+                    if (i == 0 || i == 2) fmt = formatMidCenter;
+                    else if (i == 3) fmt = formatMidRight;
                     if (fmt == formatMidLeft) cellRect.X += 5;
+                    if (fmt == formatMidRight) cellRect.Width -= 5;
                     g.DrawString(rowData[i], fontTableData, Brushes.Black, cellRect, fmt);
                     currentX += colWidths[i];
                 }
                 yPos += rowHeight; currentPrintIndex++;
             }
+
+            // Total row
+            currentX = startX;
+            int sumWidth = colWidths.Take(3).Sum();
+            g.FillRectangle(headerBrush, startX, yPos, tableWidth, rowHeight);
+            g.DrawRectangle(Pens.Black, currentX, yPos, sumWidth, rowHeight);
+            g.DrawRectangle(Pens.Black, currentX + sumWidth, yPos, colWidths[3], rowHeight);
+            g.DrawString("TOTAL KESELURUHAN", fontTableHead, Brushes.Black, new RectangleF(currentX, yPos, sumWidth, rowHeight), formatMidCenter);
+            RectangleF totValRect = new RectangleF(currentX + sumWidth, yPos, colWidths[3] - 5, rowHeight);
+            g.DrawString(printData.Sum(x => x.TotalNilai).ToString("N0"), fontTableHead, Brushes.Black, totValRect, formatMidRight);
+            yPos += rowHeight;
 
             yPos += 30; string tglTtd = $"{kota}, {DateTime.Now.ToString("dd MMMM yyyy")}";
             g.DrawString("Mengetahui,", fontTableData, Brushes.Black, new RectangleF(margin, yPos, pageWidth, 20), formatCenter);
@@ -218,7 +284,7 @@ namespace Assets_Inventory
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
-                sfd.Filter = "Excel Files (*.xlsx)|*.xlsx"; sfd.FileName = "Laporan_Tanah_NonAktif_" + DateTime.Now.ToString("yyyyMMdd");
+                sfd.Filter = "Excel Files (*.xlsx)|*.xlsx"; sfd.FileName = "Rekap_Nilai_Aset_" + DateTime.Now.ToString("yyyyMMdd");
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     try
@@ -226,12 +292,12 @@ namespace Assets_Inventory
                         this.Cursor = Cursors.WaitCursor;
                         using (var package = new ExcelPackage())
                         {
-                            var ws = package.Workbook.Worksheets.Add("Tanah Non Aktif");
-                            ws.Cells["A1:H1"].Merge = true; ws.Cells["A1"].Value = "LAPORAN TANAH NON AKTIF";
+                            var ws = package.Workbook.Worksheets.Add("Rekap Nilai Aset");
+                            ws.Cells["A1:D1"].Merge = true; ws.Cells["A1"].Value = "REKAP NILAI ASET";
                             ws.Cells["A1"].Style.Font.Bold = true; ws.Cells["A1"].Style.Font.Size = 14;
                             ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                            string[] headers = { "No", "Kode Tanah", "No Sertifikat", "Pemilik", "Luas (m²)", "Tgl Nonaktif", "Penyebab", "Keterangan" };
+                            string[] headers = { "No", "Jenis Aset", "Jumlah Unit", "Total Nilai Aset" };
                             for (int i = 0; i < headers.Length; i++)
                             {
                                 ws.Cells[3, i + 1].Value = headers[i]; ws.Cells[3, i + 1].Style.Font.Bold = true;
@@ -243,13 +309,19 @@ namespace Assets_Inventory
                             for (int i = 0; i < printData.Count; i++)
                             {
                                 var item = printData[i];
-                                ws.Cells[row, 1].Value = i + 1; ws.Cells[row, 2].Value = item.KodeTanah;
-                                ws.Cells[row, 3].Value = item.NomorSertifikat; ws.Cells[row, 4].Value = item.NamaPemilik;
-                                ws.Cells[row, 5].Value = item.LuasTanah; ws.Cells[row, 6].Value = item.TanggalNonaktif.ToString("yyyy-MM-dd");
-                                ws.Cells[row, 7].Value = item.Penyebab; ws.Cells[row, 8].Value = item.Keterangan;
-                                for (int col = 1; col <= 8; col++) ws.Cells[row, col].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                                ws.Cells[row, 1].Value = item.No; ws.Cells[row, 2].Value = item.JenisAset;
+                                ws.Cells[row, 3].Value = item.JumlahUnit;
+                                ws.Cells[row, 4].Value = item.TotalNilai; ws.Cells[row, 4].Style.Numberformat.Format = "Rp #,##0.00";
+                                for (int col = 1; col <= 4; col++) ws.Cells[row, col].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                                 row++;
                             }
+                            // Total
+                            ws.Cells[row, 1, row, 3].Merge = true; ws.Cells[row, 1].Value = "TOTAL KESELURUHAN";
+                            ws.Cells[row, 1].Style.Font.Bold = true; ws.Cells[row, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            ws.Cells[row, 4].Value = printData.Sum(x => x.TotalNilai); ws.Cells[row, 4].Style.Font.Bold = true;
+                            ws.Cells[row, 4].Style.Numberformat.Format = "Rp #,##0.00";
+                            ws.Cells[row, 1, row, 4].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
                             ws.Cells[ws.Dimension.Address].AutoFitColumns(); package.SaveAs(new FileInfo(sfd.FileName));
                         }
                         MessageBox.Show("Data berhasil diekspor ke Excel!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);

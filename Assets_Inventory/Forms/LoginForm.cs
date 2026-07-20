@@ -29,8 +29,8 @@ namespace Assets_Inventory
 
         private void LoginForm_Load(object sender, EventArgs e)
         {
-            txtUsername.Text = "admin2";
-            txtPassword.Text = "password";
+            txtUsername.Text = "";
+            txtPassword.Text = "";
         }
 
         private void btnLogin_Click(object sender, EventArgs e)

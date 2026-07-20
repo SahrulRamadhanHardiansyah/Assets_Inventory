@@ -15,27 +15,26 @@ using System.Windows.Forms;
 
 namespace Assets_Inventory
 {
-    public partial class LaporanJatuhTempoPeminjamanUC : UserControl
+    public partial class LaporanPerbaikanBarangUC : UserControl
     {
         AppDbContext db = new AppDbContext();
         PrintDocument printDoc = new PrintDocument();
-        List<LaporanJatuhTempoViewModel> printData = new List<LaporanJatuhTempoViewModel>();
+        List<LaporanPerbaikanViewModel> printData = new List<LaporanPerbaikanViewModel>();
         int currentPrintIndex = 0;
 
-        public class LaporanJatuhTempoViewModel
+        public class LaporanPerbaikanViewModel
         {
-            public string NomorPeminjaman { get; set; }
-            public DateTime TanggalPinjam { get; set; }
-            public string NamaPeminjam { get; set; }
-            public string NomorTelepon { get; set; }
+            public int IdPerbaikan { get; set; }
+            public DateTime TanggalPerbaikan { get; set; }
             public string KodeInventaris { get; set; }
             public string NamaBarang { get; set; }
-            public int LamaPinjamHari { get; set; }
-            public string TanggalJatuhTempo { get; set; }
-            public int Keterlambatan { get; set; }
+            public string DeskripsiKerusakan { get; set; }
+            public string Teknisi { get; set; }
+            public string TindakanPerbaikan { get; set; }
+            public decimal BiayaPerbaikan { get; set; }
         }
 
-        public LaporanJatuhTempoPeminjamanUC()
+        public LaporanPerbaikanBarangUC()
         {
             InitializeComponent();
             InitializeEvents();
@@ -43,7 +42,10 @@ namespace Assets_Inventory
 
         private void InitializeEvents()
         {
-            this.Load += LaporanJatuhTempoPeminjamanUC_Load;
+            this.Load += LaporanPerbaikanBarangUC_Load;
+
+            if (this.Controls.Find("btnTampilkan", true).FirstOrDefault() is Button btnTampil)
+                btnTampil.Click += BtnTampilkanData_Click;
 
             if (this.Controls.Find("btnPreview", true).FirstOrDefault() is Button btnPrev)
                 btnPrev.Click += BtnPreview_Click;
@@ -58,65 +60,57 @@ namespace Assets_Inventory
             printDoc.PrintPage += PrintDoc_PrintPage;
         }
 
-        private void LaporanJatuhTempoPeminjamanUC_Load(object sender, EventArgs e)
+        private void LaporanPerbaikanBarangUC_Load(object sender, EventArgs e)
         {
-            var dtTanggal = this.Controls.Find("dtTanggal", true).FirstOrDefault() as DateTimePicker;
-            if (dtTanggal != null)
-            {
-                dtTanggal.Value = DateTime.Now;
-                dtTanggal.ValueChanged += (s, ev) => LoadData();
-            }
+            var dtAwal = this.Controls.Find("dtAwal", true).FirstOrDefault() as DateTimePicker;
+            var dtAkhir = this.Controls.Find("dtAkhir", true).FirstOrDefault() as DateTimePicker;
+            if (dtAwal != null) dtAwal.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            if (dtAkhir != null) dtAkhir.Value = DateTime.Now;
 
             printDoc.DefaultPageSettings.Landscape = true;
             printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
-
-            LoadData();
         }
 
-        private void LoadData()
+        private void BtnTampilkanData_Click(object sender, EventArgs e)
         {
             if (db != null) db.Dispose();
             db = new AppDbContext();
 
-            var dtTanggal = this.Controls.Find("dtTanggal", true).FirstOrDefault() as DateTimePicker;
-            DateTime tglSekarang = dtTanggal?.Value.Date ?? DateTime.Now.Date;
+            var dtAwal = this.Controls.Find("dtAwal", true).FirstOrDefault() as DateTimePicker;
+            var dtAkhir = this.Controls.Find("dtAkhir", true).FirstOrDefault() as DateTimePicker;
 
-            // Ambil peminjaman yang masih dipinjam dan sudah jatuh tempo
-            var query = db.VLaporanPeminjaman.AsNoTracking()
-                        .Where(v => v.StatusPeminjaman == "Sedang Dipinjam"
-                                 && v.TanggalJatuhTempo != null
-                                 && v.TanggalJatuhTempo <= tglSekarang);
+            DateTime tglAwal = dtAwal?.Value.Date ?? DateTime.MinValue;
+            DateTime tglAkhir = dtAkhir?.Value.Date.AddDays(1).AddTicks(-1) ?? DateTime.MaxValue;
 
-            printData = query.ToList().Select(v =>
+            var query = db.VLaporanPerbaikan.AsNoTracking()
+                        .Where(v => v.TanggalPerbaikan >= tglAwal && v.TanggalPerbaikan <= tglAkhir);
+
+            printData = query.ToList().Select(v => new LaporanPerbaikanViewModel
             {
-                DateTime jatuhTempo = v.TanggalJatuhTempo ?? tglSekarang;
-                int keterlambatan = (int)(tglSekarang - jatuhTempo).TotalDays;
-                if (keterlambatan < 0) keterlambatan = 0;
-
-                return new LaporanJatuhTempoViewModel
-                {
-                    NomorPeminjaman = v.NomorPeminjaman ?? "-",
-                    TanggalPinjam = v.TanggalPinjam,
-                    NamaPeminjam = v.NamaPeminjam ?? "-",
-                    NomorTelepon = v.NomorTelepon ?? "-",
-                    KodeInventaris = v.KodeInventaris ?? "-",
-                    NamaBarang = v.NamaBarang ?? "N/A",
-                    LamaPinjamHari = v.LamaPinjamHari,
-                    TanggalJatuhTempo = jatuhTempo.ToString("dd-MM-yyyy"),
-                    Keterlambatan = keterlambatan
-                };
-            }).OrderByDescending(x => x.Keterlambatan).ToList();
+                IdPerbaikan = v.IdPerbaikan,
+                TanggalPerbaikan = v.TanggalPerbaikan,
+                KodeInventaris = v.KodeInventaris ?? "-",
+                NamaBarang = v.NamaBarang ?? "N/A",
+                DeskripsiKerusakan = v.DeskripsiKerusakan ?? "-",
+                Teknisi = v.Teknisi ?? "-",
+                TindakanPerbaikan = v.TindakanPerbaikan ?? "-",
+                BiayaPerbaikan = v.BiayaPerbaikan ?? 0m
+            }).OrderBy(x => x.TanggalPerbaikan).ToList();
 
             var dgv = this.Controls.Find("dg", true).FirstOrDefault() as DataGridView;
             var lblRec = this.Controls.Find("lblRecord", true).FirstOrDefault() as Label;
 
             if (dgv != null)
             {
-                dgv.DataSource = new SortableBindingList<LaporanJatuhTempoViewModel>(printData);
+                dgv.DataSource = new SortableBindingList<LaporanPerbaikanViewModel>(printData);
 
-                if (dgv.Columns["TanggalPinjam"] != null)
+                if (dgv.Columns["TanggalPerbaikan"] != null)
+                    dgv.Columns["TanggalPerbaikan"].DefaultCellStyle.Format = "dd MMM yyyy";
+
+                if (dgv.Columns["BiayaPerbaikan"] != null)
                 {
-                    dgv.Columns["TanggalPinjam"].DefaultCellStyle.Format = "dd MMM yyyy";
+                    dgv.Columns["BiayaPerbaikan"].DefaultCellStyle.Format = "C2";
+                    dgv.Columns["BiayaPerbaikan"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
             }
 
@@ -129,7 +123,7 @@ namespace Assets_Inventory
         {
             if (printData.Count == 0)
             {
-                MessageBox.Show("Tidak ada data jatuh tempo peminjaman.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Tidak ada data untuk dicetak. Silakan tampilkan data terlebih dahulu.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -197,15 +191,16 @@ namespace Assets_Inventory
             g.DrawLine(new Pen(Color.Black, 2), margin, yPos, margin + pageWidth, yPos);
             yPos += 20;
 
-            g.DrawString("LAPORAN JATUH TEMPO PEMINJAMAN", new Font("Arial", 12, FontStyle.Bold), Brushes.Black, new RectangleF(margin, yPos, pageWidth, 20), formatCenter);
+            g.DrawString("LAPORAN PERBAIKAN BARANG", new Font("Arial", 12, FontStyle.Bold), Brushes.Black, new RectangleF(margin, yPos, pageWidth, 20), formatCenter);
 
-            var dtTanggal = this.Controls.Find("dtTanggal", true).FirstOrDefault() as DateTimePicker;
-            string tglStr = $"Per Tanggal: {dtTanggal?.Value.ToString("dd MMMM yyyy")}";
+            var dtpAwal = this.Controls.Find("dtAwal", true).FirstOrDefault() as DateTimePicker;
+            var dtpAkhir = this.Controls.Find("dtAkhir", true).FirstOrDefault() as DateTimePicker;
+            string tglStr = $"Periode: {dtpAwal?.Value.ToString("dd MMM yyyy")} s.d {dtpAkhir?.Value.ToString("dd MMM yyyy")}";
             g.DrawString(tglStr, new Font("Arial", 10, FontStyle.Regular), Brushes.Black, new RectangleF(margin, yPos + 25, pageWidth, 20), formatCenter);
             yPos += 55;
 
-            string[] headers = { "No", "No Peminjaman", "Tgl Pinjam", "Peminjam", "No Telp", "Kode Inv", "Nama Barang", "Jatuh Tempo", "Terlambat (Hari)" };
-            int[] colWidths = { 25, 110, 85, 120, 80, 100, 160, 85, 80 };
+            string[] headers = { "No", "Tgl Perbaikan", "Kode Inventaris", "Nama Barang", "Kerusakan", "Teknisi", "Tindakan", "Biaya" };
+            int[] colWidths = { 25, 90, 110, 150, 170, 100, 170, 100 };
 
             int tableWidth = colWidths.Sum();
             int startX = margin + ((pageWidth - tableWidth) / 2);
@@ -220,6 +215,7 @@ namespace Assets_Inventory
 
             StringFormat formatMidCenter = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             StringFormat formatMidLeft = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+            StringFormat formatMidRight = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
 
             for (int i = 0; i < headers.Length; i++)
             {
@@ -231,10 +227,11 @@ namespace Assets_Inventory
             yPos += 30;
 
             int rowHeight = 30;
+            decimal totalBiaya = 0;
 
             while (currentPrintIndex < printData.Count)
             {
-                if (yPos + rowHeight > e.MarginBounds.Bottom - 120)
+                if (yPos + rowHeight > e.MarginBounds.Bottom - 150)
                 {
                     e.HasMorePages = true;
                     return;
@@ -242,17 +239,17 @@ namespace Assets_Inventory
 
                 var item = printData[currentPrintIndex];
                 currentX = startX;
+                totalBiaya += item.BiayaPerbaikan;
 
                 string[] rowData = {
                     (currentPrintIndex + 1).ToString(),
-                    item.NomorPeminjaman,
-                    item.TanggalPinjam.ToString("dd-MM-yyyy"),
-                    item.NamaPeminjam,
-                    item.NomorTelepon,
+                    item.TanggalPerbaikan.ToString("dd-MM-yyyy"),
                     item.KodeInventaris,
                     item.NamaBarang,
-                    item.TanggalJatuhTempo,
-                    item.Keterlambatan.ToString()
+                    item.DeskripsiKerusakan,
+                    item.Teknisi,
+                    item.TindakanPerbaikan,
+                    item.BiayaPerbaikan.ToString("N0")
                 };
 
                 for (int i = 0; i < rowData.Length; i++)
@@ -260,8 +257,12 @@ namespace Assets_Inventory
                     RectangleF cellRect = new RectangleF(currentX, yPos, colWidths[i], rowHeight);
                     g.DrawRectangle(Pens.Black, currentX, yPos, colWidths[i], rowHeight);
 
-                    StringFormat fmt = (i == 0 || i == 2 || i == 7 || i == 8) ? formatMidCenter : formatMidLeft;
+                    StringFormat fmt = formatMidLeft;
+                    if (i == 0 || i == 1) fmt = formatMidCenter;
+                    else if (i == 7) fmt = formatMidRight;
+
                     if (fmt == formatMidLeft) cellRect.X += 5;
+                    if (fmt == formatMidRight) cellRect.Width -= 5;
 
                     g.DrawString(rowData[i], fontTableData, Brushes.Black, cellRect, fmt);
                     currentX += colWidths[i];
@@ -269,6 +270,25 @@ namespace Assets_Inventory
 
                 yPos += rowHeight;
                 currentPrintIndex++;
+            }
+
+            // Total row
+            if (currentPrintIndex >= printData.Count)
+            {
+                currentX = startX;
+                int sumWidth = colWidths.Take(7).Sum();
+                RectangleF totLabelRect = new RectangleF(currentX, yPos, sumWidth, rowHeight);
+                RectangleF totValRect = new RectangleF(currentX + sumWidth, yPos, colWidths[7], rowHeight);
+
+                g.FillRectangle(headerBrush, startX, yPos, tableWidth, rowHeight);
+                g.DrawRectangle(Pens.Black, currentX, yPos, sumWidth, rowHeight);
+                g.DrawRectangle(Pens.Black, currentX + sumWidth, yPos, colWidths[7], rowHeight);
+
+                g.DrawString("TOTAL BIAYA PERBAIKAN", fontTableHead, Brushes.Black, totLabelRect, formatMidCenter);
+
+                totValRect.Width -= 5;
+                g.DrawString(printData.Sum(x => x.BiayaPerbaikan).ToString("N0"), fontTableHead, Brushes.Black, totValRect, formatMidRight);
+                yPos += rowHeight;
             }
 
             yPos += 30;
@@ -305,7 +325,7 @@ namespace Assets_Inventory
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
                 sfd.Filter = "Excel Files (*.xlsx)|*.xlsx";
-                sfd.FileName = "Laporan_Jatuh_Tempo_Peminjaman_" + DateTime.Now.ToString("yyyyMMdd");
+                sfd.FileName = "Laporan_Perbaikan_Barang_" + DateTime.Now.ToString("yyyyMMdd");
 
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
@@ -314,15 +334,15 @@ namespace Assets_Inventory
                         this.Cursor = Cursors.WaitCursor;
                         using (var package = new ExcelPackage())
                         {
-                            var ws = package.Workbook.Worksheets.Add("Jatuh Tempo");
+                            var ws = package.Workbook.Worksheets.Add("Perbaikan");
 
-                            ws.Cells["A1:I1"].Merge = true;
-                            ws.Cells["A1"].Value = "LAPORAN JATUH TEMPO PEMINJAMAN";
+                            ws.Cells["A1:H1"].Merge = true;
+                            ws.Cells["A1"].Value = "LAPORAN PERBAIKAN BARANG";
                             ws.Cells["A1"].Style.Font.Bold = true;
                             ws.Cells["A1"].Style.Font.Size = 14;
                             ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                            string[] headers = { "No", "No Peminjaman", "Tgl Pinjam", "Peminjam", "No Telepon", "Kode Inventaris", "Nama Barang", "Jatuh Tempo", "Keterlambatan (Hari)" };
+                            string[] headers = { "No", "Tanggal Perbaikan", "Kode Inventaris", "Nama Barang", "Deskripsi Kerusakan", "Teknisi", "Tindakan Perbaikan", "Biaya Perbaikan" };
                             for (int i = 0; i < headers.Length; i++)
                             {
                                 ws.Cells[3, i + 1].Value = headers[i];
@@ -337,20 +357,33 @@ namespace Assets_Inventory
                             {
                                 var item = printData[i];
                                 ws.Cells[row, 1].Value = i + 1;
-                                ws.Cells[row, 2].Value = item.NomorPeminjaman;
-                                ws.Cells[row, 3].Value = item.TanggalPinjam.ToString("yyyy-MM-dd");
-                                ws.Cells[row, 4].Value = item.NamaPeminjam;
-                                ws.Cells[row, 5].Value = item.NomorTelepon;
-                                ws.Cells[row, 6].Value = item.KodeInventaris;
-                                ws.Cells[row, 7].Value = item.NamaBarang;
-                                ws.Cells[row, 8].Value = item.TanggalJatuhTempo;
-                                ws.Cells[row, 9].Value = item.Keterlambatan;
+                                ws.Cells[row, 2].Value = item.TanggalPerbaikan.ToString("yyyy-MM-dd");
+                                ws.Cells[row, 3].Value = item.KodeInventaris;
+                                ws.Cells[row, 4].Value = item.NamaBarang;
+                                ws.Cells[row, 5].Value = item.DeskripsiKerusakan;
+                                ws.Cells[row, 6].Value = item.Teknisi;
+                                ws.Cells[row, 7].Value = item.TindakanPerbaikan;
 
-                                for (int col = 1; col <= 9; col++)
+                                ws.Cells[row, 8].Value = item.BiayaPerbaikan;
+                                ws.Cells[row, 8].Style.Numberformat.Format = "Rp #,##0.00";
+
+                                for (int col = 1; col <= 8; col++)
                                     ws.Cells[row, col].Style.Border.BorderAround(ExcelBorderStyle.Thin);
 
                                 row++;
                             }
+
+                            // Total row
+                            ws.Cells[row, 1, row, 7].Merge = true;
+                            ws.Cells[row, 1].Value = "TOTAL BIAYA PERBAIKAN";
+                            ws.Cells[row, 1].Style.Font.Bold = true;
+                            ws.Cells[row, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                            ws.Cells[row, 8].Value = printData.Sum(x => x.BiayaPerbaikan);
+                            ws.Cells[row, 8].Style.Font.Bold = true;
+                            ws.Cells[row, 8].Style.Numberformat.Format = "Rp #,##0.00";
+
+                            ws.Cells[row, 1, row, 8].Style.Border.BorderAround(ExcelBorderStyle.Thin);
 
                             ws.Cells[ws.Dimension.Address].AutoFitColumns();
                             package.SaveAs(new FileInfo(sfd.FileName));

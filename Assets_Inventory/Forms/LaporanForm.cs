@@ -122,5 +122,29 @@ namespace Assets_Inventory
             if (parent != null) parent.ChangeView(new LaporanTanahNonAktifUC());
             this.Close();
         }
+
+        private void lblLaporanKerusakanBarang_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (parent != null) parent.ChangeView(new LaporanKerusakanBarangUC());
+            this.Close();
+        }
+
+        private void lblLaporanPerbaikanBarang_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (parent != null) parent.ChangeView(new LaporanPerbaikanBarangUC());
+            this.Close();
+        }
+
+        private void lblRekapNilaiAset_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (parent != null) parent.ChangeView(new RekapNilaiAsetUC());
+            this.Close();
+        }
+
+        private void lblLaporanPermintaan_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (parent != null) parent.ChangeView(new LaporanPermintaanUC());
+            this.Close();
+        }
     }
 }

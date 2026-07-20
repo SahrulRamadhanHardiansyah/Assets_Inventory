@@ -295,7 +295,8 @@
             this.lblRekapNilaiAset.TabIndex = 39;
             this.lblRekapNilaiAset.TabStop = true;
             this.lblRekapNilaiAset.Text = "Rekap Nilai Aset";
-            // 
+            this.lblRekapNilaiAset.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblRekapNilaiAset_LinkClicked);
+            //
             // label6
             // 
             this.label6.AutoSize = true;
@@ -316,6 +317,7 @@
             this.lblLaporanKerusakanBarang.TabIndex = 41;
             this.lblLaporanKerusakanBarang.TabStop = true;
             this.lblLaporanKerusakanBarang.Text = "Laporan Kerusakan Barang";
+            this.lblLaporanKerusakanBarang.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblLaporanKerusakanBarang_LinkClicked);
             // 
             // lblLaporanPerbaikanBarang
             // 
@@ -327,6 +329,7 @@
             this.lblLaporanPerbaikanBarang.TabIndex = 42;
             this.lblLaporanPerbaikanBarang.TabStop = true;
             this.lblLaporanPerbaikanBarang.Text = "Laporan Perbaikan Barang";
+            this.lblLaporanPerbaikanBarang.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblLaporanPerbaikanBarang_LinkClicked);
             // 
             // btnTutup
             // 
@@ -348,6 +351,7 @@
             this.lblLaporanPermintaan.TabIndex = 40;
             this.lblLaporanPermintaan.TabStop = true;
             this.lblLaporanPermintaan.Text = "Laporan Permintaan";
+            this.lblLaporanPermintaan.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblLaporanPermintaan_LinkClicked);
             // 
             // LaporanForm
             // 
