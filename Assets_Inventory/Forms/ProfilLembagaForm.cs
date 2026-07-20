@@ -51,15 +51,32 @@ namespace Assets_Inventory
                     if (!string.IsNullOrEmpty(lembaga.LogoInstansi))
                     {
                         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                        string imagePath = Path.Combine(baseDirectory, "Resources", lembaga.LogoInstansi);
-
-                        if (File.Exists(imagePath))
+                        // path traversal check: only file name allowed
+                        string fileName = Path.GetFileName(lembaga.LogoInstansi);
+                        if (fileName == lembaga.LogoInstansi)
                         {
-                            using (var bmpTemp = new Bitmap(imagePath))
+                            string imagePath = Path.Combine(baseDirectory, "Resources", fileName);
+                            try
                             {
-                                pbLogo.Image = new Bitmap(bmpTemp);
+                                string fullPath = Path.GetFullPath(imagePath);
+                                string baseResolved = Path.GetFullPath(Path.Combine(baseDirectory, "Resources"));
+                                if (fullPath.StartsWith(baseResolved, StringComparison.OrdinalIgnoreCase) && File.Exists(fullPath))
+                                {
+                                    using (var bmpTemp = new Bitmap(fullPath))
+                                    {
+                                        pbLogo.Image = new Bitmap(bmpTemp);
+                                    }
+                                    pbLogo.SizeMode = PictureBoxSizeMode.Zoom;
+                                }
+                                else
+                                {
+                                    pbLogo.Image = null;
+                                }
                             }
-                            pbLogo.SizeMode = PictureBoxSizeMode.Zoom;
+                            catch
+                            {
+                                pbLogo.Image = null;
+                            }
                         }
                         else
                         {
@@ -70,12 +87,12 @@ namespace Assets_Inventory
                 else
                 {
                     bindingSource1.DataSource = new Pengaturan();
-                    txtPrefix.Text = "INV"; 
+                    txtPrefix.Text = "INV";
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Gagal memuat profil lembaga: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Terjadi kesalahan saat memuat data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -83,21 +100,56 @@ namespace Assets_Inventory
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png|*.jpg;*.jpeg;*.png";
                 ofd.Title = "Pilih Logo Instansi";
 
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    selectedImagePath = ofd.FileName;
-
-                    if (pbLogo.Image != null) pbLogo.Image.Dispose();
-
-                    using (var bmpTemp = new Bitmap(selectedImagePath))
+                    try
                     {
-                        pbLogo.Image = new Bitmap(bmpTemp);
+                        if (!File.Exists(ofd.FileName))
+                            return;
+
+                        string ext = Path.GetExtension(ofd.FileName).ToLowerInvariant();
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+                        {
+                            MessageBox.Show("Format file tidak valid. Hanya jpg dan png yang diperbolehkan.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        var fi = new FileInfo(ofd.FileName);
+                        if (fi.Length > 10L * 1024 * 1024)
+                        {
+                            MessageBox.Show("Ukuran file terlalu besar (max 10MB).", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        // magic bytes check via Bitmap load test
+                        try
+                        {
+                            using (var testBmp = new Bitmap(ofd.FileName)) { /* validate */ }
+                        }
+                        catch
+                        {
+                            MessageBox.Show("File bukan gambar yang valid.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        selectedImagePath = ofd.FileName;
+
+                        if (pbLogo.Image != null) pbLogo.Image.Dispose();
+
+                        using (var bmpTemp = new Bitmap(selectedImagePath))
+                        {
+                            pbLogo.Image = new Bitmap(bmpTemp);
+                        }
+                        pbLogo.SizeMode = PictureBoxSizeMode.Zoom;
+                        cbHapus.Checked = false;
                     }
-                    pbLogo.SizeMode = PictureBoxSizeMode.Zoom;
-                    cbHapus.Checked = false;
+                    catch
+                    {
+                        MessageBox.Show("Terjadi kesalahan saat memproses gambar.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
@@ -141,11 +193,49 @@ namespace Assets_Inventory
                     }
                     else if (!string.IsNullOrEmpty(selectedImagePath))
                     {
-                        string extension = Path.GetExtension(selectedImagePath);
-                        namaFileLogoBaru = "Logo_Lembaga_" + DateTime.Now.Ticks + extension;
+                        if (!File.Exists(selectedImagePath))
+                        {
+                            MessageBox.Show("File logo tidak ditemukan.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
 
-                        string destFilePath = Path.Combine(resourceFolder, namaFileLogoBaru);
-                        File.Copy(selectedImagePath, destFilePath, true);
+                        string ext = Path.GetExtension(selectedImagePath).ToLowerInvariant();
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+                        {
+                            MessageBox.Show("Format file tidak valid. Hanya jpg dan png yang diperbolehkan.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        var fi = new FileInfo(selectedImagePath);
+                        if (fi.Length > 10L * 1024 * 1024)
+                        {
+                            MessageBox.Show("Ukuran file terlalu besar (max 10MB).", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        try
+                        {
+                            using (var testBmp = new Bitmap(selectedImagePath)) { }
+                        }
+                        catch
+                        {
+                            MessageBox.Show("File bukan gambar yang valid.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        // guid filename + path traversal check
+                        string safeFileName = Guid.NewGuid().ToString("N") + ext;
+                        string destFilePath = Path.Combine(resourceFolder, safeFileName);
+                        string fullDest = Path.GetFullPath(destFilePath);
+                        string baseResolved = Path.GetFullPath(resourceFolder);
+                        if (!fullDest.StartsWith(baseResolved, StringComparison.OrdinalIgnoreCase))
+                        {
+                            MessageBox.Show("Path file tidak valid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        File.Copy(selectedImagePath, fullDest, true);
+                        namaFileLogoBaru = safeFileName;
                     }
 
                     string finalPrefix = string.IsNullOrWhiteSpace(txtPrefix.Text) ? "INV" : txtPrefix.Text.Trim().ToUpper();
@@ -193,7 +283,8 @@ namespace Assets_Inventory
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Terjadi kesalahan sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    System.Diagnostics.Debug.WriteLine("ProfilLembagaForm save error: " + ex.Message);
+                    MessageBox.Show("Terjadi kesalahan sistem.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

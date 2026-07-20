@@ -389,38 +389,42 @@ namespace Assets_Inventory
                     try
                     {
                         int berhasil = 0;
+                        int dilewati = 0;
+                        const int batchSize = 500;
 
                         if (fileExtension == ".csv")
                         {
-                            var lines = File.ReadAllLines(filePath);
-                            for (int i = 1; i < lines.Length; i++)
+                            bool first = true;
+                            foreach (var line in File.ReadLines(filePath))
                             {
-                                var data = lines[i].Split(',');
-                                if (data.Length >= 8)
+                                if (first) { first = false; continue; }
+                                if (string.IsNullOrWhiteSpace(line)) continue;
+                                var data = line.Split(',');
+                                if (data.Length < 8) { dilewati++; continue; }
+                                if (string.IsNullOrWhiteSpace(data[0])) { dilewati++; continue; }
+                                if (!int.TryParse(data[1].Trim(), out int luas) || luas <= 0) { dilewati++; continue; }
+                                decimal.TryParse(data[3].Trim(), out decimal nilai);
+                                decimal.TryParse(data[5].Trim(), out decimal panjang);
+                                decimal.TryParse(data[6].Trim(), out decimal lebar);
+
+                                string statusInput = data[2].Trim();
+                                if (statusInput != "Milik Sendiri" && statusInput != "Sewa" && statusInput != "Lainnya")
+                                    statusInput = "Lainnya";
+
+                                db.AsetBangunan.Add(new AsetBangunan
                                 {
-                                    int.TryParse(data[1].Trim(), out int luas);
-                                    decimal.TryParse(data[3].Trim(), out decimal nilai);
-                                    decimal.TryParse(data[5].Trim(), out decimal panjang);
-                                    decimal.TryParse(data[6].Trim(), out decimal lebar);
-
-                                    string statusInput = data[2].Trim();
-                                    if (statusInput != "Milik Sendiri" && statusInput != "Sewa" && statusInput != "Lainnya")
-                                        statusInput = "Lainnya";
-
-                                    db.AsetBangunan.Add(new AsetBangunan
-                                    {
-                                        NamaBangunan = data[0].Trim(),
-                                        LuasBangunan = luas > 0 ? luas : 0,
-                                        StatusBangunan = statusInput,
-                                        NilaiAset = nilai > 0 ? nilai : (decimal?)null,
-                                        Keterangan = data[4].Trim(),
-                                        UkuranP = panjang > 0 ? panjang : (decimal?)null,
-                                        UkuranL = lebar > 0 ? lebar : (decimal?)null,
-                                        Konstruksi = data[7].Trim(),
-                                        TanggalBangunan = DateTime.Now.Date
-                                    });
-                                    berhasil++;
-                                }
+                                    NamaBangunan = data[0].Trim(),
+                                    LuasBangunan = luas,
+                                    StatusBangunan = statusInput,
+                                    NilaiAset = nilai > 0 ? nilai : (decimal?)null,
+                                    Keterangan = data[4].Trim(),
+                                    UkuranP = panjang > 0 ? panjang : (decimal?)null,
+                                    UkuranL = lebar > 0 ? lebar : (decimal?)null,
+                                    Konstruksi = data[7].Trim(),
+                                    TanggalBangunan = DateTime.Now.Date
+                                });
+                                berhasil++;
+                                if (berhasil % batchSize == 0) db.SaveChanges();
                             }
                         }
                         else if (fileExtension == ".xlsx" || fileExtension == ".xls")
@@ -437,32 +441,31 @@ namespace Assets_Inventory
                                     for (int i = 1; i < table.Rows.Count; i++)
                                     {
                                         var row = table.Rows[i];
+                                        if (row.ItemArray.Length < 8) { dilewati++; continue; }
+                                        if (string.IsNullOrWhiteSpace(row[0]?.ToString())) { dilewati++; continue; }
+                                        if (!int.TryParse(row[1]?.ToString().Trim(), out int luas) || luas <= 0) { dilewati++; continue; }
+                                        decimal.TryParse(row[3]?.ToString().Trim(), out decimal nilai);
+                                        decimal.TryParse(row[5]?.ToString().Trim(), out decimal panjang);
+                                        decimal.TryParse(row[6]?.ToString().Trim(), out decimal lebar);
 
-                                        if (row.ItemArray.Length >= 8 && !string.IsNullOrWhiteSpace(row[0]?.ToString()))
+                                        string statusInput = row[2]?.ToString().Trim();
+                                        if (statusInput != "Milik Sendiri" && statusInput != "Sewa" && statusInput != "Lainnya")
+                                            statusInput = "Lainnya";
+
+                                        db.AsetBangunan.Add(new AsetBangunan
                                         {
-                                            int.TryParse(row[1]?.ToString().Trim(), out int luas);
-                                            decimal.TryParse(row[3]?.ToString().Trim(), out decimal nilai);
-                                            decimal.TryParse(row[5]?.ToString().Trim(), out decimal panjang);
-                                            decimal.TryParse(row[6]?.ToString().Trim(), out decimal lebar);
-
-                                            string statusInput = row[2]?.ToString().Trim();
-                                            if (statusInput != "Milik Sendiri" && statusInput != "Sewa" && statusInput != "Lainnya")
-                                                statusInput = "Lainnya";
-
-                                            db.AsetBangunan.Add(new AsetBangunan
-                                            {
-                                                NamaBangunan = row[0]?.ToString().Trim(),
-                                                LuasBangunan = luas > 0 ? luas : 0,
-                                                StatusBangunan = statusInput,
-                                                NilaiAset = nilai > 0 ? nilai : (decimal?)null,
-                                                Keterangan = row[4]?.ToString().Trim(),
-                                                UkuranP = panjang > 0 ? panjang : (decimal?)null,
-                                                UkuranL = lebar > 0 ? lebar : (decimal?)null,
-                                                Konstruksi = row[7]?.ToString().Trim(),
-                                                TanggalBangunan = DateTime.Now.Date
-                                            });
-                                            berhasil++;
-                                        }
+                                            NamaBangunan = row[0]?.ToString().Trim(),
+                                            LuasBangunan = luas,
+                                            StatusBangunan = statusInput,
+                                            NilaiAset = nilai > 0 ? nilai : (decimal?)null,
+                                            Keterangan = row[4]?.ToString().Trim(),
+                                            UkuranP = panjang > 0 ? panjang : (decimal?)null,
+                                            UkuranL = lebar > 0 ? lebar : (decimal?)null,
+                                            Konstruksi = row[7]?.ToString().Trim(),
+                                            TanggalBangunan = DateTime.Now.Date
+                                        });
+                                        berhasil++;
+                                        if (berhasil % batchSize == 0) db.SaveChanges();
                                     }
                                 }
                             }
@@ -474,7 +477,8 @@ namespace Assets_Inventory
                         }
 
                         db.SaveChanges();
-                        MessageBox.Show($"Import selesai! {berhasil} data berhasil ditambahkan dari file {fileExtension.ToUpper()}.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        string info = dilewati > 0 ? $" ({dilewati} baris dilewati karena luas tidak valid)" : "";
+                        MessageBox.Show($"Import selesai! {berhasil} data berhasil ditambahkan{info}.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                         loadDgv();
                     }
@@ -484,7 +488,8 @@ namespace Assets_Inventory
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Gagal mengimpor file: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        System.Diagnostics.Debug.WriteLine("Import bangunan error: " + ex.Message);
+                        MessageBox.Show("Gagal mengimpor file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

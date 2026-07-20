@@ -298,33 +298,37 @@ namespace Assets_Inventory
                     try
                     {
                         int berhasil = 0;
+                        int dilewati = 0;
+                        const int batchSize = 500;
 
                         if (fileExtension == ".csv")
                         {
-                            var lines = File.ReadAllLines(filePath);
-                            for (int i = 1; i < lines.Length; i++)
+                            // streaming: ReadLines instead of ReadAllLines
+                            bool first = true;
+                            foreach (var line in File.ReadLines(filePath))
                             {
-                                var data = lines[i].Split(',');
+                                if (first) { first = false; continue; }
+                                if (string.IsNullOrWhiteSpace(line)) continue;
+                                var data = line.Split(',');
+                                if (data.Length < 8) { dilewati++; continue; }
+                                if (string.IsNullOrWhiteSpace(data[0])) { dilewati++; continue; }
+                                if (!int.TryParse(data[2].Trim(), out int luas) || luas <= 0) { dilewati++; continue; }
+                                decimal.TryParse(data[7].Trim(), out decimal nilai);
 
-                                if (data.Length >= 8)
+                                db.AsetTanah.Add(new AsetTanah
                                 {
-                                    int.TryParse(data[2].Trim(), out int luas);
-                                    decimal.TryParse(data[7].Trim(), out decimal nilai);
-
-                                    db.AsetTanah.Add(new AsetTanah
-                                    {
-                                        NamaPemilik = data[0].Trim(),
-                                        NomorSertifikat = data[1].Trim(),
-                                        LuasTanah = luas > 0 ? luas : 0,
-                                        LetakTanah = data[3].Trim(),
-                                        StatusHak = data[4].Trim(),
-                                        Penggunaan = data[5].Trim(),
-                                        SumberPerolehan = data[6].Trim(),
-                                        NilaiAset = nilai > 0 ? nilai : (decimal?)null,
-                                        TanggalPerolehan = DateTime.Now.Date
-                                    });
-                                    berhasil++;
-                                }
+                                    NamaPemilik = data[0].Trim(),
+                                    NomorSertifikat = data[1].Trim(),
+                                    LuasTanah = luas,
+                                    LetakTanah = data[3].Trim(),
+                                    StatusHak = data[4].Trim(),
+                                    Penggunaan = data[5].Trim(),
+                                    SumberPerolehan = data[6].Trim(),
+                                    NilaiAset = nilai > 0 ? nilai : (decimal?)null,
+                                    TanggalPerolehan = DateTime.Now.Date
+                                });
+                                berhasil++;
+                                if (berhasil % batchSize == 0) db.SaveChanges();
                             }
                         }
                         else if (fileExtension == ".xlsx" || fileExtension == ".xls")
@@ -341,26 +345,25 @@ namespace Assets_Inventory
                                     for (int i = 1; i < table.Rows.Count; i++)
                                     {
                                         var row = table.Rows[i];
+                                        if (row.ItemArray.Length < 8) { dilewati++; continue; }
+                                        if (string.IsNullOrWhiteSpace(row[0]?.ToString())) { dilewati++; continue; }
+                                        if (!int.TryParse(row[2]?.ToString().Trim(), out int luas) || luas <= 0) { dilewati++; continue; }
+                                        decimal.TryParse(row[7]?.ToString().Trim(), out decimal nilai);
 
-                                        if (row.ItemArray.Length >= 8 && !string.IsNullOrWhiteSpace(row[0]?.ToString()))
+                                        db.AsetTanah.Add(new AsetTanah
                                         {
-                                            int.TryParse(row[2]?.ToString().Trim(), out int luas);
-                                            decimal.TryParse(row[7]?.ToString().Trim(), out decimal nilai);
-
-                                            db.AsetTanah.Add(new AsetTanah
-                                            {
-                                                NamaPemilik = row[0]?.ToString().Trim(),
-                                                NomorSertifikat = row[1]?.ToString().Trim(),
-                                                LuasTanah = luas > 0 ? luas : 0,
-                                                LetakTanah = row[3]?.ToString().Trim(),
-                                                StatusHak = row[4]?.ToString().Trim(),
-                                                Penggunaan = row[5]?.ToString().Trim(),
-                                                SumberPerolehan = row[6]?.ToString().Trim(),
-                                                NilaiAset = nilai > 0 ? nilai : (decimal?)null,
-                                                TanggalPerolehan = DateTime.Now.Date
-                                            });
-                                            berhasil++;
-                                        }
+                                            NamaPemilik = row[0]?.ToString().Trim(),
+                                            NomorSertifikat = row[1]?.ToString().Trim(),
+                                            LuasTanah = luas,
+                                            LetakTanah = row[3]?.ToString().Trim(),
+                                            StatusHak = row[4]?.ToString().Trim(),
+                                            Penggunaan = row[5]?.ToString().Trim(),
+                                            SumberPerolehan = row[6]?.ToString().Trim(),
+                                            NilaiAset = nilai > 0 ? nilai : (decimal?)null,
+                                            TanggalPerolehan = DateTime.Now.Date
+                                        });
+                                        berhasil++;
+                                        if (berhasil % batchSize == 0) db.SaveChanges();
                                     }
                                 }
                             }
@@ -372,7 +375,8 @@ namespace Assets_Inventory
                         }
 
                         db.SaveChanges();
-                        MessageBox.Show($"Import selesai! {berhasil} data berhasil ditambahkan dari file {fileExtension.ToUpper()}.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        string info = dilewati > 0 ? $" ({dilewati} baris dilewati karena luas tidak valid)" : "";
+                        MessageBox.Show($"Import selesai! {berhasil} data berhasil ditambahkan{info}.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         loadDgv();
                     }
                     catch (IOException)
@@ -381,7 +385,8 @@ namespace Assets_Inventory
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Gagal mengimpor file: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        System.Diagnostics.Debug.WriteLine("Import tanah error: " + ex.Message);
+                        MessageBox.Show("Gagal mengimpor file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
