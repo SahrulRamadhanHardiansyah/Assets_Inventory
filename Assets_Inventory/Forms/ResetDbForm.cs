@@ -1,9 +1,11 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ComponentFactory.Krypton.Toolkit;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
@@ -34,33 +36,95 @@ namespace Assets_Inventory
 
         private void JalankanReset(Type[] tabelYangDiReset, string namaKategori)
         {
-            if (MessageBox.Show($"Apakah Anda yakin ingin MENGHAPUS SEMUA DATA {namaKategori}?\n\nTindakan ini tidak bisa dibatalkan!", "Peringatan Fatal", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            // Double confirmation with typed input
+            string confirmText = $"HAPUS {namaKategori}";
+            using (var inputForm = new Form())
             {
-                try
+                inputForm.Text = "Konfirmasi Hapus";
+                inputForm.Width = 450;
+                inputForm.Height = 220;
+                inputForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                inputForm.StartPosition = FormStartPosition.CenterParent;
+                inputForm.MaximizeBox = false;
+
+                var lbl = new Label { Text = $"Tindakan ini akan MENGHAPUS SEMUA DATA {namaKategori}!\n\nKetik '{confirmText}' untuk konfirmasi:", AutoSize = false, Width = 400, Height = 60, Left = 15, Top = 15 };
+                var txt = new TextBox { Left = 15, Top = 85, Width = 400 };
+                var btnOk = new Button { Text = "Hapus", Left = 230, Top = 125, Width = 90, DialogResult = DialogResult.OK };
+                var btnCancel = new Button { Text = "Batal", Left = 325, Top = 125, Width = 90, DialogResult = DialogResult.Cancel };
+                inputForm.Controls.Add(lbl);
+                inputForm.Controls.Add(txt);
+                inputForm.Controls.Add(btnOk);
+                inputForm.Controls.Add(btnCancel);
+                inputForm.AcceptButton = btnOk;
+                inputForm.CancelButton = btnCancel;
+
+                if (inputForm.ShowDialog() != DialogResult.OK) return;
+                if (txt.Text.Trim() != confirmText)
                 {
-                    using (var db = new AppDbContext())
+                    MessageBox.Show($"Konfirmasi tidak sesuai. Harus ketik persis: {confirmText}", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            // Second yes/no
+            if (MessageBox.Show($"Apakah Anda yakin ingin MENGHAPUS SEMUA DATA {namaKategori}?\nTindakan ini tidak bisa dibatalkan!", "Peringatan Fatal",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                using (var db = new AppDbContext())
+                {
+                    // Validate table names whitelist: only known entity types + safe identifier
+                    foreach (var tipe in tabelYangDiReset)
                     {
-                        db.Database.ExecuteSqlRaw("SET FOREIGN_KEY_CHECKS = 0;");
-
-                        foreach (var tipeTabel in tabelYangDiReset)
+                        var tableName = db.Model.FindEntityType(tipe)?.GetTableName();
+                        if (!string.IsNullOrEmpty(tableName))
                         {
-                            var namaTabelAsli = db.Model.FindEntityType(tipeTabel).GetTableName();
-
-                            if (!string.IsNullOrEmpty(namaTabelAsli))
-                            {
-                                db.Database.ExecuteSqlRaw($"TRUNCATE TABLE `{namaTabelAsli}`;");
-                            }
+                            if (!Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$"))
+                                throw new ArgumentException($"Nama tabel tidak valid: {tableName}");
                         }
-
-                        db.Database.ExecuteSqlRaw("SET FOREIGN_KEY_CHECKS = 1;");
                     }
 
-                    MessageBox.Show($"Seluruh data {namaKategori} berhasil dibersihkan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Use transaction to keep FK checks consistent
+                    using (var transaction = db.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            db.Database.ExecuteSqlRaw("SET FOREIGN_KEY_CHECKS = 0;");
+
+                            foreach (var tipeTabel in tabelYangDiReset)
+                            {
+                                var namaTabelAsli = db.Model.FindEntityType(tipeTabel).GetTableName();
+                                if (!string.IsNullOrEmpty(namaTabelAsli))
+                                {
+                                    // ponytail: identifier tidak bisa diparameterize, whitelist Type[] + regex adalah ceiling
+                                    db.Database.ExecuteSqlRaw($"TRUNCATE TABLE `{namaTabelAsli}`;");
+                                }
+                            }
+
+                            db.Database.ExecuteSqlRaw("SET FOREIGN_KEY_CHECKS = 1;");
+                            transaction.Commit();
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                db.Database.ExecuteSqlRaw("SET FOREIGN_KEY_CHECKS = 1;");
+                                transaction.Rollback();
+                            }
+                            catch { }
+                            throw;
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Gagal mereset data: " + (ex.InnerException?.Message ?? ex.Message), "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                MessageBox.Show($"Seluruh data {namaKategori} berhasil dibersihkan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Reset error: " + ex.Message);
+                MessageBox.Show("Gagal mereset data. Silakan hubungi administrator.", "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

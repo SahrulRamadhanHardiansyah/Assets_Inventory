@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Assets_Inventory.UserControls;
 using ComponentFactory.Krypton.Toolkit;
 using System;
@@ -40,7 +40,14 @@ namespace Assets_Inventory
 
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    txtPath.Text = ofd.FileName;
+                    // Validate file path safety and extension
+                    string selected = ofd.FileName;
+                    if (!ConnectionStringProtector.IsSafePath(selected) || Path.GetExtension(selected).ToLower() != ".sql")
+                    {
+                        MessageBox.Show("File tidak valid. Hanya file .sql yang diperbolehkan.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    txtPath.Text = selected;
                 }
             }
         }
@@ -53,6 +60,13 @@ namespace Assets_Inventory
                 return;
             }
 
+            // Validate extension
+            if (Path.GetExtension(txtPath.Text).ToLower() != ".sql")
+            {
+                MessageBox.Show("Hanya file .sql yang diperbolehkan untuk restore.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (MessageBox.Show("PERINGATAN: Memulihkan database akan menimpa/menghapus data saat ini dengan data dari file backup. Apakah Anda yakin ingin melanjutkan?", "Konfirmasi Restore", MessageBoxButtons.YesNo, MessageBoxIcon.Error) == DialogResult.Yes)
             {
                 try
@@ -62,19 +76,21 @@ namespace Assets_Inventory
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Gagal melakukan restore. Pastikan XAMPP/MySQL Anda menyala dan 'mysql.exe' tersedia.\n\nDetail Error: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Gagal melakukan restore. Pastikan MySQL aktif dan file backup valid.", "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    System.Diagnostics.Debug.WriteLine("Restore error: " + ex.Message);
                 }
             }
         }
 
+        // ponytail: no shell operator <, use stdin redirection in C#
         private void PerformRestore(string filePath)
         {
-            var settings = ConfigurationManager.ConnectionStrings["KoneksiServer"];
-            if (settings == null || string.IsNullOrEmpty(settings.ConnectionString))
+            string connStr = ConnectionStringProtector.GetDecryptedConnectionString();
+            if (string.IsNullOrEmpty(connStr))
                 throw new Exception("Konfigurasi database tidak ditemukan.");
 
             var builder = new DbConnectionStringBuilder();
-            builder.ConnectionString = settings.ConnectionString;
+            builder.ConnectionString = connStr;
 
             builder.TryGetValue("Server", out object host);
             builder.TryGetValue("Database", out object dbName);
@@ -88,36 +104,68 @@ namespace Assets_Inventory
             string dbDatabase = dbName?.ToString() ?? "";
             string dbPort = port?.ToString() ?? "3306";
 
+            if (!ConnectionStringProtector.IsSafeHost(dbHost))
+                throw new ArgumentException("Host tidak valid.");
+            if (!ConnectionStringProtector.IsSafeIdentifier(dbDatabase))
+                throw new ArgumentException("Database name tidak valid.");
+
             string appFolder = AppDomain.CurrentDomain.BaseDirectory;
             string mysqlPath = Path.Combine(appFolder, "Resources", "mysql.exe");
 
-            if (!File.Exists(mysqlPath))
+            bool useFallback = !File.Exists(mysqlPath);
+            string mysqlExe = useFallback ? "mysql" : mysqlPath;
+
+            // Validate filePath still exists and is .sql
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("File backup tidak ditemukan.");
+            if (Path.GetExtension(filePath).ToLower() != ".sql")
+                throw new ArgumentException("Hanya file .sql yang diperbolehkan.");
+
+            string args = string.Format("-h {0} -P {1} -u {2} {3}",
+                EscapeArg(dbHost), EscapeArg(dbPort), EscapeArg(dbUser), EscapeArg(dbDatabase));
+
+            var psi = new ProcessStartInfo
             {
-                throw new Exception($"File mysql.exe tidak ditemukan di: {mysqlPath}");
-            }
-
-            string restoreCommand = $"\"{mysqlPath}\" -h {dbHost} -P {dbPort} -u {dbUser} ";
-
-            if (!string.IsNullOrEmpty(dbPass))
-            {
-                restoreCommand += $"-p\"{dbPass}\" ";
-            }
-
-            restoreCommand += $"{dbDatabase} < \"{filePath}\"";
-
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c {restoreCommand}",
+                FileName = mysqlExe,
+                Arguments = args,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                RedirectStandardInput = true,
+                RedirectStandardError = true
             };
+            if (!string.IsNullOrEmpty(dbPass))
+                psi.EnvironmentVariables["MYSQL_PWD"] = dbPass;
 
-            using (Process process = Process.Start(psi))
+            try
             {
-                process.WaitForExit();
-                if (process.ExitCode != 0) throw new Exception("Gagal menjalankan perintah restore.");
+                using (Process process = Process.Start(psi))
+                {
+                    // Stream file content to mysql stdin instead of shell < operator
+                    using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        fileStream.CopyTo(process.StandardInput.BaseStream);
+                    }
+                    process.StandardInput.Close();
+
+                    string err = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    if (process.ExitCode != 0)
+                        throw new Exception($"Restore gagal (exit {process.ExitCode}).");
+                }
             }
+            catch (Exception ex) when (!(ex.Message.Contains("Restore gagal")))
+            {
+                throw new Exception("Proses restore tidak dapat dijalankan: periksa instalasi MySQL.");
+            }
+        }
+
+        private static string EscapeArg(string arg)
+        {
+            if (string.IsNullOrEmpty(arg)) return "\"\"";
+            if (arg.IndexOfAny(new[] { ' ', '"', '\'', '&', '|', '<', '>', '^', ';', '`', '$', '(', ')', '*', '?' }) >= 0)
+                return "\"" + arg.Replace("\"", "\\\"") + "\"";
+            return arg;
         }
 
         private void btnTutup_Click(object sender, EventArgs e)

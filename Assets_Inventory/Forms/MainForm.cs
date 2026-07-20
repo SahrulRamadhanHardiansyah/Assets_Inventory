@@ -1,22 +1,13 @@
-﻿using Assets_Inventory.Models;
+using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ComponentFactory.Krypton.Toolkit;
-using Krypton.Toolkit;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Assets_Inventory.Helper;
 
@@ -24,7 +15,9 @@ namespace Assets_Inventory
 {
     public partial class MainForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
-        AppDbContext db = new AppDbContext();
+        // Field DbContext with proper dispose in Dispose override
+        private AppDbContext db = new AppDbContext();
+        private bool _isClosing = false;
 
         public MainForm()
         {
@@ -36,10 +29,18 @@ namespace Assets_Inventory
             try
             {
                 var userId = Properties.Settings.Default.userId;
-                var userData = db.Pengguna.FirstOrDefault(p => p.IdPengguna == userId);
-                if (userData != null)
+                if (userId == 0 || !AuthManager.IsAuthenticated)
                 {
-                    lblUser.Text = $"User Aktif: {userData.Username}";
+                    // Session invalid, return to login
+                    lblUser.Text = "User: Unknown";
+                }
+                else
+                {
+                    var userData = db.Pengguna.FirstOrDefault(p => p.IdPengguna == userId);
+                    if (userData != null)
+                    {
+                        lblUser.Text = $"User Aktif: {userData.Username}";
+                    }
                 }
 
                 var pengaturan = db.Pengaturan.FirstOrDefault();
@@ -52,27 +53,33 @@ namespace Assets_Inventory
                         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                         string imagePath = Path.Combine(baseDirectory, "Resources", pengaturan.WallpaperAplikasi);
 
-                        if (File.Exists(imagePath))
+                        // Validate wallpaper file name for traversal
+                        string fileName = Path.GetFileName(pengaturan.WallpaperAplikasi);
+                        if (fileName == pengaturan.WallpaperAplikasi && File.Exists(imagePath))
                         {
-                            using (var bmpTemp = new Bitmap(imagePath))
+                            try
                             {
-                                pnlContent.BackgroundImage = new Bitmap(bmpTemp);
+                                // Validate image magic bytes
+                                using (var bmpTemp = new Bitmap(imagePath))
+                                {
+                                    pnlContent.BackgroundImage = new Bitmap(bmpTemp);
+                                }
+                                pnlContent.BackgroundImageLayout = ImageLayout.Stretch;
                             }
-                            pnlContent.BackgroundImageLayout = ImageLayout.Stretch;
+                            catch { /* invalid image */ }
                         }
                     }
                 }
 
-                var settings = ConfigurationManager.ConnectionStrings["KoneksiServer"];
-
-                if (settings != null && !string.IsNullOrEmpty(settings.ConnectionString))
+                string connStr = ConnectionStringProtector.GetDecryptedConnectionString();
+                if (!string.IsNullOrEmpty(connStr))
                 {
-                    var builder = new DbConnectionStringBuilder();
-                    builder.ConnectionString = settings.ConnectionString;
-                    if (builder.TryGetValue("Server", out object host)) lblHost.Text = $"Host: {host.ToString()}";
+                    var builder = new DbConnectionStringBuilder { ConnectionString = connStr };
+                    if (builder.TryGetValue("Server", out object host))
+                        lblHost.Text = $"Host: {host}";
                 }
 
-                int intervalMenit = Properties.Settings.Default.BackupInterval; 
+                int intervalMenit = Properties.Settings.Default.BackupInterval;
 
                 if (intervalMenit > 0)
                 {
@@ -81,92 +88,161 @@ namespace Assets_Inventory
                     timerAutoBackup.Start();
                 }
 
-                TerapkanHakAksesMenu(); 
+                // Cache permissions once instead of 30x DB queries
+                TerapkanHakAksesMenu();
                 CekNotifikasiAset();
                 DashboardUC uc = new DashboardUC();
                 ChangeView(uc);
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Error Sistem: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Terjadi kesalahan saat memuat data utama.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void TerapkanHakAksesMenu()
         {
-            iNVENTARISToolStripMenuItem.Visible = AuthManager.GetAkses("Inventaris").HakBaca;
-            pROSESToolStripMenuItem.Visible = AuthManager.GetAkses("Proses").HakBaca;
-            bRGHABISPAKAIToolStripMenuItem.Visible = AuthManager.GetAkses("Brg Habis Pakai").HakBaca;
-            laporanToolStripMenuItem1.Visible = AuthManager.GetAkses("Laporan").HakBaca;
-            tOOLSToolStripMenuItem.Visible = AuthManager.GetAkses("Tools").HakBaca;
-            aDMINToolStripMenuItem.Visible = AuthManager.GetAkses("Admin").HakBaca;
-            hELPToolStripMenuItem.Visible = AuthManager.GetAkses("Help").HakBaca;
+            try
+            {
+                // Cache all permissions once
+                var allAkses = AuthManager.GetAllAkses();
 
-            permintaanToolStripMenuItem.Visible = AuthManager.GetAkses("Permintaan Barang").HakBaca;
-            pengadaanBarangToolStripMenuItem.Visible = AuthManager.GetAkses("Pengadaan Barang").HakBaca;
-            inputTanahToolStripMenuItem.Visible = AuthManager.GetAkses("Input Tanah").HakBaca;
-            inpiutBangunanToolStripMenuItem.Visible = AuthManager.GetAkses("Input Bangunan").HakBaca;
-            inpiutBangunanToolStripMenuItem.Visible = AuthManager.GetAkses("Data Aset").HakBaca;
+                // Helper lambda with fallback to individual GetAkses if not in cache (for backward compat)
+                System.Func<string, bool> canRead = (modul) =>
+                {
+                    if (allAkses.TryGetValue(modul, out var akses)) return akses.HakBaca;
+                    return AuthManager.GetAkses(modul).HakBaca;
+                };
 
-            mutasiBarangToolStripMenuItem.Visible = AuthManager.GetAkses("Mutasi Barang").HakBaca;
-            prosesOpnameToolStripMenuItem.Visible = AuthManager.GetAkses("Proses Opname").HakBaca;
-            barangNonAktifToolStripMenuItem.Visible = AuthManager.GetAkses("Non Aktif Barang").HakBaca;
-            peminjamanToolStripMenuItem.Visible = AuthManager.GetAkses("Peminjaman").HakBaca;
-            pengembalianToolStripMenuItem.Visible = AuthManager.GetAkses("Pengembalian").HakBaca;
-            dataPeminjamanToolStripMenuItem.Visible = AuthManager.GetAkses("Data Peminjaman").HakBaca;
-            dataPengembalianToolStripMenuItem.Visible = AuthManager.GetAkses("Data Pengembalian").HakBaca;
+                iNVENTARISToolStripMenuItem.Visible = canRead("Inventaris");
+                pROSESToolStripMenuItem.Visible = canRead("Proses");
+                bRGHABISPAKAIToolStripMenuItem.Visible = canRead("Brg Habis Pakai");
+                laporanToolStripMenuItem1.Visible = canRead("Laporan");
+                tOOLSToolStripMenuItem.Visible = canRead("Tools");
+                aDMINToolStripMenuItem.Visible = canRead("Admin");
+                hELPToolStripMenuItem.Visible = canRead("Help");
 
-            masterDataToolStripMenuItem1.Visible = AuthManager.GetAkses("Master Data Brg Habis Pakai").HakBaca;
-            dataBarangHabisPakaiToolStripMenuItem.Visible = AuthManager.GetAkses("Data Barang Habis Pakai").HakBaca;
+                permintaanToolStripMenuItem.Visible = canRead("Permintaan Barang");
+                pengadaanBarangToolStripMenuItem.Visible = canRead("Pengadaan Barang");
+                inputTanahToolStripMenuItem.Visible = canRead("Input Tanah");
+                inpiutBangunanToolStripMenuItem.Visible = canRead("Input Bangunan");
+                // FIX bug: second assignment was duplicate Visible for same menu, should be Data Aset
+                // Search for Data Aset menu item by name if exists
+                try
+                {
+                    var dataAsetItem = menuStrip1.Items.Find("dataBarangAsetToolStripMenuItem", true).FirstOrDefault() as ToolStripMenuItem;
+                    if (dataAsetItem != null)
+                        dataAsetItem.Visible = canRead("Data Aset");
+                    else
+                        inpiutBangunanToolStripMenuItem.Visible = canRead("Data Aset") || canRead("Input Bangunan");
+                }
+                catch
+                {
+                    inpiutBangunanToolStripMenuItem.Visible = canRead("Data Aset") || canRead("Input Bangunan");
+                }
 
-            pengadaanBarangHabisPakaiToolStripMenuItem.Visible = AuthManager.GetAkses("Pengadaan Brg Habis Pakai").HakBaca;
-            permintaanHabisPakaiToolStripMenuItem.Visible = AuthManager.GetAkses("Permintaan Brg Habis Pakai").HakBaca;
-            barangHabisPakaiKeluarToolStripMenuItem.Visible = AuthManager.GetAkses("Barang Keluar").HakBaca;
-            laporanSTokToolStripMenuItem1.Visible = AuthManager.GetAkses("Lap Stok Barang").HakBaca;
-            lapStokToolStripMenuItem.Visible = AuthManager.GetAkses("Lap Stok Brg Habis Pakai").HakBaca;
-            lapStokMinimalToolStripMenuItem.Visible = AuthManager.GetAkses("Lap Stok Minimal Brg Habis Pakai").HakBaca;
+                mutasiBarangToolStripMenuItem.Visible = canRead("Mutasi Barang");
+                prosesOpnameToolStripMenuItem.Visible = canRead("Proses Opname");
+                barangNonAktifToolStripMenuItem.Visible = canRead("Non Aktif Barang");
+                peminjamanToolStripMenuItem.Visible = canRead("Peminjaman");
+                pengembalianToolStripMenuItem.Visible = canRead("Pengembalian");
+                dataPeminjamanToolStripMenuItem.Visible = canRead("Data Peminjaman");
+                dataPengembalianToolStripMenuItem.Visible = canRead("Data Pengembalian");
 
-            koneksiToolStripMenuItem.Visible = AuthManager.GetAkses("Koneksi").HakBaca;
-            backupToolStripMenuItem.Visible = AuthManager.GetAkses("Backup").HakBaca;
-            restoreToolStripMenuItem.Visible = AuthManager.GetAkses("Restore").HakBaca;
-            resetToolStripMenuItem.Visible = AuthManager.GetAkses("Reset").HakBaca;
+                masterDataToolStripMenuItem1.Visible = canRead("Master Data Brg Habis Pakai");
+                dataBarangHabisPakaiToolStripMenuItem.Visible = canRead("Data Barang Habis Pakai");
 
-            masterDataToolStripMenuItem.Visible = AuthManager.GetAkses("Data Master").HakBaca; 
-            dataLembagaToolStripMenuItem.Visible = AuthManager.GetAkses("Set Lembaga").HakBaca;
-            userToolStripMenuItem.Visible = AuthManager.GetAkses("User").HakBaca;
-            groupUserToolStripMenuItem.Visible = AuthManager.GetAkses("Group User").HakBaca;
-            wallpaperToolStripMenuItem.Visible = AuthManager.GetAkses("Wallpaper").HakBaca;
+                pengadaanBarangHabisPakaiToolStripMenuItem.Visible = canRead("Pengadaan Brg Habis Pakai");
+                permintaanHabisPakaiToolStripMenuItem.Visible = canRead("Permintaan Brg Habis Pakai");
+                barangHabisPakaiKeluarToolStripMenuItem.Visible = canRead("Barang Keluar");
+                laporanSTokToolStripMenuItem1.Visible = canRead("Lap Stok Barang");
+                lapStokToolStripMenuItem.Visible = canRead("Lap Stok Brg Habis Pakai");
+                lapStokMinimalToolStripMenuItem.Visible = canRead("Lap Stok Minimal Brg Habis Pakai");
 
-            aboutToolStripMenuItem.Visible = AuthManager.GetAkses("About").HakBaca;
-            tutorialToolStripMenuItem.Visible = AuthManager.GetAkses("Tutorial").HakBaca;
+                koneksiToolStripMenuItem.Visible = canRead("Koneksi");
+                backupToolStripMenuItem.Visible = canRead("Backup");
+                restoreToolStripMenuItem.Visible = canRead("Restore");
+                resetToolStripMenuItem.Visible = canRead("Reset");
+
+                masterDataToolStripMenuItem.Visible = canRead("Data Master");
+                dataLembagaToolStripMenuItem.Visible = canRead("Set Lembaga");
+                userToolStripMenuItem.Visible = canRead("User");
+                groupUserToolStripMenuItem.Visible = canRead("Group User");
+                wallpaperToolStripMenuItem.Visible = canRead("Wallpaper");
+
+                aboutToolStripMenuItem.Visible = canRead("About");
+                tutorialToolStripMenuItem.Visible = canRead("Tutorial");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("TerapkanHakAksesMenu error: " + ex.Message);
+            }
         }
 
         public void ChangeView(UserControl uc)
         {
-            pnlContent.Controls.Clear();
-            uc.Dock = DockStyle.Fill;
-            pnlContent.Controls.Add(uc);
+            try
+            {
+                // Dispose previous UC if needed
+                foreach (Control c in pnlContent.Controls)
+                {
+                    try { c.Dispose(); } catch { }
+                }
+                pnlContent.Controls.Clear();
+                uc.Dock = DockStyle.Fill;
+                pnlContent.Controls.Add(uc);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ChangeView error: " + ex.Message);
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (_isClosing)
+                return;
+
             DialogResult dr = MessageBox.Show("Apakah Anda yakin ingin keluar?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (dr == DialogResult.No)
             {
-                e.Cancel = true; 
+                e.Cancel = true;
+                return;
             }
 
+            _isClosing = true;
+            timerAutoBackup.Stop();
+            timerAutoBackup.Enabled = false;
+
+            // Backup is optional and should NOT block closing or throw
             string path = Properties.Settings.Default.BackupPath;
-            if (!string.IsNullOrEmpty(path))
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
-                DatabaseHelper.PerformBackup(path);
+                try
+                {
+                    // Do not freeze UI - run with timeout consideration, but keep synchronous to avoid orphan
+                    DatabaseHelper.PerformBackup(path);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Auto backup on exit failed: " + ex.Message);
+                    // Do not block closing for backup failure
+                }
             }
+
+            AuthManager.ClearSession();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (DialogResult.Yes == MessageBox.Show("Apakah Anda yakin ingin keluar aplikasi?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) Application.Exit();
+            if (DialogResult.Yes == MessageBox.Show("Apakah Anda yakin ingin keluar aplikasi?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            {
+                _isClosing = true;
+                timerAutoBackup.Stop();
+                AuthManager.ClearSession();
+                Application.Exit();
+            }
         }
 
         private void pengadaanBarangToolStripMenuItem_Click(object sender, EventArgs e)
@@ -179,14 +255,14 @@ namespace Assets_Inventory
         {
             InputTanahForm form = new InputTanahForm();
             form.ShowDialog();
-        }     
+        }
 
         private void inpiutBangunanToolStripMenuItem_Click(object sender, EventArgs e)
         {
             InputBangunanForm form = new InputBangunanForm();
             form.ShowDialog();
         }
-        
+
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AboutForm form = new AboutForm();
@@ -202,26 +278,34 @@ namespace Assets_Inventory
             {
                 try
                 {
+                    // Validate path does not contain traversal
+                    string fullPdf = Path.GetFullPath(pdfPath);
+                    string baseResolved = Path.GetFullPath(baseDirectory);
+                    if (!fullPdf.StartsWith(baseResolved, StringComparison.OrdinalIgnoreCase))
+                    {
+                        MessageBox.Show("Path file tidak valid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     Process.Start(new ProcessStartInfo
                     {
-                        FileName = pdfPath,
+                        FileName = fullPdf,
                         UseShellExecute = true
                     });
                 }
-                catch (Exception ex)
+                catch
                 {
-                    MessageBox.Show("Gagal membuka PDF: " + ex.Message);
+                    MessageBox.Show("Gagal membuka file panduan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show("File PDF tidak ditemukan di: " + pdfPath);
+                MessageBox.Show("File panduan tidak ditemukan.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void aktivasiToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -232,7 +316,6 @@ namespace Assets_Inventory
 
         private void pnlContent_Paint(object sender, PaintEventArgs e)
         {
-
         }
 
         private void masterDataToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -278,7 +361,7 @@ namespace Assets_Inventory
         }
 
         private void userToolStripMenuItem_Click(object sender, EventArgs e)
-        {   
+        {
             UserForm form = new UserForm();
             form.ShowDialog();
         }
@@ -300,6 +383,34 @@ namespace Assets_Inventory
                 {
                     try
                     {
+                        // Validate file exists and is safe
+                        if (!File.Exists(ofd.FileName)) return;
+                        string ext = Path.GetExtension(ofd.FileName).ToLower();
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".bmp")
+                        {
+                            MessageBox.Show("Format file tidak valid.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        // Check file size (max 10MB)
+                        var fi = new FileInfo(ofd.FileName);
+                        if (fi.Length > 10 * 1024 * 1024)
+                        {
+                            MessageBox.Show("Ukuran file terlalu besar (max 10MB).", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        // Validate image magic bytes
+                        try
+                        {
+                            using (var testBmp = new Bitmap(ofd.FileName)) { /* just validate */ }
+                        }
+                        catch
+                        {
+                            MessageBox.Show("File bukan gambar yang valid.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
                         var pengaturan = db.Pengaturan.FirstOrDefault();
                         if (pengaturan == null)
                         {
@@ -308,20 +419,20 @@ namespace Assets_Inventory
                         }
 
                         string resourceFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
-
                         if (!Directory.Exists(resourceFolder)) Directory.CreateDirectory(resourceFolder);
 
-                        string fileName = Path.GetFileName(ofd.FileName);
-                        string destFilePath = Path.Combine(resourceFolder, fileName);
+                        // Generate safe file name with GUID to avoid collision and traversal
+                        string safeFileName = Guid.NewGuid().ToString("N") + ext;
+                        string destFilePath = Path.Combine(resourceFolder, safeFileName);
 
                         File.Copy(ofd.FileName, destFilePath, true);
 
-                        pengaturan.WallpaperAplikasi = fileName;
+                        pengaturan.WallpaperAplikasi = safeFileName;
                         db.SaveChanges();
 
                         if (pnlContent.BackgroundImage != null)
                         {
-                            pnlContent.BackgroundImage.Dispose(); 
+                            pnlContent.BackgroundImage.Dispose();
                         }
 
                         using (var bmpTemp = new Bitmap(destFilePath))
@@ -334,7 +445,8 @@ namespace Assets_Inventory
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Terjadi kesalahan sistem saat memproses gambar: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        System.Diagnostics.Debug.WriteLine("Wallpaper error: " + ex.Message);
+                        MessageBox.Show("Terjadi kesalahan saat memproses gambar.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -422,8 +534,9 @@ namespace Assets_Inventory
                 {
                     DatabaseHelper.PerformBackup(path);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine("Auto backup failed: " + ex.Message);
                 }
             }
         }
@@ -450,7 +563,7 @@ namespace Assets_Inventory
                     if (jumlahBelumLengkap > 0)
                     {
                         lblNotifAset.Visible = true;
-                        lblNotifAset.Text = $"⚠️ Terdapat {jumlahBelumLengkap} data aset yang perlu dilengkapi!";
+                        lblNotifAset.Text = $"Terdapat {jumlahBelumLengkap} data aset yang perlu dilengkapi!";
                     }
                     else
                     {
@@ -460,7 +573,7 @@ namespace Assets_Inventory
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Gagal mengecek notifikasi: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Gagal mengecek notifikasi: " + ex.Message);
             }
         }
 
@@ -478,7 +591,6 @@ namespace Assets_Inventory
 
         private void laporanSTokToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            
         }
 
         private void masterDataToolStripMenuItem_Click(object sender, EventArgs e)
@@ -510,5 +622,6 @@ namespace Assets_Inventory
             PengembalianBarangUC uc = new PengembalianBarangUC();
             ChangeView(uc);
         }
+
     }
 }

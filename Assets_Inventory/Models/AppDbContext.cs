@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Assets_Inventory.Helper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Configuration;
@@ -99,8 +100,41 @@ namespace Assets_Inventory.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                string connString = ConfigurationManager.ConnectionStrings["KoneksiServer"].ConnectionString;
-                optionsBuilder.UseMySql(connString);
+                try
+                {
+                    // Decrypt via protector (supports legacy plaintext)
+                    string connString = ConnectionStringProtector.GetDecryptedConnectionString();
+                    if (string.IsNullOrEmpty(connString))
+                    {
+                        // Fallback to raw for error handling
+                        connString = ConfigurationManager.ConnectionStrings["KoneksiServer"]?.ConnectionString;
+                    }
+                    // Validate & enforce safe defaults
+                    if (!string.IsNullOrEmpty(connString))
+                    {
+                        // Ensure AllowLoadLocalInfile=false even if config tampered
+                        var b = new System.Data.Common.DbConnectionStringBuilder { ConnectionString = connString };
+                        // Do not allow dangerous options
+                        if (b.TryGetValue("AllowLoadLocalInfile", out _))
+                            b["AllowLoadLocalInfile"] = "false";
+                        else
+                            b["AllowLoadLocalInfile"] = "false";
+                        connString = b.ConnectionString;
+                        optionsBuilder.UseMySql(connString);
+                    }
+                }
+                catch
+                {
+                    // Let EF handle connection error normally (will throw later)
+                    string raw = ConfigurationManager.ConnectionStrings["KoneksiServer"]?.ConnectionString;
+                    if (!string.IsNullOrEmpty(raw))
+                    {
+                        string maybeDecrypted = ConnectionStringProtector.Unprotect(raw);
+                        if (maybeDecrypted != null)
+                            raw = maybeDecrypted;
+                        optionsBuilder.UseMySql(raw);
+                    }
+                }
             }
         }
 

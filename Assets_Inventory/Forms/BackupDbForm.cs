@@ -1,13 +1,14 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Assets_Inventory.UserControls;
 using ComponentFactory.Krypton.Toolkit;
-using MySql.Data.MySqlClient; 
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Assets_Inventory
@@ -41,10 +42,10 @@ namespace Assets_Inventory
             try
             {
                 pnlTabel.Controls.Clear();
-                var settings = ConfigurationManager.ConnectionStrings["KoneksiServer"];
-                if (settings == null || string.IsNullOrEmpty(settings.ConnectionString)) return;
+                string connStr = ConnectionStringProtector.GetDecryptedConnectionString();
+                if (string.IsNullOrEmpty(connStr)) return;
 
-                using (MySqlConnection conn = new MySqlConnection(settings.ConnectionString))
+                using (MySqlConnection conn = new MySqlConnection(connStr))
                 {
                     conn.Open();
                     using (MySqlCommand cmd = new MySqlCommand("SHOW TABLES", conn))
@@ -54,6 +55,9 @@ namespace Assets_Inventory
                             while (reader.Read())
                             {
                                 string tableName = reader.GetString(0);
+                                // Validate table name matches safe pattern
+                                if (!ConnectionStringProtector.IsSafeTableName(tableName)) continue;
+
                                 DbTableControl tableCtrl = new DbTableControl
                                 {
                                     NamaModul = tableName,
@@ -69,7 +73,9 @@ namespace Assets_Inventory
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Gagal memuat daftar tabel: " + ex.Message, "Error Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Generic message to user, log details privately
+                System.Diagnostics.Debug.WriteLine("Gagal memuat daftar tabel: " + ex.Message);
+                MessageBox.Show("Gagal memuat daftar tabel database.", "Error Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -95,24 +101,24 @@ namespace Assets_Inventory
 
             try
             {
+                ConnectionStringProtector.ValidateBackupFolder(txtPath.Text);
                 PerformBackup(txtPath.Text);
                 MessageBox.Show("Proses Backup Database berhasil diselesaikan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Gagal melakukan backup.\n\nDetail Error: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Gagal melakukan backup. Periksa pengaturan koneksi dan lokasi penyimpanan.", "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine("Backup error: " + ex.Message);
             }
         }
 
         private void PerformBackup(string folderPath)
         {
-            var settings = ConfigurationManager.ConnectionStrings["KoneksiServer"];
-            if (settings == null || string.IsNullOrEmpty(settings.ConnectionString))
-            {
-                throw new Exception("Konfigurasi database tidak ditemukan di App.config.");
-            }
+            string connStr = ConnectionStringProtector.GetDecryptedConnectionString();
+            if (string.IsNullOrEmpty(connStr))
+                throw new Exception("Konfigurasi database tidak ditemukan.");
 
-            var builder = new DbConnectionStringBuilder { ConnectionString = settings.ConnectionString };
+            var builder = new DbConnectionStringBuilder { ConnectionString = connStr };
 
             builder.TryGetValue("Server", out object host);
             builder.TryGetValue("Database", out object dbName);
@@ -126,14 +132,26 @@ namespace Assets_Inventory
             string dbDatabase = dbName?.ToString() ?? "";
             string dbPort = port?.ToString() ?? "3306";
 
-            string fileName = $"Backup_{dbDatabase}_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+            // Validate
+            if (!ConnectionStringProtector.IsSafeHost(dbHost))
+                throw new ArgumentException("Host tidak valid.");
+            if (!ConnectionStringProtector.IsSafeIdentifier(dbDatabase))
+                throw new ArgumentException("Database name tidak valid.");
+
+            ConnectionStringProtector.ValidateBackupFolder(folderPath);
+
+            string fileName = $"Backup_{SanitizeFileName(dbDatabase)}_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
             string fullPath = Path.Combine(folderPath, fileName);
+            string fullResolved = Path.GetFullPath(fullPath);
+            string folderResolved = Path.GetFullPath(folderPath);
+            if (!fullResolved.StartsWith(folderResolved, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Path backup tidak valid (path traversal).");
 
-            string dumpCommand = $"mysqldump -h {dbHost} -P {dbPort} -u {dbUser} ";
-            if (!string.IsNullOrEmpty(dbPass)) dumpCommand += $"-p\"{dbPass}\" ";
-            dumpCommand += $"{dbDatabase} > \"{fullPath}\"";
+            string appFolder = AppDomain.CurrentDomain.BaseDirectory;
+            string mysqldumpFromResources = Path.Combine(appFolder, "Resources", "mysqldump.exe");
+            string dumpExe = File.Exists(mysqldumpFromResources) ? mysqldumpFromResources : "mysqldump";
 
-            ExecuteDumpProcess(dumpCommand);
+            ExecuteDumpProcess(dumpExe, dbHost, dbPort, dbUser, dbPass, dbDatabase, null, fullResolved);
         }
 
         private void btnBrowseTabel_Click(object sender, EventArgs e)
@@ -163,6 +181,12 @@ namespace Assets_Inventory
             {
                 if (ctrl is DbTableControl tableCtrl && tableCtrl.IsChecked)
                 {
+                    // Validate each table name against whitelist regex (ponytail: identifier cannot be parameterized)
+                    if (!ConnectionStringProtector.IsSafeTableName(tableCtrl.NamaModul))
+                    {
+                        MessageBox.Show($"Nama tabel tidak valid: {tableCtrl.NamaModul}", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
                     selectedTables.Add(tableCtrl.NamaModul);
                 }
             }
@@ -175,24 +199,25 @@ namespace Assets_Inventory
 
             try
             {
+                ConnectionStringProtector.ValidateBackupFolder(txtPathTabel.Text);
+                ConnectionStringProtector.ValidateTableNames(selectedTables);
                 PerformBackupTables(txtPathTabel.Text, selectedTables);
                 MessageBox.Show($"Proses Backup untuk {selectedTables.Count} tabel berhasil diselesaikan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Gagal melakukan backup parsial.\n\nDetail Error: " + ex.Message, "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Gagal melakukan backup parsial. Periksa pengaturan koneksi.", "Error Sistem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine("Backup tables error: " + ex.Message);
             }
         }
 
         private void PerformBackupTables(string folderPath, List<string> tables)
         {
-            var settings = ConfigurationManager.ConnectionStrings["KoneksiServer"];
-            if (settings == null || string.IsNullOrEmpty(settings.ConnectionString))
-            {
-                throw new Exception("Konfigurasi database tidak ditemukan di App.config.");
-            }
+            string connStr = ConnectionStringProtector.GetDecryptedConnectionString();
+            if (string.IsNullOrEmpty(connStr))
+                throw new Exception("Konfigurasi database tidak ditemukan.");
 
-            var builder = new DbConnectionStringBuilder { ConnectionString = settings.ConnectionString };
+            var builder = new DbConnectionStringBuilder { ConnectionString = connStr };
 
             builder.TryGetValue("Server", out object host);
             builder.TryGetValue("Database", out object dbName);
@@ -206,39 +231,92 @@ namespace Assets_Inventory
             string dbDatabase = dbName?.ToString() ?? "";
             string dbPort = port?.ToString() ?? "3306";
 
-            string tablesString = string.Join(" ", tables);
+            if (!ConnectionStringProtector.IsSafeHost(dbHost))
+                throw new ArgumentException("Host tidak valid.");
+            if (!ConnectionStringProtector.IsSafeIdentifier(dbDatabase))
+                throw new ArgumentException("Database name tidak valid.");
 
-            string fileName = $"Backup_Tables_{dbDatabase}_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+            ConnectionStringProtector.ValidateBackupFolder(folderPath);
+            ConnectionStringProtector.ValidateTableNames(tables);
+
+            string fileName = $"Backup_Tables_{SanitizeFileName(dbDatabase)}_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
             string fullPath = Path.Combine(folderPath, fileName);
+            string fullResolved = Path.GetFullPath(fullPath);
+            string folderResolved = Path.GetFullPath(folderPath);
+            if (!fullResolved.StartsWith(folderResolved, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Path backup tidak valid (path traversal).");
 
-            string dumpCommand = $"mysqldump -h {dbHost} -P {dbPort} -u {dbUser} ";
-            if (!string.IsNullOrEmpty(dbPass)) dumpCommand += $"-p\"{dbPass}\" ";
+            string appFolder = AppDomain.CurrentDomain.BaseDirectory;
+            string mysqldumpFromResources = Path.Combine(appFolder, "Resources", "mysqldump.exe");
+            string dumpExe = File.Exists(mysqldumpFromResources) ? mysqldumpFromResources : "mysqldump";
 
-            dumpCommand += $"{dbDatabase} {tablesString} > \"{fullPath}\"";
-
-            ExecuteDumpProcess(dumpCommand);
+            ExecuteDumpProcess(dumpExe, dbHost, dbPort, dbUser, dbPass, dbDatabase, tables, fullResolved);
         }
 
-        private void ExecuteDumpProcess(string dumpCommand)
+        // ponytail: no shell, direct process execution with MYSQL_PWD env var + streaming output
+        private void ExecuteDumpProcess(string dumpExe, string host, string port, string user, string pass, string database, List<string> tables, string outputFile)
         {
-            ProcessStartInfo psi = new ProcessStartInfo
+            // Escape args safely (no shell)
+            string tablePart = (tables != null && tables.Count > 0) ? " " + string.Join(" ", tables.Select(t => EscapeArg(t))) : "";
+            string args = string.Format("-h {0} -P {1} -u {2} {3}{4}",
+                EscapeArg(host), EscapeArg(port), EscapeArg(user), EscapeArg(database), tablePart);
+
+            var psi = new ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = $"/c {dumpCommand}",
-                RedirectStandardOutput = false,
+                FileName = dumpExe,
+                Arguments = args,
                 UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 CreateNoWindow = true
             };
+            // Avoid password in command line; use env var
+            if (!string.IsNullOrEmpty(pass))
+                psi.EnvironmentVariables["MYSQL_PWD"] = pass;
 
-            using (Process process = Process.Start(psi))
+            try
             {
-                process.WaitForExit();
-
-                if (process.ExitCode != 0)
+                using (Process process = Process.Start(psi))
                 {
-                    throw new Exception("Proses 'mysqldump' ditolak atau tidak ditemukan di Environment Variables.");
+                    using (var fileStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        process.StandardOutput.BaseStream.CopyTo(fileStream);
+                    }
+                    string err = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    if (process.ExitCode != 0)
+                    {
+                        // Clean up partial file
+                        try { if (File.Exists(outputFile)) File.Delete(outputFile); } catch { }
+                        throw new Exception($"mysqldump gagal (exit {process.ExitCode}).");
+                    }
                 }
+
+                // Validate file was created and non-empty
+                if (!File.Exists(outputFile) || new FileInfo(outputFile).Length == 0)
+                    throw new Exception("File backup tidak terbentuk atau kosong.");
             }
+            catch (Exception ex) when (!(ex.Message.Contains("mysqldump gagal")))
+            {
+                throw new Exception("Proses backup tidak dapat dijalankan: periksa instalasi MySQL.");
+            }
+        }
+
+        private static string EscapeArg(string arg)
+        {
+            if (string.IsNullOrEmpty(arg)) return "\"\"";
+            // Escape if contains special chars - wrap in quotes
+            if (arg.IndexOfAny(new[] { ' ', '"', '\'', '&', '|', '<', '>', '^', ';', '`', '$', '(', ')', '*', '?' }) >= 0)
+                return "\"" + arg.Replace("\"", "\\\"") + "\"";
+            return arg;
+        }
+
+        private static string SanitizeFileName(string name)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+                name = name.Replace(c, '_');
+            return name;
         }
 
         private void btnSimpan_Click(object sender, EventArgs e)

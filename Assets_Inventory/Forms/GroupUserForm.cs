@@ -1,4 +1,4 @@
-﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ComponentFactory.Krypton.Toolkit;
@@ -13,7 +13,8 @@ namespace Assets_Inventory
 {
     public partial class GroupUserForm : KryptonForm
     {
-        AppDbContext db = new AppDbContext();
+        private AppDbContext db = new AppDbContext();
+        private ModulAkses _hakAkses; // stored for RBAC enforcement
 
         public GroupUserForm()
         {
@@ -22,19 +23,14 @@ namespace Assets_Inventory
 
         private void GroupUserForm_Load(object sender, EventArgs e)
         {
-            var hakAkses = AuthManager.GetAkses("Group User");
+            _hakAkses = AuthManager.GetAkses("Group User");
 
-            if (!hakAkses.HakBaca)
+            if (!_hakAkses.HakBaca)
             {
                 MessageBox.Show("Anda tidak memiliki akses untuk membuka halaman ini.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
-
-            btnTambah.Enabled = hakAkses.HakBuat;
-            btnUbah.Enabled = hakAkses.HakUbah;
-            btnSimpan.Enabled = hakAkses.HakBuat || hakAkses.HakUbah;
-            btnHapus.Enabled = hakAkses.HakHapus;
 
             RenderDynamicAkses();
             loadDgv();
@@ -46,7 +42,7 @@ namespace Assets_Inventory
             try
             {
                 treeAkses.Nodes.Clear();
-                var semuaModul = db.Akses.ToList();
+                var semuaModul = db.Akses.AsNoTracking().ToList();
 
                 var parents = semuaModul.Where(x => x.IdParent == null).ToList();
 
@@ -72,9 +68,9 @@ namespace Assets_Inventory
 
                 treeAkses.ExpandAll();
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Gagal memuat daftar modul: " + ex.Message);
+                MessageBox.Show("Gagal memuat daftar modul.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -110,15 +106,29 @@ namespace Assets_Inventory
         private void SetMode(string mode)
         {
             bool isEdit = mode != "View";
+            var hak = _hakAkses ?? new ModulAkses();
 
             txtNamaGroup.Enabled = isEdit;
             txtId.Enabled = isEdit;
             treeAkses.Enabled = isEdit;
-            btnTambah.Enabled = !isEdit;
-            btnUbah.Enabled = !isEdit;
-            btnHapus.Enabled = !isEdit;
-            btnSimpan.Enabled = isEdit;
-            btnBatal.Enabled = isEdit;
+
+            if (!isEdit)
+            {
+                // FIX: respect RBAC instead of unconditional !isEdit
+                btnTambah.Enabled = hak.HakBuat;
+                btnUbah.Enabled = hak.HakUbah;
+                btnHapus.Enabled = hak.HakHapus;
+                btnSimpan.Enabled = false;
+                btnBatal.Enabled = false;
+            }
+            else
+            {
+                btnTambah.Enabled = false;
+                btnUbah.Enabled = false;
+                btnHapus.Enabled = false;
+                btnSimpan.Enabled = hak.HakBuat || hak.HakUbah;
+                btnBatal.Enabled = true;
+            }
         }
 
         private void loadDgv()
@@ -127,12 +137,13 @@ namespace Assets_Inventory
             {
                 bindingSource1.DataSource = db.Peran
                                               .Include(p => p.PeranAkses)
+                                              .AsNoTracking()
                                               .ToList();
                 dgGroup.DataSource = bindingSource1;
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Gagal memuat data: " + ex.Message);
+                MessageBox.Show("Gagal memuat data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -140,53 +151,72 @@ namespace Assets_Inventory
         {
             if (e.RowIndex >= 0 && dgGroup.Rows[e.RowIndex].DataBoundItem is Peran p)
             {
-                var peran = db.Peran
-                              .Include(pr => pr.PeranAkses)
-                              .FirstOrDefault(pr => pr.IdPeran == p.IdPeran);
-
-                if (peran != null)
+                try
                 {
-                    bindingSource1.DataSource = peran;
+                    var peran = db.Peran
+                                  .Include(pr => pr.PeranAkses)
+                                  .AsNoTracking()
+                                  .FirstOrDefault(pr => pr.IdPeran == p.IdPeran);
 
-                    treeAkses.AfterCheck -= treeAkses_AfterCheck;
-                    foreach (TreeNode pNode in treeAkses.Nodes)
+                    if (peran != null)
                     {
-                        pNode.Checked = false;
-                        foreach (TreeNode cNode in pNode.Nodes)
-                        {
-                            cNode.Checked = false;
-                            foreach (TreeNode crudNode in cNode.Nodes) crudNode.Checked = false;
-                        }
-                    }
+                        // Need tracked entity for editing
+                        var tracked = db.Peran.Include(pr => pr.PeranAkses).FirstOrDefault(pr => pr.IdPeran == p.IdPeran);
+                        if (tracked != null)
+                            bindingSource1.DataSource = tracked;
+                        else
+                            bindingSource1.DataSource = peran;
 
-                    if (peran.PeranAkses != null)
-                    {
-                        foreach (var aksesPivot in peran.PeranAkses)
+                        treeAkses.AfterCheck -= treeAkses_AfterCheck;
+                        foreach (TreeNode pNode in treeAkses.Nodes)
                         {
-                            foreach (TreeNode pNode in treeAkses.Nodes)
+                            pNode.Checked = false;
+                            foreach (TreeNode cNode in pNode.Nodes)
                             {
-                                foreach (TreeNode cNode in pNode.Nodes)
+                                cNode.Checked = false;
+                                foreach (TreeNode crudNode in cNode.Nodes) crudNode.Checked = false;
+                            }
+                        }
+
+                        if (peran.PeranAkses != null)
+                        {
+                            foreach (var aksesPivot in peran.PeranAkses)
+                            {
+                                foreach (TreeNode pNode in treeAkses.Nodes)
                                 {
-                                    if (cNode.Tag != null && cNode.Tag.ToString() != "PARENT" && (int)cNode.Tag == aksesPivot.IdAkses)
+                                    foreach (TreeNode cNode in pNode.Nodes)
                                     {
-                                        pNode.Checked = true;
-                                        cNode.Checked = true;
-                                        cNode.Nodes[0].Checked = aksesPivot.HakBuat ?? false;
-                                        cNode.Nodes[1].Checked = aksesPivot.HakBaca ?? false;
-                                        cNode.Nodes[2].Checked = aksesPivot.HakUbah ?? false;
-                                        cNode.Nodes[3].Checked = aksesPivot.HakHapus ?? false;
+                                        if (cNode.Tag != null && cNode.Tag.ToString() != "PARENT" && (int)cNode.Tag == aksesPivot.IdAkses)
+                                        {
+                                            pNode.Checked = true;
+                                            cNode.Checked = true;
+                                            cNode.Nodes[0].Checked = aksesPivot.HakBuat == true;
+                                            cNode.Nodes[1].Checked = aksesPivot.HakBaca == true;
+                                            cNode.Nodes[2].Checked = aksesPivot.HakUbah == true;
+                                            cNode.Nodes[3].Checked = aksesPivot.HakHapus == true;
+                                        }
                                     }
                                 }
                             }
                         }
+                        treeAkses.AfterCheck += treeAkses_AfterCheck;
                     }
-                    treeAkses.AfterCheck += treeAkses_AfterCheck;
+                }
+                catch
+                {
+                    MessageBox.Show("Gagal memuat detail peran.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
         {
+            if (_hakAkses != null && !_hakAkses.HakBuat)
+            {
+                MessageBox.Show("Anda tidak memiliki hak untuk menambah group.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             bindingSource1.AddNew();
 
             treeAkses.AfterCheck -= treeAkses_AfterCheck;
@@ -206,6 +236,11 @@ namespace Assets_Inventory
 
         private void btnUbah_Click(object sender, EventArgs e)
         {
+            if (_hakAkses != null && !_hakAkses.HakUbah)
+            {
+                MessageBox.Show("Anda tidak memiliki hak untuk mengubah group.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             if (bindingSource1.Current is Peran) SetMode("Update");
         }
 
@@ -218,9 +253,21 @@ namespace Assets_Inventory
 
         private void btnSimpan_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtNamaGroup.Text))
+            if (string.IsNullOrWhiteSpace(txtNamaGroup.Text))
             {
                 MessageBox.Show("Nama Group harus diisi!");
+                return;
+            }
+
+            bool isNew = bindingSource1.Current is Peran cur && cur.IdPeran == 0;
+            if (isNew && _hakAkses != null && !_hakAkses.HakBuat)
+            {
+                MessageBox.Show("Anda tidak memiliki hak untuk menambah group.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!isNew && _hakAkses != null && !_hakAkses.HakUbah)
+            {
+                MessageBox.Show("Anda tidak memiliki hak untuk mengubah group.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -257,8 +304,9 @@ namespace Assets_Inventory
 
                     if (k.IdPeran == 0)
                     {
-                        peranDatabase = new Peran { NamaPeran = txtNamaGroup.Text };
+                        peranDatabase = new Peran { NamaPeran = txtNamaGroup.Text.Trim() };
                         db.Peran.Add(peranDatabase);
+                        db.SaveChanges(); // need Id for FK
                     }
                     else
                     {
@@ -266,7 +314,8 @@ namespace Assets_Inventory
                                           .Include(p => p.PeranAkses)
                                           .FirstOrDefault(p => p.IdPeran == k.IdPeran);
 
-                        if (peranDatabase != null) peranDatabase.NamaPeran = txtNamaGroup.Text;
+                        if (peranDatabase != null)
+                            peranDatabase.NamaPeran = txtNamaGroup.Text.Trim();
                     }
 
                     if (peranDatabase.IdPeran != 0 && peranDatabase.PeranAkses != null)
@@ -288,15 +337,29 @@ namespace Assets_Inventory
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error Sistem: " + (ex.InnerException?.Message ?? ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    System.Diagnostics.Debug.WriteLine("Save peran error: " + ex.Message);
+                    MessageBox.Show("Terjadi kesalahan saat menyimpan data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void btnHapus_Click(object sender, EventArgs e)
         {
+            if (_hakAkses != null && !_hakAkses.HakHapus)
+            {
+                MessageBox.Show("Anda tidak memiliki hak untuk menghapus group.", "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Prevent deleting role assigned to current user
             if (bindingSource1.Current is Peran peran && peran.IdPeran != 0)
             {
+                if (peran.IdPeran == AuthManager.CurrentRoleId)
+                {
+                    MessageBox.Show("Tidak dapat menghapus peran yang sedang digunakan oleh akun Anda sendiri.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 if (MessageBox.Show($"Hapus group {peran.NamaPeran}?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                 {
                     try
@@ -305,6 +368,14 @@ namespace Assets_Inventory
 
                         if (peranUntukDihapus != null)
                         {
+                            // Check if role in use
+                            bool inUse = db.Pengguna.Any(u => u.IdPeran == peranUntukDihapus.IdPeran);
+                            if (inUse)
+                            {
+                                MessageBox.Show("Tidak dapat menghapus peran yang masih digunakan oleh pengguna.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
                             db.PeranAkses.RemoveRange(peranUntukDihapus.PeranAkses);
                             db.Peran.Remove(peranUntukDihapus);
                             db.SaveChanges();
@@ -315,7 +386,8 @@ namespace Assets_Inventory
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Gagal menghapus: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        System.Diagnostics.Debug.WriteLine("Delete peran error: " + ex.Message);
+                        MessageBox.Show("Gagal menghapus peran.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -325,5 +397,6 @@ namespace Assets_Inventory
         {
             this.Close();
         }
+
     }
 }

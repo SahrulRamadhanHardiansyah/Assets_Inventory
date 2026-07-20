@@ -892,6 +892,7 @@
       <DependentUpon>RestoreDbForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper\SortableBindingList.cs" />
+    <Compile Include="Helper\ConnectionStringProtector.cs" />
     <Compile Include="Forms\TransaksiPeminjamanForm.cs">
       <SubType>Form</SubType>
     </Compile>
