@@ -12,7 +12,7 @@ namespace Assets_Inventory.Models
         public string NewJson { get; set; }
         public int? IdPengguna { get; set; }
         public string Username { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime? Timestamp { get; set; }
         public string Modul { get; set; }
         public string IpAddress { get; set; }
         public string Description { get; set; }

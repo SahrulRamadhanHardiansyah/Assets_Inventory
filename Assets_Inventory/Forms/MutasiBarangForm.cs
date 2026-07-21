@@ -132,42 +132,74 @@ namespace Assets_Inventory
 
         private void loadAset()
         {
-            if (db != null) db.Dispose();
-            db = new AppDbContext();
+            try
+            {
+                if (db != null) db.Dispose();
+                db = new AppDbContext();
 
-            var cari = txtCari.Text.ToLower().Trim();
-            var dictBarang = db.MasterBarang.ToDictionary(b => b.IdMasterBarang, b => b.NamaBarang);
-            var dictJurusan = db.Jurusan.ToDictionary(j => j.IdJurusan, j => j.NamaJurusan);
+                var cari = (txtCari?.Text ?? "").ToLower().Trim();
 
-            var rawAset = db.Aset.AsNoTracking()
-                             .Where(a => a.KodeInventaris != null
-                                      && a.NoSeri != null
-                                      && a.IdRuang != null
-                                      && a.IdLokasi != null)
-                             .ToList();
+                // STEP 1: Load dictionaries first (safe, no filter)
+                var dictBarang = db.MasterBarang.AsNoTracking().ToDictionary(b => b.IdMasterBarang, b => b.NamaBarang);
+                var dictJurusan = db.Jurusan.AsNoTracking().ToDictionary(j => j.IdJurusan, j => j.NamaJurusan);
 
-            var dataTampil = rawAset.Select(a => {
-                int? jurAset = a.IdJurusan;
+                // STEP 2: Load aset dengan filter minimal (perbaiki bug: filter terlalu ketat NoSeri/IdRuang/IdLokasi != null bikin grid kosong)
+                // Hanya filter yang benar-benar required untuk mutasi: KodeInventaris exists dan Status Aktif/Di Gudang
+                var q = db.Aset.AsNoTracking()
+                    .Include(a => a.IdMasterBarangNavigation)
+                    .Include(a => a.IdJurusanNavigation)
+                    .Where(a => a.KodeInventaris != null);
 
-                return new AsetMutasiViewModel
-                {
-                    KodeBarang = a.KodeBarang,
-                    KodeInventaris = a.KodeInventaris,
-                    NamaBarang = dictBarang.ContainsKey(a.IdMasterBarang) ? dictBarang[a.IdMasterBarang] : "Tidak Diketahui",
-                    JurusanSaatIni = (jurAset.HasValue && dictJurusan.ContainsKey(jurAset.Value)) ? dictJurusan[jurAset.Value] : "Gudang Utama",
-                    ObjekAsli = a
-                };
-            })
-            .Where(x => x.NamaBarang.ToLower().Contains(cari) || x.KodeInventaris.ToLower().Contains(cari))
-            .ToList();
+                // Filter status case-insensitive: Aktif, Di Gudang, Tersedia
+                q = q.Where(a => a.Status == null ||
+                                 a.Status == "Aktif" ||
+                                 a.Status == "Di Gudang" ||
+                                 a.Status == "Tersedia" ||
+                                 a.Status.ToLower() == "aktif" ||
+                                 a.Status.ToLower() == "di gudang");
 
-            dg.DataSource = new SortableBindingList<AsetMutasiViewModel>(dataTampil);
+                var rawAset = q.ToList();
 
-            if (dg.Columns["KodeBarang"] != null) dg.Columns["KodeBarang"].Visible = false;
-            if (dg.Columns["ObjekAsli"] != null) dg.Columns["ObjekAsli"].Visible = false;
-            if (dg.Columns["KodeInventaris"] != null) dg.Columns["KodeInventaris"].HeaderText = "Kode Inventaris";
-            if (dg.Columns["NamaBarang"] != null) dg.Columns["NamaBarang"].HeaderText = "Nama Barang";
-            if (dg.Columns["JurusanSaatIni"] != null) dg.Columns["JurusanSaatIni"].HeaderText = "Jurusan Saat Ini";
+                var dataTampil = rawAset.Select(a => {
+                    int? jurAset = a.IdJurusan;
+
+                    string namaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : null;
+                    if (string.IsNullOrEmpty(namaBarang) && dictBarang.ContainsKey(a.IdMasterBarang))
+                        namaBarang = dictBarang[a.IdMasterBarang];
+                    if (string.IsNullOrEmpty(namaBarang)) namaBarang = "Tidak Diketahui";
+
+                    string jurusanNama = a.IdJurusanNavigation != null ? a.IdJurusanNavigation.NamaJurusan : null;
+                    if (string.IsNullOrEmpty(jurusanNama) && jurAset.HasValue && dictJurusan.ContainsKey(jurAset.Value))
+                        jurusanNama = dictJurusan[jurAset.Value];
+                    if (string.IsNullOrEmpty(jurusanNama)) jurusanNama = "Gudang Utama";
+
+                    return new AsetMutasiViewModel
+                    {
+                        KodeBarang = a.KodeBarang,
+                        KodeInventaris = a.KodeInventaris,
+                        NamaBarang = namaBarang,
+                        JurusanSaatIni = jurusanNama,
+                        ObjekAsli = a
+                    };
+                })
+                .Where(x => string.IsNullOrEmpty(cari) ||
+                            x.NamaBarang.ToLower().Contains(cari) ||
+                            x.KodeInventaris.ToLower().Contains(cari))
+                .ToList();
+
+                dg.DataSource = new SortableBindingList<AsetMutasiViewModel>(dataTampil);
+
+                if (dg.Columns["KodeBarang"] != null) dg.Columns["KodeBarang"].Visible = false;
+                if (dg.Columns["ObjekAsli"] != null) dg.Columns["ObjekAsli"].Visible = false;
+                if (dg.Columns["KodeInventaris"] != null) dg.Columns["KodeInventaris"].HeaderText = "Kode Inventaris";
+                if (dg.Columns["NamaBarang"] != null) dg.Columns["NamaBarang"].HeaderText = "Nama Barang";
+                if (dg.Columns["JurusanSaatIni"] != null) dg.Columns["JurusanSaatIni"].HeaderText = "Jurusan Saat Ini";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("loadAset error: " + ex.Message + "\nInner: " + ex.InnerException?.Message);
+                MessageBox.Show("Gagal memuat data aset mutasi.\n\nDetail: " + (ex.InnerException?.Message ?? ex.Message), "Error Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void loadMutasi()

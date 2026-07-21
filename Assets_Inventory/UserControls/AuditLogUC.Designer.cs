@@ -4,15 +4,7 @@ namespace Assets_Inventory.UserControls
     {
         private System.ComponentModel.IContainer components = null;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null) components.Dispose();
-                try { db?.Dispose(); } catch { }
-            }
-            base.Dispose(disposing);
-        }
+        // Dispose handled in AuditLogUC.cs code-behind
 
         private void InitializeComponent()
         {

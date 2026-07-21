@@ -3,11 +3,11 @@ using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ExcelDataReader;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.Entity;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
@@ -80,40 +80,76 @@ namespace Assets_Inventory
         }
         private void loadData(bool resetPage = true)
         {
-            if (resetPage) _currentPage = 0;
-            var cari = txtCari.Text.Trim();
-
-            List<BarangHabisPakaiViewModel> dataTampil;
-            using (var db = new AppDbContext())
+            try
             {
-                IQueryable<AsetHabisPakai> q = db.AsetHabisPakai
-                    .Include(a => a.IdMasterBarangNavigation)
-                    .Include(a => a.IdRuangNavigation)
-                    .AsNoTracking();
+                if (resetPage) _currentPage = 0;
+                var cari = txtCari?.Text?.Trim() ?? "";
 
-                if (!string.IsNullOrEmpty(cari))
-                    q = q.Where(a => a.KodeBarang.Contains(cari) || a.IdMasterBarangNavigation.NamaBarang.Contains(cari));
-
-                _totalRecords = q.Count();
-
-                var page = q.OrderByDescending(a => a.KodeBarang)
-                            .Skip(_currentPage * _pageSize)
-                            .Take(_pageSize)
-                            .ToList();
-
-                dataTampil = page.Select(a => new BarangHabisPakaiViewModel
+                List<BarangHabisPakaiViewModel> dataTampil;
+                using (var db = new AppDbContext())
                 {
-                    KodeBarang = a.KodeBarang,
-                    NamaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : "N/A",
-                    StokAwal = a.Stok,
-                    StokAktual = a.StokAktual,
-                    Ruang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : "-",
-                    Status = a.Status ?? "Tersedia",
-                    DapatDipinjam = (a.IsReturnable.HasValue && a.IsReturnable.Value) ? "Ya" : "Tidak",
-                    TanggalMasuk = a.TanggalRegistrasi,
-                    ObjekAsli = a
-                }).ToList();
-            }
+                    IQueryable<AsetHabisPakai> q = db.AsetHabisPakai
+                        .Include(a => a.IdMasterBarangNavigation)
+                        .Include(a => a.IdRuangNavigation)
+                        .AsNoTracking();
+
+                    if (!string.IsNullOrEmpty(cari))
+                    {
+                        string cariLow = cari.ToLower();
+                        q = q.Where(a => a.KodeBarang.Contains(cari) ||
+                                         a.KodeBarang.ToLower().Contains(cariLow) ||
+                                         (a.IdMasterBarangNavigation != null && a.IdMasterBarangNavigation.NamaBarang.Contains(cari)));
+                    }
+
+                    _totalRecords = q.Count();
+
+                    var page = q.OrderByDescending(a => a.KodeBarang)
+                                .Skip(_currentPage * _pageSize)
+                                .Take(_pageSize)
+                                .ToList();
+
+                    // Fallback dictionaries for orphan FKs (defense-in-depth, e.g. after FK_CHECKS=0 truncate)
+                    var masterIds = page.Select(a => a.IdMasterBarang).Distinct().ToList();
+                    var ruangIds = page.Where(a => a.IdRuang.HasValue).Select(a => a.IdRuang.Value).Distinct().ToList();
+
+                    var dictMaster = new Dictionary<int, string>();
+                    var dictRuang = new Dictionary<int, string>();
+
+                    if (masterIds.Count > 0)
+                        dictMaster = db.MasterBarang.AsNoTracking()
+                            .Where(m => masterIds.Contains(m.IdMasterBarang))
+                            .ToDictionary(m => m.IdMasterBarang, m => m.NamaBarang);
+                    if (ruangIds.Count > 0)
+                        dictRuang = db.Ruang.AsNoTracking()
+                            .Where(r => ruangIds.Contains(r.IdRuang))
+                            .ToDictionary(r => r.IdRuang, r => r.NamaRuang);
+
+                    dataTampil = page.Select(a =>
+                    {
+                        string namaBarang = a.IdMasterBarangNavigation?.NamaBarang;
+                        if (string.IsNullOrEmpty(namaBarang) && dictMaster.TryGetValue(a.IdMasterBarang, out string nm))
+                            namaBarang = nm;
+                        if (string.IsNullOrEmpty(namaBarang)) namaBarang = "N/A";
+
+                        string namaRuang = a.IdRuangNavigation?.NamaRuang;
+                        if (string.IsNullOrEmpty(namaRuang) && a.IdRuang.HasValue && dictRuang.TryGetValue(a.IdRuang.Value, out string nr))
+                            namaRuang = nr;
+                        if (string.IsNullOrEmpty(namaRuang)) namaRuang = "-";
+
+                        return new BarangHabisPakaiViewModel
+                        {
+                            KodeBarang = a.KodeBarang,
+                            NamaBarang = namaBarang,
+                            StokAwal = a.Stok,
+                            StokAktual = a.StokAktual,
+                            Ruang = namaRuang,
+                            Status = a.Status ?? "Tersedia",
+                            DapatDipinjam = (a.IsReturnable.HasValue && a.IsReturnable.Value) ? "Ya" : "Tidak",
+                            TanggalMasuk = a.TanggalRegistrasi,
+                            ObjekAsli = a
+                        };
+                    }).ToList();
+                }
 
             dg.DataSource = new SortableBindingList<BarangHabisPakaiViewModel>(dataTampil);
             int totalPages = System.Math.Max(1, (int)System.Math.Ceiling((double)_totalRecords / _pageSize));
@@ -147,6 +183,12 @@ namespace Assets_Inventory
                 dg.Columns["TanggalMasuk"].HeaderText = "Tgl. Registrasi";
                 dg.Columns["TanggalMasuk"].DefaultCellStyle.Format = "dd MMM yyyy";
             }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("DataBarangHabisPakaiUC loadData error: " + ex.Message + "\nInner: " + ex.InnerException?.Message);
+                MessageBox.Show($"Gagal memuat data barang habis pakai.\n\nError: {ex.Message}\nInner: {ex.InnerException?.Message}", "Error Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void EnsurePagingControls()
@@ -158,8 +200,8 @@ namespace Assets_Inventory
             _btnNext.Click += (s, e) => { if ((_currentPage + 1) * _pageSize < _totalRecords) { _currentPage++; loadData(false); } };
             var gp = lblTotal?.Parent ?? this;
             var pos = lblTotal != null ? lblTotal.Location : new System.Drawing.Point(10, 10);
-            _btnPrev.Location = new System.Drawing.Point(pos.X + 220, pos.Y - 2);
-            _btnNext.Location = new System.Drawing.Point(pos.X + 290, pos.Y - 2);
+            _btnPrev.Location = new System.Drawing.Point(pos.X + 250, pos.Y - 2);
+            _btnNext.Location = new System.Drawing.Point(pos.X + 320, pos.Y - 2);
             gp.Controls.Add(_btnPrev);
             gp.Controls.Add(_btnNext);
         }

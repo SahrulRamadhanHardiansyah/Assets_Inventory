@@ -60,10 +60,9 @@
             // lblTotal
             // 
             this.lblTotal.AutoSize = true;
-            this.lblTotal.Location = new System.Drawing.Point(14, 368);
-            this.lblTotal.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblTotal.Location = new System.Drawing.Point(21, 566);
             this.lblTotal.Name = "lblTotal";
-            this.lblTotal.Size = new System.Drawing.Size(84, 13);
+            this.lblTotal.Size = new System.Drawing.Size(121, 20);
             this.lblTotal.TabIndex = 27;
             this.lblTotal.Text = "Total Record : 1";
             // 
@@ -76,11 +75,9 @@
             this.groupBox3.Controls.Add(this.dg);
             this.groupBox3.Controls.Add(this.btnCari);
             this.groupBox3.Controls.Add(this.label16);
-            this.groupBox3.Location = new System.Drawing.Point(33, 64);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
+            this.groupBox3.Location = new System.Drawing.Point(50, 98);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Size = new System.Drawing.Size(972, 387);
+            this.groupBox3.Size = new System.Drawing.Size(1458, 621);
             this.groupBox3.TabIndex = 22;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Data Barang Habis Pakai";
@@ -89,10 +86,9 @@
             // 
             this.btnExport.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnExport.BackgroundImage")));
             this.btnExport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnExport.Location = new System.Drawing.Point(933, 35);
-            this.btnExport.Margin = new System.Windows.Forms.Padding(2);
+            this.btnExport.Location = new System.Drawing.Point(1400, 54);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(23, 23);
+            this.btnExport.Size = new System.Drawing.Size(34, 35);
             this.btnExport.TabIndex = 33;
             this.toolTip1.SetToolTip(this.btnExport, "Export ke Excel");
             this.btnExport.UseVisualStyleBackColor = true;
@@ -102,10 +98,9 @@
             // 
             this.btnImport.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnImport.BackgroundImage")));
             this.btnImport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnImport.Location = new System.Drawing.Point(905, 35);
-            this.btnImport.Margin = new System.Windows.Forms.Padding(2);
+            this.btnImport.Location = new System.Drawing.Point(1358, 54);
             this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(23, 23);
+            this.btnImport.Size = new System.Drawing.Size(34, 35);
             this.btnImport.TabIndex = 32;
             this.toolTip1.SetToolTip(this.btnImport, "Import dari Excel");
             this.btnImport.UseVisualStyleBackColor = true;
@@ -113,9 +108,10 @@
             // 
             // txtCari
             // 
-            this.txtCari.Location = new System.Drawing.Point(17, 36);
+            this.txtCari.Location = new System.Drawing.Point(26, 55);
+            this.txtCari.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtCari.Name = "txtCari";
-            this.txtCari.Size = new System.Drawing.Size(215, 20);
+            this.txtCari.Size = new System.Drawing.Size(320, 26);
             this.txtCari.TabIndex = 31;
             this.txtCari.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtCari_KeyDown);
             // 
@@ -125,22 +121,20 @@
             this.dg.AllowUserToDeleteRows = false;
             this.dg.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dg.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg.Location = new System.Drawing.Point(17, 61);
-            this.dg.Margin = new System.Windows.Forms.Padding(2);
+            this.dg.Location = new System.Drawing.Point(26, 94);
             this.dg.Name = "dg";
             this.dg.ReadOnly = true;
             this.dg.RowHeadersVisible = false;
             this.dg.RowHeadersWidth = 62;
             this.dg.RowTemplate.Height = 28;
-            this.dg.Size = new System.Drawing.Size(939, 300);
+            this.dg.Size = new System.Drawing.Size(1408, 462);
             this.dg.TabIndex = 30;
             // 
             // btnCari
             // 
-            this.btnCari.Location = new System.Drawing.Point(235, 36);
-            this.btnCari.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCari.Location = new System.Drawing.Point(352, 55);
             this.btnCari.Name = "btnCari";
-            this.btnCari.Size = new System.Drawing.Size(71, 21);
+            this.btnCari.Size = new System.Drawing.Size(106, 32);
             this.btnCari.TabIndex = 3;
             this.btnCari.Text = "Cari";
             this.btnCari.UseVisualStyleBackColor = true;
@@ -149,19 +143,17 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(14, 20);
-            this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label16.Location = new System.Drawing.Point(21, 31);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(72, 13);
+            this.label16.Size = new System.Drawing.Size(107, 20);
             this.label16.TabIndex = 27;
             this.label16.Text = "Nama Barang";
             // 
             // btnHapus
             // 
-            this.btnHapus.Location = new System.Drawing.Point(231, 21);
-            this.btnHapus.Margin = new System.Windows.Forms.Padding(2);
+            this.btnHapus.Location = new System.Drawing.Point(346, 32);
             this.btnHapus.Name = "btnHapus";
-            this.btnHapus.Size = new System.Drawing.Size(93, 26);
+            this.btnHapus.Size = new System.Drawing.Size(140, 40);
             this.btnHapus.TabIndex = 2;
             this.btnHapus.Text = "Hapus";
             this.btnHapus.UseVisualStyleBackColor = true;
@@ -169,10 +161,9 @@
             // 
             // btnUbah
             // 
-            this.btnUbah.Location = new System.Drawing.Point(125, 21);
-            this.btnUbah.Margin = new System.Windows.Forms.Padding(2);
+            this.btnUbah.Location = new System.Drawing.Point(188, 32);
             this.btnUbah.Name = "btnUbah";
-            this.btnUbah.Size = new System.Drawing.Size(93, 26);
+            this.btnUbah.Size = new System.Drawing.Size(140, 40);
             this.btnUbah.TabIndex = 1;
             this.btnUbah.Text = "Ubah";
             this.btnUbah.UseVisualStyleBackColor = true;
@@ -183,21 +174,18 @@
             this.groupBox2.Controls.Add(this.btnHapus);
             this.groupBox2.Controls.Add(this.btnUbah);
             this.groupBox2.Controls.Add(this.btnTambah);
-            this.groupBox2.Location = new System.Drawing.Point(33, 463);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
+            this.groupBox2.Location = new System.Drawing.Point(50, 725);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox2.Size = new System.Drawing.Size(343, 57);
+            this.groupBox2.Size = new System.Drawing.Size(514, 88);
             this.groupBox2.TabIndex = 20;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Proses";
             // 
             // btnTambah
             // 
-            this.btnTambah.Location = new System.Drawing.Point(19, 21);
-            this.btnTambah.Margin = new System.Windows.Forms.Padding(2);
+            this.btnTambah.Location = new System.Drawing.Point(28, 32);
             this.btnTambah.Name = "btnTambah";
-            this.btnTambah.Size = new System.Drawing.Size(93, 26);
+            this.btnTambah.Size = new System.Drawing.Size(140, 40);
             this.btnTambah.TabIndex = 0;
             this.btnTambah.Text = "Tambah";
             this.btnTambah.UseVisualStyleBackColor = true;
@@ -207,10 +195,9 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(29, 38);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(44, 58);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(393, 17);
+            this.label1.Size = new System.Drawing.Size(542, 25);
             this.label1.TabIndex = 19;
             this.label1.Text = "Gunakan Form Ini Untuk Mengelola Data Barang Habis Pakai";
             // 
@@ -218,10 +205,9 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(29, 16);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Location = new System.Drawing.Point(44, 25);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(253, 20);
+            this.label2.Size = new System.Drawing.Size(354, 29);
             this.label2.TabIndex = 18;
             this.label2.Text = "DATA BARANG HABIS PAKAI";
             // 
@@ -230,11 +216,9 @@
             this.groupBox4.Controls.Add(this.cmbJenisBarcode);
             this.groupBox4.Controls.Add(this.cmbJumlah);
             this.groupBox4.Controls.Add(this.btnCetak);
-            this.groupBox4.Location = new System.Drawing.Point(393, 463);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(2);
+            this.groupBox4.Location = new System.Drawing.Point(590, 725);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox4.Size = new System.Drawing.Size(612, 57);
+            this.groupBox4.Size = new System.Drawing.Size(918, 88);
             this.groupBox4.TabIndex = 23;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Cetak Barcode";
@@ -247,10 +231,9 @@
             "Code 128",
             "Code 39",
             "QR Code"});
-            this.cmbJenisBarcode.Location = new System.Drawing.Point(152, 25);
-            this.cmbJenisBarcode.Margin = new System.Windows.Forms.Padding(2);
+            this.cmbJenisBarcode.Location = new System.Drawing.Point(228, 38);
             this.cmbJenisBarcode.Name = "cmbJenisBarcode";
-            this.cmbJenisBarcode.Size = new System.Drawing.Size(128, 21);
+            this.cmbJenisBarcode.Size = new System.Drawing.Size(190, 28);
             this.cmbJenisBarcode.TabIndex = 32;
             // 
             // cmbJumlah
@@ -260,18 +243,16 @@
             this.cmbJumlah.Items.AddRange(new object[] {
             "1",
             "Semua"});
-            this.cmbJumlah.Location = new System.Drawing.Point(9, 25);
-            this.cmbJumlah.Margin = new System.Windows.Forms.Padding(2);
+            this.cmbJumlah.Location = new System.Drawing.Point(14, 38);
             this.cmbJumlah.Name = "cmbJumlah";
-            this.cmbJumlah.Size = new System.Drawing.Size(128, 21);
+            this.cmbJumlah.Size = new System.Drawing.Size(190, 28);
             this.cmbJumlah.TabIndex = 31;
             // 
             // btnCetak
             // 
-            this.btnCetak.Location = new System.Drawing.Point(297, 22);
-            this.btnCetak.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCetak.Location = new System.Drawing.Point(446, 34);
             this.btnCetak.Name = "btnCetak";
-            this.btnCetak.Size = new System.Drawing.Size(117, 26);
+            this.btnCetak.Size = new System.Drawing.Size(176, 40);
             this.btnCetak.TabIndex = 2;
             this.btnCetak.Text = "Cetak Barcode";
             this.btnCetak.UseVisualStyleBackColor = true;
@@ -279,16 +260,15 @@
             // 
             // DataBarangHabisPakaiUC
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
-            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DataBarangHabisPakaiUC";
-            this.Size = new System.Drawing.Size(1041, 535);
+            this.Size = new System.Drawing.Size(1562, 823);
             this.Load += new System.EventHandler(this.DataBarangHabisPakaiUC_Load);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();

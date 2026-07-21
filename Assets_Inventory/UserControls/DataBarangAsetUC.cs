@@ -74,8 +74,8 @@ namespace Assets_Inventory.UserControls
             _btnNext = new Button { Text = "Next >", Size = new Size(65, 23), FlatStyle = FlatStyle.Flat };
             // ponytail: anchor relative to lblTotal, simple fixed offset — no layout engine needed
             var lblPos = lblTotal.Location;
-            _btnPrev.Location = new Point(lblPos.X + 220, lblPos.Y - 2);
-            _btnNext.Location = new Point(lblPos.X + 290, lblPos.Y - 2);
+            _btnPrev.Location = new Point(lblPos.X + 250, lblPos.Y - 2);
+            _btnNext.Location = new Point(lblPos.X + 320, lblPos.Y - 2);
             _btnPrev.Click += BtnPrev_Click;
             _btnNext.Click += BtnNext_Click;
             lblTotal.Parent.Controls.Add(_btnPrev);
@@ -106,55 +106,108 @@ namespace Assets_Inventory.UserControls
 
         private void loadData(bool resetPage = true)
         {
-            // resetPage=false keeps current page when paging
-            if (resetPage) _currentPage = 0;
-            RefreshDbIfNeeded();
-
-            var cari = txtCari.Text.Trim();
-
-            IQueryable<Aset> q = db.Aset
-                .Include(a => a.IdMasterBarangNavigation)
-                .Include(a => a.IdJurusanNavigation)
-                .Include(a => a.IdRuangNavigation)
-                .AsNoTracking();
-
-            if (!string.IsNullOrEmpty(cari))
-                q = q.Where(a => a.KodeInventaris.Contains(cari) || a.IdMasterBarangNavigation.NamaBarang.Contains(cari));
-
-            _totalRecords = q.Count();
-
-            var page = q.OrderByDescending(a => a.KodeBarang)
-                        .Skip(_currentPage * _pageSize)
-                        .Take(_pageSize)
-                        .ToList();
-
-            var dataList = page.Select(a => new AsetViewModel
+            try
             {
-                KodeBarang = a.KodeBarang,
-                KodeInventaris = a.KodeInventaris,
-                NamaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : "Unknown",
-                NoSeri = a.NoSeri ?? "-",
-                NamaJurusan = a.IdJurusanNavigation != null ? a.IdJurusanNavigation.NamaJurusan : "-",
-                LokasiRuang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : "-",
-                Status = a.Status ?? "Aktif",
-                ObjekAsli = a
-            }).ToList();
+                // resetPage=false keeps current page when paging
+                if (resetPage) _currentPage = 0;
+                RefreshDbIfNeeded();
 
-            dg.DataSource = new SortableBindingList<AsetViewModel>(dataList);
-            int totalPages = Math.Max(1, (int)Math.Ceiling((double)_totalRecords / _pageSize));
-            lblTotal.Text = $"Total Record : {_totalRecords}  |  Page {_currentPage + 1}/{totalPages} (showing {dataList.Count})";
+                var cari = txtCari.Text?.Trim() ?? "";
 
-            if (_btnPrev != null) _btnPrev.Enabled = _currentPage > 0;
-            if (_btnNext != null) _btnNext.Enabled = (_currentPage + 1) * _pageSize < _totalRecords;
+                // STEP 1: Build base query with Includes + safe filtering
+                IQueryable<Aset> q = db.Aset
+                    .Include(a => a.IdMasterBarangNavigation)
+                    .Include(a => a.IdJurusanNavigation)
+                    .Include(a => a.IdRuangNavigation)
+                    .AsNoTracking();
 
-            if (dg.Columns["KodeBarang"] != null) dg.Columns["KodeBarang"].Visible = false;
-            if (dg.Columns["ObjekAsli"] != null) dg.Columns["ObjekAsli"].Visible = false;
-            if (dg.Columns["KodeInventaris"] != null) dg.Columns["KodeInventaris"].HeaderText = "Kode Inventaris";
-            if (dg.Columns["NamaBarang"] != null) dg.Columns["NamaBarang"].HeaderText = "Nama Barang";
-            if (dg.Columns["NoSeri"] != null) dg.Columns["NoSeri"].HeaderText = "No. Seri / SN";
-            if (dg.Columns["NamaJurusan"] != null) dg.Columns["NamaJurusan"].HeaderText = "Kepemilikan (Jurusan)";
-            if (dg.Columns["LokasiRuang"] != null) dg.Columns["LokasiRuang"].HeaderText = "Ruang Saat Ini";
-            if (dg.Columns["Status"] != null) dg.Columns["Status"].HeaderText = "Status Aset";
+                if (!string.IsNullOrEmpty(cari))
+                {
+                    string cariLower = cari.ToLower();
+                    // Safe filter: handle null navigation (Pomelo 3.2.4 may not translate ?. well, so use explicit null check)
+                    q = q.Where(a => a.KodeInventaris.Contains(cari) ||
+                                     a.KodeInventaris.ToLower().Contains(cariLower) ||
+                                     (a.IdMasterBarangNavigation != null && a.IdMasterBarangNavigation.NamaBarang.Contains(cari)) ||
+                                     (a.NoSeri != null && a.NoSeri.Contains(cari)));
+                }
+
+                _totalRecords = q.Count();
+
+                var page = q.OrderByDescending(a => a.KodeBarang)
+                            .Skip(_currentPage * _pageSize)
+                            .Take(_pageSize)
+                            .ToList();
+
+                // STEP 2: Fallback dictionary for orphan FKs (defense-in-depth if Include returns null)
+                var masterIds = page.Select(a => a.IdMasterBarang).Distinct().ToList();
+                var jurusanIds = page.Where(a => a.IdJurusan.HasValue).Select(a => a.IdJurusan.Value).Distinct().ToList();
+                var ruangIds = page.Where(a => a.IdRuang.HasValue).Select(a => a.IdRuang.Value).Distinct().ToList();
+
+                var dictMaster = new System.Collections.Generic.Dictionary<int, string>();
+                var dictJurusan = new System.Collections.Generic.Dictionary<int, string>();
+                var dictRuang = new System.Collections.Generic.Dictionary<int, string>();
+
+                if (masterIds.Count > 0)
+                    dictMaster = db.MasterBarang.AsNoTracking().Where(m => masterIds.Contains(m.IdMasterBarang))
+                        .ToDictionary(m => m.IdMasterBarang, m => m.NamaBarang);
+                if (jurusanIds.Count > 0)
+                    dictJurusan = db.Jurusan.AsNoTracking().Where(j => jurusanIds.Contains(j.IdJurusan))
+                        .ToDictionary(j => j.IdJurusan, j => j.NamaJurusan);
+                if (ruangIds.Count > 0)
+                    dictRuang = db.Ruang.AsNoTracking().Where(r => ruangIds.Contains(r.IdRuang))
+                        .ToDictionary(r => r.IdRuang, r => r.NamaRuang);
+
+                var dataList = page.Select(a =>
+                {
+                    string namaBarang = a.IdMasterBarangNavigation != null ? a.IdMasterBarangNavigation.NamaBarang : null;
+                    if (string.IsNullOrEmpty(namaBarang) && dictMaster.TryGetValue(a.IdMasterBarang, out string nm))
+                        namaBarang = nm;
+                    if (string.IsNullOrEmpty(namaBarang)) namaBarang = "Unknown";
+
+                    string namaJurusan = a.IdJurusanNavigation != null ? a.IdJurusanNavigation.NamaJurusan : null;
+                    if (string.IsNullOrEmpty(namaJurusan) && a.IdJurusan.HasValue && dictJurusan.TryGetValue(a.IdJurusan.Value, out string nj))
+                        namaJurusan = nj;
+                    if (string.IsNullOrEmpty(namaJurusan)) namaJurusan = "-";
+
+                    string namaRuang = a.IdRuangNavigation != null ? a.IdRuangNavigation.NamaRuang : null;
+                    if (string.IsNullOrEmpty(namaRuang) && a.IdRuang.HasValue && dictRuang.TryGetValue(a.IdRuang.Value, out string nr))
+                        namaRuang = nr;
+                    if (string.IsNullOrEmpty(namaRuang)) namaRuang = "-";
+
+                    return new AsetViewModel
+                    {
+                        KodeBarang = a.KodeBarang,
+                        KodeInventaris = a.KodeInventaris,
+                        NamaBarang = namaBarang,
+                        NoSeri = string.IsNullOrEmpty(a.NoSeri) ? "-" : a.NoSeri,
+                        NamaJurusan = namaJurusan,
+                        LokasiRuang = namaRuang,
+                        Status = a.Status ?? "Aktif",
+                        ObjekAsli = a
+                    };
+                }).ToList();
+
+                dg.DataSource = new SortableBindingList<AsetViewModel>(dataList);
+                int totalPages = Math.Max(1, (int)Math.Ceiling((double)_totalRecords / _pageSize));
+                lblTotal.Text = $"Total Record : {_totalRecords}  |  Page {_currentPage + 1}/{totalPages} (showing {dataList.Count})";
+
+                if (_btnPrev != null) _btnPrev.Enabled = _currentPage > 0;
+                if (_btnNext != null) _btnNext.Enabled = (_currentPage + 1) * _pageSize < _totalRecords;
+
+                if (dg.Columns["KodeBarang"] != null) dg.Columns["KodeBarang"].Visible = false;
+                if (dg.Columns["ObjekAsli"] != null) dg.Columns["ObjekAsli"].Visible = false;
+                if (dg.Columns["KodeInventaris"] != null) dg.Columns["KodeInventaris"].HeaderText = "Kode Inventaris";
+                if (dg.Columns["NamaBarang"] != null) dg.Columns["NamaBarang"].HeaderText = "Nama Barang";
+                if (dg.Columns["NoSeri"] != null) dg.Columns["NoSeri"].HeaderText = "No. Seri / SN";
+                if (dg.Columns["NamaJurusan"] != null) dg.Columns["NamaJurusan"].HeaderText = "Kepemilikan (Jurusan)";
+                if (dg.Columns["LokasiRuang"] != null) dg.Columns["LokasiRuang"].HeaderText = "Ruang Saat Ini";
+                if (dg.Columns["Status"] != null) dg.Columns["Status"].HeaderText = "Status Aset";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("loadData error: " + ex.Message + "\n" + ex.InnerException?.Message);
+                MessageBox.Show("Gagal memuat data aset.\n\nDetail: " + (ex.InnerException?.Message ?? ex.Message), "Error Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void loadDataNextPage() => loadData(false);
