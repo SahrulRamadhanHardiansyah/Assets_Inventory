@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -202,6 +203,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Sumber Perolehan",
+                new[] { ("Nama Sumber", "APBD"),("Kode", "SP-01"),("Keterangan", ""),("Status (Aktif/Tidak)", "Aktif") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";

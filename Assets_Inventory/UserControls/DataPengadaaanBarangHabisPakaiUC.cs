@@ -1,5 +1,4 @@
 ﻿using Assets_Inventory.Forms;
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
 using ExcelDataReader;
@@ -19,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing;
 using ZXing.Common;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory.UserControls
 {
@@ -232,6 +232,10 @@ namespace Assets_Inventory.UserControls
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Pengadaan Habis Pakai",
+                new[] { ("Tanggal Pengadaan", "2026-11-09"),("Id Pemasok", "1"),("Total Harga", "150000"),("Kode Gudang", "GDG-01"),("Status", "Menunggu Proses"),("Keterangan", "") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Semua File Data|*.csv;*.xlsx;*.xls";

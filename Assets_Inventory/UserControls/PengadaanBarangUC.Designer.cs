@@ -104,7 +104,7 @@
             this.btnProses.Name = "btnProses";
             this.btnProses.Size = new System.Drawing.Size(197, 26);
             this.btnProses.TabIndex = 4;
-            this.btnProses.Text = "Telah Dibelanjakan";
+            this.btnProses.Text = "Selesai Dibelanjakan";
             this.btnProses.UseVisualStyleBackColor = true;
             this.btnProses.Click += new System.EventHandler(this.btnProses_Click);
             // 

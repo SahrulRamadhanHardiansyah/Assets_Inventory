@@ -394,6 +394,8 @@
       <DependentUpon>InputPermintaanBarangHabisPakaiForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper\AuthManager.cs" />
+    <Compile Include="Helper\ImportTemplateHelper.cs" />
+    <Compile Include="Helper\TahunAjaranInput.cs" />
     <Compile Include="Models\DetailPengadaanHp.cs" />
     <Compile Include="Models\DetailPermintaanHp.cs" />
     <Compile Include="Models\PengadaanPermintaanHp.cs" />

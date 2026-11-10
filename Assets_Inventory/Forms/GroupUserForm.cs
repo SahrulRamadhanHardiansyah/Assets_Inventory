@@ -162,12 +162,9 @@ namespace Assets_Inventory
 
                     if (peran != null)
                     {
-                        // Need tracked entity for editing
-                        var tracked = db.Peran.Include(pr => pr.PeranAkses).FirstOrDefault(pr => pr.IdPeran == p.IdPeran);
-                        if (tracked != null)
-                            bindingSource1.DataSource = tracked;
-                        else
-                            bindingSource1.DataSource = peran;
+                        // DON'T reassign bindingSource1.DataSource here — setting it to a single
+                        // Peran object collapses the grid to one row ("fake filter"). The clicked
+                        // row stays bound via the list; btnUbah/btnSimpan read bindingSource1.Current.
 
                         treeAkses.AfterCheck -= treeAkses_AfterCheck;
                         foreach (TreeNode pNode in treeAkses.Nodes)

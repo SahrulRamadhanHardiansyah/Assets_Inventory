@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             this.label3 = new System.Windows.Forms.Label();
             this.txtNama = new System.Windows.Forms.TextBox();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
             this.txtPrefix = new System.Windows.Forms.TextBox();
@@ -60,10 +59,11 @@
             this.btnLoad = new System.Windows.Forms.Button();
             this.pbLogo = new System.Windows.Forms.PictureBox();
             this.cbHapus = new System.Windows.Forms.CheckBox();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLogo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // label3
@@ -84,10 +84,6 @@
             this.txtNama.Name = "txtNama";
             this.txtNama.Size = new System.Drawing.Size(206, 20);
             this.txtNama.TabIndex = 7;
-            // 
-            // bindingSource1
-            // 
-            this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.Pengaturan);
             // 
             // groupBox1
             // 
@@ -134,7 +130,7 @@
             // 
             // txtPrefix
             // 
-            this.txtPrefix.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "BagianInventaris", true));
+            this.txtPrefix.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSource1, "KustomPrefix", true));
             this.txtPrefix.Location = new System.Drawing.Point(252, 180);
             this.txtPrefix.Margin = new System.Windows.Forms.Padding(2);
             this.txtPrefix.MaxLength = 10;
@@ -393,6 +389,10 @@
             this.cbHapus.UseVisualStyleBackColor = true;
             this.cbHapus.CheckedChanged += new System.EventHandler(this.cbHapus_CheckedChanged);
             // 
+            // bindingSource1
+            // 
+            this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.Pengaturan);
+            // 
             // ProfilLembagaForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -411,11 +411,11 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Profil Lembaga";
             this.Load += new System.EventHandler(this.ProfilLembagaForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbLogo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

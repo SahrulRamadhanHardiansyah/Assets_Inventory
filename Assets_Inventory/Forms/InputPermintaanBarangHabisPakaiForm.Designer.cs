@@ -38,7 +38,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.HapusColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtTahunAjaran = new System.Windows.Forms.TextBox();
+            this.cmbTahunAjaran = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.txtAlasan = new System.Windows.Forms.TextBox();
@@ -151,17 +151,19 @@
             this.label1.TabIndex = 24;
             this.label1.Text = "Gunakan Form Ini Untuk Mengisi Data Permintaan Barang";
             // 
-            // txtTahunAjaran
+            // cmbTahunAjaran
             // 
-            this.txtTahunAjaran.Location = new System.Drawing.Point(710, 37);
-            this.txtTahunAjaran.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtTahunAjaran.Name = "txtTahunAjaran";
-            this.txtTahunAjaran.Size = new System.Drawing.Size(298, 26);
-            this.txtTahunAjaran.TabIndex = 45;
+            this.cmbTahunAjaran.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbTahunAjaran.FormattingEnabled = true;
+            this.cmbTahunAjaran.Location = new System.Drawing.Point(710, 37);
+            this.cmbTahunAjaran.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.cmbTahunAjaran.Name = "cmbTahunAjaran";
+            this.cmbTahunAjaran.Size = new System.Drawing.Size(298, 28);
+            this.cmbTahunAjaran.TabIndex = 45;
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.txtTahunAjaran);
+            this.groupBox1.Controls.Add(this.cmbTahunAjaran);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.txtAlasan);
             this.groupBox1.Controls.Add(this.label7);
@@ -278,6 +280,7 @@
             // 
             this.dataGridViewTextBoxColumn1.DataPropertyName = "IdDetailPermintaan";
             this.dataGridViewTextBoxColumn1.HeaderText = "ID";
+            this.dataGridViewTextBoxColumn1.Visible = false;
             this.dataGridViewTextBoxColumn1.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
@@ -498,7 +501,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataGridViewButtonColumn HapusColumn;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtTahunAjaran;
+        private System.Windows.Forms.ComboBox cmbTahunAjaran;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox txtAlasan;

@@ -18,7 +18,7 @@ namespace Assets_Inventory
     public partial class MutasiBarangForm : ComponentFactory.Krypton.Toolkit.KryptonForm
     {
         AppDbContext db = new AppDbContext();
-        bool hasEditRights = false; 
+        bool hasEditRights = false;
 
         public class AsetMutasiViewModel
         {
@@ -277,9 +277,13 @@ namespace Assets_Inventory
 
         private void btnTambah_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(txtKodeInv.Text))
+            {
+                MessageBox.Show("Pilih aset yang ingin dimutasi dari daftar atas terlebih dahulu.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             SetMode("Insert");
-            bindingSource1.AddNew();
-            ClearInputs();
         }
 
         private void btnSimpan_Click(object sender, EventArgs e)
@@ -381,7 +385,9 @@ namespace Assets_Inventory
                             if (asetTerkait != null)
                             {
                                 asetTerkait.IdJurusan = mutasiTarget.IdJurusanTujuan;
-                                asetTerkait.Status = $"Di {vm.JurusanTujuan}";
+                                // Kolom aset.status adalah ENUM ('Di Gudang','Aktif','Dipinjam','Nonaktif') —
+                                // nilai dinamis "Di <Jurusan>" dulu menyebabkan "Data truncated for column 'status'".
+                                asetTerkait.Status = "Aktif";
                             }
 
                             db.SaveChanges();

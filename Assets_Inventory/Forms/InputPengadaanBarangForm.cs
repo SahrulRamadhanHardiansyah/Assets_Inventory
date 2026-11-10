@@ -1,3 +1,4 @@
+using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
 using System;
@@ -19,7 +20,6 @@ namespace Assets_Inventory
         AppDbContext db = new AppDbContext();
         private List<Permintaan> selectedPermintaanList = new List<Permintaan>();
         private BindingList<DetailPengadaanViewModel> listDetailBon = new BindingList<DetailPengadaanViewModel>();
-        private Dictionary<string, int> dictTahunAjaran = new Dictionary<string, int>();
 
         public class DetailPengadaanViewModel
         {
@@ -86,7 +86,7 @@ namespace Assets_Inventory
                 cmbSumber.Enabled = false;
                 txtPemasok.Enabled = false; 
                 txtKeterangan.ReadOnly = true;
-                txtTahunAjaran.ReadOnly = true;
+                cmbTahunAjaran.Enabled = false;
                 txtTotalHarga.ReadOnly = true;
                 btnPilihPermintaan.Enabled = false;
                 btnTerapkanPemasok.Enabled = false;
@@ -129,29 +129,7 @@ namespace Assets_Inventory
             cmbStatus.Items.Add("Sedang Dibelanjakan");
             cmbStatus.Items.Add("Selesai Dibelanjakan");
 
-            var listTA = db.TahunAjaran.ToList();
-            AutoCompleteStringCollection collectionTA = new AutoCompleteStringCollection();
-            dictTahunAjaran.Clear();
-
-            foreach (var ta in listTA)
-            {
-                string formatTA = $"{ta.TahunAjaran1} - Semester {ta.Semester}";
-                collectionTA.Add(formatTA);
-
-                if (!dictTahunAjaran.ContainsKey(formatTA))
-                {
-                    dictTahunAjaran.Add(formatTA, ta.IdTahunAjaran);
-                }
-
-                if (selectedPengadaan == null && ta.IsActive == true)
-                {
-                    txtTahunAjaran.Text = formatTA;
-                }
-            }
-
-            txtTahunAjaran.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            txtTahunAjaran.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            txtTahunAjaran.AutoCompleteCustomSource = collectionTA;
+            TahunAjaranInput.Fill(db, cmbTahunAjaran);
         }
 
         private string GenerateIdPengadaan()
@@ -308,11 +286,12 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (!dictTahunAjaran.TryGetValue(txtTahunAjaran.Text, out int idTahunAjaranTerpilih))
+            if (cmbTahunAjaran.SelectedValue == null)
             {
-                MessageBox.Show("Tahun Ajaran tidak valid! Silakan pilih ulang dari saran yang muncul.", "Validasi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Tahun Ajaran belum dipilih!", "Validasi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            int idTahunAjaranTerpilih = (int)cmbTahunAjaran.SelectedValue;
 
             if (listDetailBon.Count == 0)
             {
@@ -452,11 +431,7 @@ namespace Assets_Inventory
             txtKeterangan.Text = selectedPengadaan.Keterangan;
             txtTotalHarga.Text = selectedPengadaan.TotalHarga?.ToString("N2");
 
-            if (selectedPengadaan.IdTahunAjaran.HasValue)
-            {
-                var taHistory = db.TahunAjaran.Find(selectedPengadaan.IdTahunAjaran.Value);
-                if (taHistory != null) txtTahunAjaran.Text = $"{taHistory.TahunAjaran1} - Semester {taHistory.Semester}";
-            }
+            TahunAjaranInput.Fill(db, cmbTahunAjaran, selectedPengadaan.IdTahunAjaran);
 
             var details = db.DetailPengadaan.AsNoTracking().Where(d => d.IdPengadaan == selectedPengadaan.IdPengadaan).ToList();
             var dictBarang = db.MasterBarang.ToDictionary(b => b.IdMasterBarang, b => b);

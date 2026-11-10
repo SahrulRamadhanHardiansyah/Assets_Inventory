@@ -1,4 +1,5 @@
-﻿using Assets_Inventory.Models;
+﻿using Assets_Inventory.Helper;
+using Assets_Inventory.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,7 +21,6 @@ namespace Assets_Inventory
         AppDbContext db = new AppDbContext();
 
         private Dictionary<string, int> dictBarang = new Dictionary<string, int>();
-        private Dictionary<string, int> dictTahunAjaran = new Dictionary<string, int>(); 
 
         private BindingList<DetailPermintaan> listDetail = new BindingList<DetailPermintaan>();
 
@@ -53,7 +53,7 @@ namespace Assets_Inventory
                 dtTgl.Enabled = false;
                 cmbJurusan.Enabled = false;
                 txtKeterangan.ReadOnly = true;
-                txtTahunAjaran.ReadOnly = true;
+                cmbTahunAjaran.Enabled = false;
 
                 txtBarang.ReadOnly = true;
                 txtJumlah.ReadOnly = true;
@@ -109,14 +109,7 @@ namespace Assets_Inventory
                 dtTgl.Value = selectedPermintaan.TanggalPermintaan;
                 txtKeterangan.Text = selectedPermintaan.KeteranganKeperluan;
 
-                if (selectedPermintaan.IdTahunAjaran.HasValue)
-                {
-                    var taHistory = db.TahunAjaran.Find(selectedPermintaan.IdTahunAjaran.Value);
-                    if (taHistory != null)
-                    {
-                        txtTahunAjaran.Text = $"{taHistory.TahunAjaran1} - Semester {taHistory.Semester}";
-                    }
-                }
+                TahunAjaranInput.Fill(db, cmbTahunAjaran, selectedPermintaan.IdTahunAjaran);
 
                 var details = db.DetailPermintaan
                                 .Include(d => d.IdMasterBarangNavigation)
@@ -154,29 +147,7 @@ namespace Assets_Inventory
             txtBarang.AutoCompleteSource = AutoCompleteSource.CustomSource;
             txtBarang.AutoCompleteCustomSource = collectionBarang;
 
-            var listTA = db.TahunAjaran.ToList();
-            AutoCompleteStringCollection collectionTA = new AutoCompleteStringCollection();
-            dictTahunAjaran.Clear();
-
-            foreach (var ta in listTA)
-            {
-                string formatTA = $"{ta.TahunAjaran1} - Semester {ta.Semester}";
-                collectionTA.Add(formatTA);
-
-                if (!dictTahunAjaran.ContainsKey(formatTA))
-                {
-                    dictTahunAjaran.Add(formatTA, ta.IdTahunAjaran);
-                }
-
-                if (selectedPermintaan == null && ta.IsActive == true)
-                {
-                    txtTahunAjaran.Text = formatTA;
-                }
-            }
-
-            txtTahunAjaran.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            txtTahunAjaran.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            txtTahunAjaran.AutoCompleteCustomSource = collectionTA;
+            TahunAjaranInput.Fill(db, cmbTahunAjaran);
         }
 
         private void btnBrowseBarang_Click(object sender, EventArgs e)
@@ -250,11 +221,12 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (!dictTahunAjaran.TryGetValue(txtTahunAjaran.Text, out int idTahunAjaranTerpilih))
+            if (cmbTahunAjaran.SelectedValue == null)
             {
-                MessageBox.Show("Tahun Ajaran tidak valid! Silakan hapus ketikan lalu pilih ulang dari saran yang muncul.", "Validasi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Tahun Ajaran belum dipilih!", "Validasi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            int idTahunAjaranTerpilih = (int)cmbTahunAjaran.SelectedValue;
 
             if (listDetail.Count == 0)
             {
@@ -322,6 +294,7 @@ namespace Assets_Inventory
 
         private void dg_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
             if (dg.Rows[e.RowIndex].DataBoundItem is DetailPermintaan dp)
             {
                 if (idMasterBarangNavigationDataGridViewTextBoxColumn.Index == e.ColumnIndex)

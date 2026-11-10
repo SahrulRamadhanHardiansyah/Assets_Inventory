@@ -143,7 +143,6 @@ namespace Assets_Inventory
             })
             .Where(a => a.KodeInventaris.ToLower().Contains(cari) ||
                         a.NamaBarang.ToLower().Contains(cari))
-            .Take(50) 
             .ToList();
 
             dgAset.DataSource = dataGrid;

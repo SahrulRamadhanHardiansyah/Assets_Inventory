@@ -1,4 +1,3 @@
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.Forms;
 using ComponentFactory.Krypton.Toolkit;
@@ -15,6 +14,7 @@ using System.Windows.Forms;
 using ZXing;
 using ZXing.Common;
 using ExcelDataReader;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory.UserControls
 {
@@ -202,6 +202,10 @@ namespace Assets_Inventory.UserControls
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Permintaan Habis Pakai",
+                new[] { ("Kode Permintaan HP", "PRH-2026-001"),("Id Jurusan", "1"),("Keterangan Keperluan", "Kebutuhan praktikum") }))
+                return;
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             using (OpenFileDialog ofd = new OpenFileDialog())

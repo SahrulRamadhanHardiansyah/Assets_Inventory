@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -233,6 +234,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Rombel",
+                new[] { ("Nama Rombel", "XI TKR 1"),("Kode", "RB-01"),("Tingkat", "XI"),("Id Jurusan", "1"),("Status (Aktif/Tidak)", "Aktif") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";

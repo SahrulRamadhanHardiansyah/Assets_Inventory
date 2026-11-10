@@ -1,4 +1,3 @@
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ExcelDataReader;
@@ -16,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing;
 using ZXing.Common;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -225,6 +225,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Pengadaan Barang",
+                new[] { ("Tanggal Pengadaan", "2026-11-09"),("Id Pemasok", "1"),("Total Harga", "250000"),("Kode Gudang", "GDG-01"),("Status", "Menunggu Proses"),("Keterangan", "") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Semua File Data|*.csv;*.xlsx;*.xls|Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls|CSV Files (*.csv)|*.csv";

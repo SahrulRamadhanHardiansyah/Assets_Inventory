@@ -20,8 +20,8 @@ namespace Assets_Inventory.UserControls
             this.lblCari = new System.Windows.Forms.Label();
             this.txtCari = new System.Windows.Forms.TextBox();
             this.btnTampilkan = new System.Windows.Forms.Button();
-            this.btnExport = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnExport = new System.Windows.Forms.Button();
             this.btnPrev = new System.Windows.Forms.Button();
             this.btnNext = new System.Windows.Forms.Button();
             this.lblTotal = new System.Windows.Forms.Label();
@@ -29,9 +29,9 @@ namespace Assets_Inventory.UserControls
             this.pnlFilter.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgLog)).BeginInit();
             this.SuspendLayout();
+            // 
             // pnlFilter
-            this.pnlFilter.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlFilter.Height = 90;
+            // 
             this.pnlFilter.Controls.Add(this.lblStart);
             this.pnlFilter.Controls.Add(this.dtpStart);
             this.pnlFilter.Controls.Add(this.lblEnd);
@@ -48,109 +48,173 @@ namespace Assets_Inventory.UserControls
             this.pnlFilter.Controls.Add(this.btnPrev);
             this.pnlFilter.Controls.Add(this.btnNext);
             this.pnlFilter.Controls.Add(this.lblTotal);
+            this.pnlFilter.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlFilter.Location = new System.Drawing.Point(0, 0);
+            this.pnlFilter.Name = "pnlFilter";
+            this.pnlFilter.Size = new System.Drawing.Size(800, 90);
+            this.pnlFilter.TabIndex = 1;
+            // 
             // lblStart
+            // 
             this.lblStart.AutoSize = true;
             this.lblStart.Location = new System.Drawing.Point(10, 15);
             this.lblStart.Name = "lblStart";
-            this.lblStart.Size = new System.Drawing.Size(30, 13);
+            this.lblStart.Size = new System.Drawing.Size(29, 13);
+            this.lblStart.TabIndex = 0;
             this.lblStart.Text = "Dari:";
+            // 
             // dtpStart
+            // 
             this.dtpStart.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpStart.Location = new System.Drawing.Point(45, 12);
             this.dtpStart.Name = "dtpStart";
             this.dtpStart.Size = new System.Drawing.Size(110, 20);
+            this.dtpStart.TabIndex = 1;
+            // 
             // lblEnd
+            // 
             this.lblEnd.AutoSize = true;
             this.lblEnd.Location = new System.Drawing.Point(165, 15);
             this.lblEnd.Name = "lblEnd";
+            this.lblEnd.Size = new System.Drawing.Size(45, 13);
+            this.lblEnd.TabIndex = 2;
             this.lblEnd.Text = "Sampai:";
+            // 
             // dtpEnd
+            // 
             this.dtpEnd.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpEnd.Location = new System.Drawing.Point(215, 12);
             this.dtpEnd.Name = "dtpEnd";
             this.dtpEnd.Size = new System.Drawing.Size(110, 20);
+            this.dtpEnd.TabIndex = 3;
+            // 
             // lblTable
+            // 
             this.lblTable.AutoSize = true;
             this.lblTable.Location = new System.Drawing.Point(335, 15);
             this.lblTable.Name = "lblTable";
+            this.lblTable.Size = new System.Drawing.Size(37, 13);
+            this.lblTable.TabIndex = 4;
             this.lblTable.Text = "Tabel:";
+            // 
             // cmbTable
+            // 
             this.cmbTable.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbTable.Location = new System.Drawing.Point(375, 12);
             this.cmbTable.Name = "cmbTable";
             this.cmbTable.Size = new System.Drawing.Size(120, 21);
+            this.cmbTable.TabIndex = 5;
+            // 
             // lblAction
+            // 
             this.lblAction.AutoSize = true;
             this.lblAction.Location = new System.Drawing.Point(505, 15);
             this.lblAction.Name = "lblAction";
+            this.lblAction.Size = new System.Drawing.Size(30, 13);
+            this.lblAction.TabIndex = 6;
             this.lblAction.Text = "Aksi:";
+            // 
             // cmbAction
+            // 
             this.cmbAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbAction.Location = new System.Drawing.Point(540, 12);
             this.cmbAction.Name = "cmbAction";
             this.cmbAction.Size = new System.Drawing.Size(90, 21);
+            this.cmbAction.TabIndex = 7;
+            // 
             // lblCari
+            // 
             this.lblCari.AutoSize = true;
             this.lblCari.Location = new System.Drawing.Point(640, 15);
             this.lblCari.Name = "lblCari";
+            this.lblCari.Size = new System.Drawing.Size(32, 13);
+            this.lblCari.TabIndex = 8;
             this.lblCari.Text = "User:";
+            // 
             // txtCari
+            // 
             this.txtCari.Location = new System.Drawing.Point(675, 12);
             this.txtCari.Name = "txtCari";
             this.txtCari.Size = new System.Drawing.Size(115, 20);
+            this.txtCari.TabIndex = 9;
+            // 
             // btnTampilkan
+            // 
             this.btnTampilkan.Location = new System.Drawing.Point(10, 50);
             this.btnTampilkan.Name = "btnTampilkan";
             this.btnTampilkan.Size = new System.Drawing.Size(80, 26);
+            this.btnTampilkan.TabIndex = 10;
             this.btnTampilkan.Text = "Tampilkan";
             this.btnTampilkan.UseVisualStyleBackColor = true;
             this.btnTampilkan.Click += new System.EventHandler(this.btnTampilkan_Click);
+            // 
             // btnRefresh
+            // 
             this.btnRefresh.Location = new System.Drawing.Point(95, 50);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(70, 26);
+            this.btnRefresh.TabIndex = 11;
             this.btnRefresh.Text = "Refresh";
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
             // btnExport
+            // 
             this.btnExport.Location = new System.Drawing.Point(170, 50);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(70, 26);
+            this.btnExport.TabIndex = 12;
             this.btnExport.Text = "Export";
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
+            // 
             // btnPrev
+            // 
             this.btnPrev.Location = new System.Drawing.Point(250, 50);
             this.btnPrev.Name = "btnPrev";
             this.btnPrev.Size = new System.Drawing.Size(60, 26);
+            this.btnPrev.TabIndex = 13;
             this.btnPrev.Text = "< Prev";
             this.btnPrev.UseVisualStyleBackColor = true;
             this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
+            // 
             // btnNext
+            // 
             this.btnNext.Location = new System.Drawing.Point(315, 50);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(60, 26);
+            this.btnNext.TabIndex = 14;
             this.btnNext.Text = "Next >";
             this.btnNext.UseVisualStyleBackColor = true;
             this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            // 
             // lblTotal
+            // 
             this.lblTotal.AutoSize = true;
             this.lblTotal.Location = new System.Drawing.Point(385, 57);
             this.lblTotal.Name = "lblTotal";
-            this.lblTotal.Size = new System.Drawing.Size(47, 13);
+            this.lblTotal.Size = new System.Drawing.Size(43, 13);
+            this.lblTotal.TabIndex = 15;
             this.lblTotal.Text = "Total: 0";
+            // 
             // dgLog
-            this.dgLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            // 
             this.dgLog.AllowUserToAddRows = false;
             this.dgLog.AllowUserToDeleteRows = false;
-            this.dgLog.ReadOnly = true;
             this.dgLog.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgLog.Location = new System.Drawing.Point(0, 90);
             this.dgLog.Name = "dgLog";
+            this.dgLog.ReadOnly = true;
             this.dgLog.RowHeadersVisible = false;
+            this.dgLog.Size = new System.Drawing.Size(800, 360);
+            this.dgLog.TabIndex = 0;
+            this.dgLog.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgLog_CellContentClick);
             this.dgLog.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgLog_CellDoubleClick);
+            // 
             // AuditLogUC
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.dgLog);
@@ -162,6 +226,7 @@ namespace Assets_Inventory.UserControls
             this.pnlFilter.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgLog)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.Panel pnlFilter;

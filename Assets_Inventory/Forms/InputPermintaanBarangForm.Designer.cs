@@ -38,7 +38,7 @@
             this.btnTambah = new System.Windows.Forms.Button();
             this.kryptonPalette1 = new ComponentFactory.Krypton.Toolkit.KryptonPalette(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.txtTahunAjaran = new System.Windows.Forms.TextBox();
+            this.cmbTahunAjaran = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.txtAlasan = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -159,7 +159,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.txtTahunAjaran);
+            this.groupBox1.Controls.Add(this.cmbTahunAjaran);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.txtAlasan);
             this.groupBox1.Controls.Add(this.label7);
@@ -188,12 +188,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detail Barang";
             // 
-            // txtTahunAjaran
+            // cmbTahunAjaran
             // 
-            this.txtTahunAjaran.Location = new System.Drawing.Point(476, 23);
-            this.txtTahunAjaran.Name = "txtTahunAjaran";
-            this.txtTahunAjaran.Size = new System.Drawing.Size(200, 20);
-            this.txtTahunAjaran.TabIndex = 45;
+            this.cmbTahunAjaran.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbTahunAjaran.FormattingEnabled = true;
+            this.cmbTahunAjaran.Location = new System.Drawing.Point(476, 23);
+            this.cmbTahunAjaran.Name = "cmbTahunAjaran";
+            this.cmbTahunAjaran.Size = new System.Drawing.Size(200, 24);
+            this.cmbTahunAjaran.TabIndex = 45;
             // 
             // label8
             // 
@@ -482,7 +484,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn jumlahDimintaDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn alasanKebutuhanDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewButtonColumn HapusColumn;
-        private System.Windows.Forms.TextBox txtTahunAjaran;
+        private System.Windows.Forms.ComboBox cmbTahunAjaran;
         private System.Windows.Forms.Label label8;
     }
 }

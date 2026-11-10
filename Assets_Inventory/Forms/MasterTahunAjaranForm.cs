@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -208,6 +209,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Tahun Ajaran",
+                new[] { ("Tahun Ajaran", "2026/2027"),("Semester", "1"),("Tanggal Mulai", "2026-07-13"),("Tanggal Selesai", "2026-12-19"),("Status Aktif (Aktif/Tidak)", "Aktif") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";

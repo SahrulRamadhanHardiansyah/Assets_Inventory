@@ -33,7 +33,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.txtTahunAjaran = new System.Windows.Forms.TextBox();
+            this.cmbTahunAjaran = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.cmbSumber = new System.Windows.Forms.ComboBox();
             this.sumberPerolehanBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -110,7 +110,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.txtTahunAjaran);
+            this.groupBox1.Controls.Add(this.cmbTahunAjaran);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.cmbSumber);
             this.groupBox1.Controls.Add(this.label11);
@@ -133,13 +133,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detail Pengadaan";
             // 
-            // txtTahunAjaran
+            // cmbTahunAjaran
             // 
-            this.txtTahunAjaran.Location = new System.Drawing.Point(204, 103);
-            this.txtTahunAjaran.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtTahunAjaran.Name = "txtTahunAjaran";
-            this.txtTahunAjaran.Size = new System.Drawing.Size(340, 26);
-            this.txtTahunAjaran.TabIndex = 49;
+            this.cmbTahunAjaran.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbTahunAjaran.FormattingEnabled = true;
+            this.cmbTahunAjaran.Location = new System.Drawing.Point(204, 103);
+            this.cmbTahunAjaran.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.cmbTahunAjaran.Name = "cmbTahunAjaran";
+            this.cmbTahunAjaran.Size = new System.Drawing.Size(340, 28);
+            this.cmbTahunAjaran.TabIndex = 49;
             // 
             // label8
             // 
@@ -491,7 +493,7 @@
         private System.Windows.Forms.ComboBox cmbSumber;
         private System.Windows.Forms.BindingSource sumberPerolehanBindingSource;
         private System.Windows.Forms.Button btnTerapkanPemasok;
-        private System.Windows.Forms.TextBox txtTahunAjaran;
+        private System.Windows.Forms.ComboBox cmbTahunAjaran;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox txtPemasok;
     }

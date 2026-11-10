@@ -6,6 +6,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -191,6 +192,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Lokasi",
+                new[] { ("Nama Lokasi", "Gedung A"),("Kode", "LOK-01"),("Keterangan", "") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";

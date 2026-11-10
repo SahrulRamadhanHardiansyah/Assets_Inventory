@@ -283,8 +283,9 @@ namespace Assets_Inventory
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("ProfilLembagaForm save error: " + ex.Message);
-                    MessageBox.Show("Terjadi kesalahan sistem.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Terjadi kesalahan sistem.\n\n" + ex.GetType().Name + ": "
+                        + (ex.InnerException?.Message ?? ex.Message), "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

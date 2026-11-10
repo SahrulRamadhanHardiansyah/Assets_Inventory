@@ -1,3 +1,4 @@
+using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ComponentFactory.Krypton.Toolkit;
@@ -9,7 +10,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -26,6 +26,9 @@ namespace Assets_Inventory
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            auditLogToolStripMenuItem.Visible = false;
+            notifikasiToolStripMenuItem.Visible = false;
+            
             try
             {
                 var userId = Properties.Settings.Default.userId;

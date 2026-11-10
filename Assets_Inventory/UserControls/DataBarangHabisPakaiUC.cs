@@ -1,5 +1,4 @@
 using Assets_Inventory.Forms;
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ExcelDataReader;
@@ -17,6 +16,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing;
 using ZXing.Common;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -363,6 +363,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Stok Habis Pakai",
+                new[] { ("Id Master Barang", "1"),("Stok", "10"),("Id Ruang", "1"),("Returnable (Ya/Tidak)", "Ya"),("Keterangan", "") }))
+                return;
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             using (OpenFileDialog ofd = new OpenFileDialog())

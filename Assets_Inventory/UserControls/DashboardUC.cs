@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.Entity;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Assets_Inventory.UserControls
@@ -28,40 +27,42 @@ namespace Assets_Inventory.UserControls
             LoadDashboardDataAsync();
         }
 
-        // Sync wrapper for Designer compatibility
         public void LoadDashboardData()
         {
             LoadDashboardDataAsync();
         }
 
-        public async void LoadDashboardDataAsync()
+        // ponytail: sync DB calls on the UI thread; fine for 4 counts + 2 small aggregates locally.
+        // Add real async (EF Core migration) if the dashboard ever feels slow.
+        public void LoadDashboardDataAsync()
         {
             try
             {
-                lblTotalAset.Text = (await db.Aset.CountAsync()).ToString();
-                lblPermintaanPending.Text = (await db.Permintaan.CountAsync(p => p.StatusPersetujuan == "Menunggu")).ToString();
-                lblPengadaanProses.Text = (await db.Pengadaan.CountAsync(p => p.Status == "diproses")).ToString();
-                lblAsetBelumLengkap.Text = (await db.Aset.CountAsync(a => a.NoSeri == null || a.IdRuang == null)).ToString();
+                lblTotalAset.Text = db.Aset.Count().ToString();
+                lblPermintaanPending.Text = db.Permintaan.Count(p => p.StatusPersetujuan == "Menunggu").ToString();
+                lblPengadaanProses.Text = db.Pengadaan.Count(p => p.Status == "diproses").ToString();
+                lblAsetBelumLengkap.Text = db.Aset.Count(a => a.NoSeri == null || a.IdRuang == null).ToString();
 
-                await LoadChartStatusDataAsync();
-                await LoadChartKondisiDataAsync();
-                await LoadNotifikasiGridAsync();
-                await LoadPermintaanPendingGridAsync();
+                LoadChartStatusData();
+                LoadChartKondisiData();
+                LoadNotifikasiGrid();
+                LoadPermintaanPendingGrid();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error memuat dashboard: " + ex.Message);
+                MessageBox.Show("Gagal memuat dashboard: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        private async Task LoadChartStatusDataAsync()
+        private void LoadChartStatusData()
         {
             if (chartAset == null) return;
 
-            var dataStatus = await db.Aset
+            var dataStatus = db.Aset
                 .GroupBy(a => a.Status)
                 .Select(g => new { Status = g.Key, Jumlah = g.Count() })
-                .ToListAsync();
+                .ToList();
 
             Action ui = () =>
             {
@@ -70,9 +71,24 @@ namespace Assets_Inventory.UserControls
                 chartAset.Titles.Add("Distribusi Status Aset");
                 chartAset.Titles[0].Font = new Font("Arial", 12F, FontStyle.Bold);
 
-                Series series = new Series("StatusAset");
-                series.ChartType = SeriesChartType.Doughnut;
-                series.IsValueShownAsLabel = true;
+                Series series = new Series("StatusAset")
+                {
+                    ChartArea = "ChartArea1",
+                    Legend = "Legend1",
+                    ChartType = SeriesChartType.Doughnut,
+                    IsValueShownAsLabel = true
+                };
+
+                if (dataStatus.Count == 0)
+                {
+                    // ponytail: placeholder for empty data; swap for a real empty-state design when requested
+                    chartAset.Titles.Add("Belum ada data aset");
+                    chartAset.Titles[1].Font = new Font("Arial", 9F, FontStyle.Italic);
+                    chartAset.Titles[1].ForeColor = Color.Gray;
+                    series.Points.AddXY("", 1);
+                    series.Points[0].Color = Color.Gainsboro;
+                    series.Points[0].IsValueShownAsLabel = false;
+                }
 
                 foreach (var item in dataStatus)
                 {
@@ -84,15 +100,15 @@ namespace Assets_Inventory.UserControls
             if (InvokeRequired) Invoke(ui); else ui();
         }
 
-        private async Task LoadChartKondisiDataAsync()
+        private void LoadChartKondisiData()
         {
             if (chartKondisi == null) return;
 
-            var dataKondisi = await db.Aset
+            var dataKondisi = db.Aset
                 .Include(a => a.IdKondisiNavigation)
                 .GroupBy(a => a.IdKondisiNavigation != null ? a.IdKondisiNavigation.NamaKondisi : "Tanpa Kondisi")
                 .Select(g => new { Kondisi = g.Key, Jumlah = g.Count() })
-                .ToListAsync();
+                .ToList();
 
             Action ui = () =>
             {
@@ -101,9 +117,25 @@ namespace Assets_Inventory.UserControls
                 chartKondisi.Titles.Add("Kondisi Fisik Aset");
                 chartKondisi.Titles[0].Font = new Font("Arial", 12F, FontStyle.Bold);
 
-                Series series = new Series("KondisiAset");
-                series.ChartType = SeriesChartType.Column;
-                series.IsValueShownAsLabel = true;
+                Series series = new Series("KondisiAset")
+                {
+                    ChartArea = "ChartArea1",
+                    Legend = "Legend1",
+                    ChartType = SeriesChartType.Column,
+                    IsValueShownAsLabel = true
+                };
+
+                if (dataKondisi.Count == 0)
+                {
+                    // ponytail: placeholder for empty data; swap for a real empty-state design when requested
+                    chartKondisi.Titles.Add("Belum ada data kondisi");
+                    chartKondisi.Titles[1].Font = new Font("Arial", 9F, FontStyle.Italic);
+                    chartKondisi.Titles[1].ForeColor = Color.Gray;
+                }
+                else
+                {
+                    chartKondisi.Titles.Add("");
+                }
 
                 foreach (var item in dataKondisi)
                 {
@@ -121,11 +153,11 @@ namespace Assets_Inventory.UserControls
             if (InvokeRequired) Invoke(ui); else ui();
         }
 
-        private async Task LoadNotifikasiGridAsync()
+        private void LoadNotifikasiGrid()
         {
             if (dgNotifikasi == null) return;
 
-            var asetPending = await db.Aset.AsNoTracking()
+            var asetPending = db.Aset.AsNoTracking()
                 .Include(a => a.IdMasterBarangNavigation)
                 .Where(a => a.NoSeri == null || a.IdRuang == null)
                 .OrderByDescending(a => a.TanggalRegistrasi)
@@ -137,7 +169,7 @@ namespace Assets_Inventory.UserControls
                     a.TanggalRegistrasi,
                     Status = "Lengkapi Detail",
                     ObjekAsli = a
-                }).ToListAsync();
+                }).ToList();
 
             Action ui = () =>
             {
@@ -151,24 +183,24 @@ namespace Assets_Inventory.UserControls
             if (InvokeRequired) Invoke(ui); else ui();
         }
 
-        private async Task LoadPermintaanPendingGridAsync()
+        private void LoadPermintaanPendingGrid()
         {
             if (dgPermintaanPending == null) return;
 
-            var pendingReqRaw = await db.Permintaan.AsNoTracking()
+            var pendingReqRaw = db.Permintaan.AsNoTracking()
                 .Where(p => p.StatusPersetujuan == "Menunggu")
                 .OrderBy(p => p.TanggalPermintaan)
                 .Take(30)
-                .ToListAsync();
+                .ToList();
 
             var ids = pendingReqRaw.Select(p => p.IdJurusan).Where(x => x.HasValue).Select(x => x.Value).Distinct().ToList();
             var dictJurusan = ids.Count > 0
-                ? (await db.Jurusan.Where(j => ids.Contains(j.IdJurusan)).ToListAsync()).ToDictionary(j => j.IdJurusan, j => j.NamaJurusan)
+                ? db.Jurusan.Where(j => ids.Contains(j.IdJurusan)).ToList().ToDictionary(j => j.IdJurusan, j => j.NamaJurusan)
                 : new Dictionary<int, string>();
 
             var idsPengguna = pendingReqRaw.Select(p => p.IdPengguna).Where(x => x.HasValue).Select(x => x.Value).Distinct().ToList();
             var dictPengguna = idsPengguna.Count > 0
-                ? (await db.Pengguna.Where(u => idsPengguna.Contains(u.IdPengguna)).ToListAsync()).ToDictionary(u => u.IdPengguna, u => u.Username)
+                ? db.Pengguna.Where(u => idsPengguna.Contains(u.IdPengguna)).ToList().ToDictionary(u => u.IdPengguna, u => u.Username)
                 : new Dictionary<int, string>();
 
             var pendingReq = pendingReqRaw.Select(p => new
@@ -189,12 +221,6 @@ namespace Assets_Inventory.UserControls
             };
             if (InvokeRequired) Invoke(ui); else ui();
         }
-
-        // Legacy sync method names kept for any external callers - fire-and-forget (ponytail: async void wrapper is intentional for Designer compat)
-        private async void LoadChartStatusData() { await LoadChartStatusDataAsync(); }
-        private async void LoadChartKondisiData() { await LoadChartKondisiDataAsync(); }
-        private async void LoadNotifikasiGrid() { await LoadNotifikasiGridAsync(); }
-        private async void LoadPermintaanPendingGrid() { await LoadPermintaanPendingGridAsync(); }
 
         private void SetupGridDesign()
         {

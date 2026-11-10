@@ -43,6 +43,7 @@ namespace Assets_Inventory
             btnHapus.Enabled = hakAkses.HakHapus;
             btnImport.Enabled = hakAkses.HakBuat;
 
+
             loadDgv();
             loadComboBox();
             SetMode("View");
@@ -376,6 +377,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Bangunan",
+                new[] { ("Nama Bangunan", "Gedung A"),("Luas (m2)", "200"),("Status Kepemilikan", "Milik Sendiri"),("Nilai Perolehan", "500000000"),("Keterangan", ""),("Panjang (m)", "20"),("Lebar (m)", "10"),("Konstruksi", "Beton bertulang") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Semua File Data|*.csv;*.xlsx;*.xls|Excel Files (*.xlsx, *.xls)|*.xlsx;*.xls|CSV Files (*.csv)|*.csv";

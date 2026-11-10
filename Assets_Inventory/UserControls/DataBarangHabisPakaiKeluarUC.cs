@@ -1,5 +1,4 @@
 ﻿using Assets_Inventory.Forms;
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using ExcelDataReader;
@@ -12,6 +11,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -222,6 +222,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Barang Keluar Habis Pakai",
+                new[] { ("Tanggal", "2026-11-09"),("Kode Inventaris", "INV-2026-001-001-010-001"),("Nama Penerima", "budi"),("Nama Petugas", "sahrul"),("Kode Gudang", "GDG-01"),("Nama Ruang", "Lab Komputer"),("Jumlah", "5"),("Keterangan", "Pemakaian praktikum") }))
+                return;
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             using (OpenFileDialog ofd = new OpenFileDialog())

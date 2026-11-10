@@ -209,5 +209,10 @@ namespace Assets_Inventory.UserControls
             }
             base.Dispose(disposing);
         }
+
+        private void dgLog_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }

@@ -1,4 +1,3 @@
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using Assets_Inventory.UserControls;
 using System;
@@ -16,6 +15,7 @@ using System.Windows.Forms;
 using ZXing;
 using ZXing.Common;
 using ExcelDataReader;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory
 {
@@ -202,6 +202,10 @@ namespace Assets_Inventory
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Permintaan Barang",
+                new[] { ("Kode Permintaan", "PRM-2026-001"),("Id Jurusan", "1"),("Keterangan Keperluan", "Kebutuhan kelas") }))
+                return;
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -468,18 +472,31 @@ namespace Assets_Inventory
                     if (p.StatusPersetujuan == "Disetujui")
                     {
                         e.Value = "Disetujui";
-                        e.CellStyle.BackColor = Color.LightGreen;
                     }
                     else if (p.StatusPersetujuan == "Ditolak")
                     {
                         e.Value = "Ditolak";
-                        e.CellStyle.BackColor = Color.LightCoral;
                     }
                     else
                     {
                         e.Value = "Setujui";
                     }
                     e.FormattingApplied = true;
+                }
+
+                DataGridViewRow row = dg.Rows[e.RowIndex];
+
+                if (p.StatusPersetujuan == "Disetujui")
+                {
+                    row.DefaultCellStyle.BackColor = Color.LightGreen;
+                }
+                else if (p.StatusPersetujuan == "Ditolak")
+                {
+                    row.DefaultCellStyle.BackColor = Color.LightCoral;
+                }
+                else
+                {
+                    row.DefaultCellStyle.BackColor = dg.DefaultCellStyle.BackColor;
                 }
             }
         }

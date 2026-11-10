@@ -1,5 +1,4 @@
 using Assets_Inventory.Forms;
-using Assets_Inventory.Helper;
 using Assets_Inventory.Models;
 using ComponentFactory.Krypton.Toolkit;
 using ExcelDataReader;
@@ -15,6 +14,7 @@ using System.Text;
 using System.Windows.Forms;
 using ZXing;
 using ZXing.Common;
+using Assets_Inventory.Helper;
 
 namespace Assets_Inventory.UserControls
 {
@@ -111,6 +111,14 @@ namespace Assets_Inventory.UserControls
                 // resetPage=false keeps current page when paging
                 if (resetPage) _currentPage = 0;
                 RefreshDbIfNeeded();
+
+                // Refresh entity lama dari change tracker UC ini supaya query di bawah
+                // mengambil nilai TERBARU dari DB, bukan objek cached yang sudah diubah form lain.
+                // (EF Core 3.x belum punya ChangeTracker.Clear — pakai Reload per entity tracked.)
+                foreach (var entry in db.ChangeTracker.Entries<Aset>().ToList())
+                {
+                    try { entry.Reload(); } catch { }
+                }
 
                 var cari = txtCari.Text?.Trim() ?? "";
 
@@ -242,7 +250,9 @@ namespace Assets_Inventory.UserControls
         {
             if (dg.CurrentRow != null && dg.CurrentRow.DataBoundItem is AsetViewModel vm)
             {
-                var asetTarget = db.Aset.Find(vm.KodeBarang);
+                // Ambil snapshot FRESH dari DB — jangan pakai ObjekAsli/cached entity,
+                // supaya form edit tidak menyimpan ulang nilai lama yang menimpa perubahan.
+                var asetTarget = db.Aset.AsNoTracking().FirstOrDefault(a => a.KodeBarang == vm.KodeBarang);
                 if (asetTarget != null)
                 {
                     InputBarangAsetForm form = new InputBarangAsetForm();
@@ -431,6 +441,10 @@ namespace Assets_Inventory.UserControls
 
         private void btnImport_Click(object sender, EventArgs e)
         {
+
+            if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Data Aset",
+                new[] { ("Id Master Barang", "1"),("Kode Inventaris", "INV-2026-001-001-010-001"),("No Seri / SN", "SN-ABC-001"),("Status", "Aktif") }))
+                return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Semua File Data|*.csv;*.xlsx;*.xls|Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls|CSV Files (*.csv)|*.csv";
