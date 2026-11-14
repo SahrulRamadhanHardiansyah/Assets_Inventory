@@ -27,6 +27,7 @@ namespace Assets_Inventory.Models
         public int? IdSatuan { get; set; }
         public string JenisBarang { get; set; }
         public string Keterangan { get; set; }
+        public decimal? HargaSatuan { get; set; }
 
         public virtual Kategori IdKategoriNavigation { get; set; }
         public virtual Merek IdMerekNavigation { get; set; }

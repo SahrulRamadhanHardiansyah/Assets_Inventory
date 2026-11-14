@@ -962,6 +962,10 @@ namespace Assets_Inventory.Models
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
+                entity.Property(e => e.Hps)
+                    .HasColumnName("hps")
+                    .HasColumnType("decimal(15,2)");
+
                 entity.HasOne(d => d.IdMasterBarangNavigation)
                     .WithMany(p => p.DetailPermintaan)
                     .HasForeignKey(d => d.IdMasterBarang)
@@ -1445,6 +1449,10 @@ namespace Assets_Inventory.Models
                     .HasColumnType("varchar(150)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.HargaSatuan)
+                    .HasColumnName("harga_satuan")
+                    .HasColumnType("decimal(15,2)");
 
                 entity.HasOne(d => d.IdKategoriNavigation)
                     .WithMany(p => p.MasterBarang)
@@ -2326,6 +2334,14 @@ namespace Assets_Inventory.Models
                 entity.Property(e => e.TanggalPermintaan)
                     .HasColumnName("tanggal_permintaan")
                     .HasColumnType("date");
+
+                entity.Property(e => e.WaktuBelanja)
+                    .HasColumnName("waktu_belanja")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Budget)
+                    .HasColumnName("budget")
+                    .HasColumnType("decimal(15,2)");
 
                 entity.Property(e => e.TanggalPersetujuan)
                     .HasColumnName("tanggal_persetujuan")

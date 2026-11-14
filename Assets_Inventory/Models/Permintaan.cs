@@ -22,6 +22,8 @@ namespace Assets_Inventory.Models
         public int? IdTahunAjaran { get; set; }
         public string KeteranganKeperluan { get; set; }
         public string StatusPersetujuan { get; set; }
+        public DateTime? WaktuBelanja { get; set; }
+        public decimal? Budget { get; set; }
         public DateTime? TanggalPersetujuan { get; set; }
         public int? IdPenyetuju { get; set; }
         public string AlasanDisetujui { get; set; }

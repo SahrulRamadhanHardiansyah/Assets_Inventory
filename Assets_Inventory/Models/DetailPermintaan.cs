@@ -14,6 +14,7 @@ namespace Assets_Inventory.Models
         public int IdMasterBarang { get; set; }
         public int JumlahDiminta { get; set; }
         public string AlasanKebutuhan { get; set; }
+        public decimal? Hps { get; set; }
 
         public virtual MasterBarang IdMasterBarangNavigation { get; set; }
         public virtual Permintaan KodePermintaanNavigation { get; set; }
