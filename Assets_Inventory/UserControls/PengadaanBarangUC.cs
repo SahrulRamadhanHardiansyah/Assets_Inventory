@@ -240,7 +240,7 @@ namespace Assets_Inventory
         {
 
             if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Pengadaan Barang",
-                new[] { ("Tanggal Pengadaan", "2026-11-09"),("Id Rekanan", "1"),("Total Harga", "250000"),("Kode Gudang", "GDG-01"),("Status", "Menunggu Proses"),("Keterangan", "") }))
+                new[] { ("Tanggal Pengadaan", "2026-11-09"),("Rekanan (ID atau Nama)", "Pemasok Umum"),("Total Harga", "250000"),("Kode Gudang", "GDG-001"),("Status", "Menunggu Proses"),("Keterangan", "") }))
                 return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -286,40 +286,32 @@ namespace Assets_Inventory
         private int ImportCsv(string filePath)
         {
             var lines = File.ReadAllLines(filePath);
+            var importer = new PengadaanImportContext(db);
             int berhasil = 0;
 
             for (int i = 1; i < lines.Length; i++)
             {
                 var data = lines[i].Split(',');
 
-                if (data.Length >= 5)
-                {
-                    if (DateTime.TryParse(data[0].Trim(), out DateTime tgl) &&
-                        int.TryParse(data[1].Trim(), out int idPemasok) &&
-                        decimal.TryParse(data[2].Trim(), out decimal totalHarga))
-                    {
-                        var pengadaan = new Pengadaan
-                        {
-                            TanggalPengadaan = tgl,
-                            TotalHarga = totalHarga,
-                            KodeGudang = data[3].Trim(),
-                            Status = data[4].Trim(),
-                            Keterangan = data.Length > 5 ? data[5].Trim() : null
-                        };
+                if (data.Length < 5) continue;
 
-                        db.Pengadaan.Add(pengadaan);
+                if (DateTime.TryParse(data[0].Trim(), out DateTime tgl) &&
+                    decimal.TryParse(data[2].Trim(), out decimal totalHarga))
+                {
+                    if (importer.Tambah(tgl, data[1], totalHarga, data[3], data[4], data.Length > 5 ? data[5] : null, i + 1))
                         berhasil++;
-                    }
                 }
             }
 
             db.SaveChanges();
+            importer.LaporkanGagal();
             return berhasil;
         }
 
         private int ImportExcel(string filePath)
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var importer = new PengadaanImportContext(db);
             int berhasil = 0;
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
@@ -333,31 +325,99 @@ namespace Assets_Inventory
                     {
                         var row = table.Rows[i];
 
-                        if (row.ItemArray.Length >= 5 && !string.IsNullOrWhiteSpace(row[0]?.ToString()))
-                        {
-                            if (DateTime.TryParse(row[0]?.ToString().Trim(), out DateTime tgl) &&
-                                int.TryParse(row[1]?.ToString().Trim(), out int idPemasok) &&
-                                decimal.TryParse(row[2]?.ToString().Trim(), out decimal totalHarga))
-                            {
-                                var pengadaan = new Pengadaan
-                                {
-                                    TanggalPengadaan = tgl,
-                                    TotalHarga = totalHarga,
-                                    KodeGudang = row[3]?.ToString().Trim(),
-                                    Status = row[4]?.ToString().Trim(),
-                                    Keterangan = row.ItemArray.Length > 5 ? row[5]?.ToString().Trim() : null
-                                };
+                        if (row.ItemArray.Length < 5 || string.IsNullOrWhiteSpace(row[0]?.ToString())) continue;
 
-                                db.Pengadaan.Add(pengadaan);
+                        if (DateTime.TryParse(row[0]?.ToString().Trim(), out DateTime tgl) &&
+                            decimal.TryParse(row[2]?.ToString().Trim(), out decimal totalHarga))
+                        {
+                            if (importer.Tambah(tgl, row[1]?.ToString(), totalHarga, row[3]?.ToString(),
+                                    row[4]?.ToString(), row.ItemArray.Length > 5 ? row[5]?.ToString() : null, i + 1))
                                 berhasil++;
-                            }
                         }
                     }
                 }
             }
 
             db.SaveChanges();
+            importer.LaporkanGagal();
             return berhasil;
+        }
+
+        // Menyimpan baris import dan memetakan kolom Rekanan ke pengadaan.id_pemasok.
+        // Nilai kolom boleh berupa ID numerik atau nama rekanan; divalidasi ke database
+        // agar baris dengan rekanan tak dikenal tidak membuat import gagal seluruhnya.
+        private class PengadaanImportContext
+        {
+            private readonly AppDbContext _db;
+            private readonly Dictionary<int, bool> _idRekanan;
+            private readonly Dictionary<string, int> _namaRekanan;
+            private readonly HashSet<string> _kodeGudang;
+            private readonly List<string> _gagal = new List<string>();
+
+            public PengadaanImportContext(AppDbContext db)
+            {
+                _db = db;
+                var listRekanan = db.Pemasok.AsNoTracking().Select(p => new { p.IdPemasok, p.NamaPemasok }).ToList();
+                _idRekanan = listRekanan.ToDictionary(p => p.IdPemasok, p => true);
+                _namaRekanan = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var p in listRekanan)
+                {
+                    var nama = (p.NamaPemasok ?? string.Empty).Trim();
+                    if (nama.Length > 0 && !_namaRekanan.ContainsKey(nama)) _namaRekanan[nama] = p.IdPemasok;
+                }
+                _kodeGudang = new HashSet<string>(db.Gudang.AsNoTracking().Select(g => g.KodeGudang), StringComparer.OrdinalIgnoreCase);
+            }
+
+            public bool Tambah(DateTime tgl, string rekananRaw, decimal totalHarga, string gudang, string status, string keterangan, int nomorBaris)
+            {
+                string rekananTeks = (rekananRaw ?? string.Empty).Trim();
+                int? idRekanan = null;
+
+                if (rekananTeks.Length > 0)
+                {
+                    if (int.TryParse(rekananTeks, out int idDariAngka))
+                    {
+                        if (_idRekanan.ContainsKey(idDariAngka)) idRekanan = idDariAngka;
+                    }
+                    else if (_namaRekanan.TryGetValue(rekananTeks, out int idDariNama))
+                    {
+                        idRekanan = idDariNama;
+                    }
+                }
+
+                if (!idRekanan.HasValue)
+                {
+                    _gagal.Add($"Baris {nomorBaris}: rekanan '{rekananTeks}' tidak ditemukan (isi ID atau nama rekanan yang terdaftar).");
+                    return false;
+                }
+
+                string kodeGudang = (gudang ?? string.Empty).Trim();
+                if (kodeGudang.Length > 0 && !_kodeGudang.Contains(kodeGudang))
+                {
+                    _gagal.Add($"Baris {nomorBaris}: kode gudang '{kodeGudang}' tidak terdaftar.");
+                    return false;
+                }
+
+                _db.Pengadaan.Add(new Pengadaan
+                {
+                    TanggalPengadaan = tgl,
+                    TotalHarga = totalHarga,
+                    KodeGudang = kodeGudang.Length > 0 ? kodeGudang : null,
+                    Status = (status ?? string.Empty).Trim(),
+                    Keterangan = keterangan,
+                    IdPemasok = idRekanan.Value
+                });
+                return true;
+            }
+
+            public void LaporkanGagal()
+            {
+                if (_gagal.Count == 0) return;
+                string daftar = string.Join(Environment.NewLine + " - ", _gagal);
+                MessageBox.Show(
+                    $"{_gagal.Count} baris dilewati karena data tidak valid:" + Environment.NewLine + Environment.NewLine + " - " + daftar,
+                    "Sebagian Baris Dilewati", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void cmbStatus_SelectedIndexChanged(object sender, EventArgs e)
