@@ -157,6 +157,8 @@
             // 
             // dtWaktuBelanja
             // 
+            this.dtWaktuBelanja.CustomFormat = "dd/MM/yyyy HH:mm";
+            this.dtWaktuBelanja.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dtWaktuBelanja.Location = new System.Drawing.Point(714, 156);
             this.dtWaktuBelanja.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.dtWaktuBelanja.Name = "dtWaktuBelanja";
@@ -166,11 +168,11 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(579, 158);
+            this.label22.Location = new System.Drawing.Point(455, 150);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(120, 20);
+            this.label22.Size = new System.Drawing.Size(180, 40);
             this.label22.TabIndex = 49;
-            this.label22.Text = "Waktu Belanja :";
+            this.label22.Text = "Waktu Belanja\r\n(Rencana Pengadaan) :";
             // 
             // hpsDataGridViewTextBoxColumn
             // 

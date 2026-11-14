@@ -56,6 +56,7 @@ namespace Assets_Inventory
                 this.Text = "Detail Permintaan Barang";
                 txtKode.ReadOnly = true;
                 dtTgl.Enabled = false;
+                dtWaktuBelanja.Enabled = false;
                 cmbJurusan.Enabled = false;
                 txtKeterangan.ReadOnly = true;
                 cmbTahunAjaran.Enabled = false;

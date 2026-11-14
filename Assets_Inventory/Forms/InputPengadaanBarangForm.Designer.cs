@@ -1,4 +1,4 @@
-﻿namespace Assets_Inventory
+namespace Assets_Inventory
 {
     partial class InputPengadaanBarangForm
     {
@@ -47,24 +47,26 @@
             this.label20 = new System.Windows.Forms.Label();
             this.txtKeterangan = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
+            this.dtpWaktuBelanja = new System.Windows.Forms.DateTimePicker();
+            this.label24 = new System.Windows.Forms.Label();
             this.dtpTglPengadaan = new System.Windows.Forms.DateTimePicker();
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.txtId = new System.Windows.Forms.TextBox();
-            this.pemasokBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.txtPemasok = new System.Windows.Forms.TextBox();
+            this.btnTerapkanPemasok = new System.Windows.Forms.Button();
             this.label16 = new System.Windows.Forms.Label();
+            this.pemasokBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.kondisiBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnTutup = new System.Windows.Forms.Button();
             this.btnSimpan = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.btnTerapkanPemasok = new System.Windows.Forms.Button();
             this.dgDetailBon = new System.Windows.Forms.DataGridView();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.btnPilihPermintaan = new System.Windows.Forms.Button();
             this.dgPermintaan = new System.Windows.Forms.DataGridView();
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-            this.txtPemasok = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sumberPerolehanBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gudangBindingSource)).BeginInit();
@@ -94,7 +96,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(14, 49);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(473, 22);
+            this.label1.Size = new System.Drawing.Size(326, 15);
             this.label1.TabIndex = 16;
             this.label1.Text = "Gunakan Form Ini Untuk Mengisi Data Pengadaan Barang";
             // 
@@ -104,7 +106,7 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(14, 22);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(376, 25);
+            this.label2.Size = new System.Drawing.Size(269, 17);
             this.label2.TabIndex = 15;
             this.label2.Text = "INPUT DATA PENGADAAN BARANG";
             // 
@@ -122,6 +124,8 @@
             this.groupBox1.Controls.Add(this.label20);
             this.groupBox1.Controls.Add(this.txtKeterangan);
             this.groupBox1.Controls.Add(this.label18);
+            this.groupBox1.Controls.Add(this.dtpWaktuBelanja);
+            this.groupBox1.Controls.Add(this.label24);
             this.groupBox1.Controls.Add(this.dtpTglPengadaan);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label3);
@@ -131,7 +135,7 @@
             this.groupBox1.Controls.Add(this.label16);
             this.groupBox1.Location = new System.Drawing.Point(730, 88);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(566, 415);
+            this.groupBox1.Size = new System.Drawing.Size(566, 445);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detail Pengadaan";
@@ -140,7 +144,7 @@
             // 
             this.cmbTahunAjaran.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbTahunAjaran.FormattingEnabled = true;
-            this.cmbTahunAjaran.Location = new System.Drawing.Point(204, 103);
+            this.cmbTahunAjaran.Location = new System.Drawing.Point(204, 143);
             this.cmbTahunAjaran.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cmbTahunAjaran.Name = "cmbTahunAjaran";
             this.cmbTahunAjaran.Size = new System.Drawing.Size(340, 28);
@@ -149,7 +153,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(72, 108);
+            this.label8.Location = new System.Drawing.Point(72, 146);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(112, 20);
             this.label8.TabIndex = 48;
@@ -161,7 +165,7 @@
             this.cmbSumber.DisplayMember = "NamaSumber";
             this.cmbSumber.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbSumber.FormattingEnabled = true;
-            this.cmbSumber.Location = new System.Drawing.Point(202, 218);
+            this.cmbSumber.Location = new System.Drawing.Point(202, 259);
             this.cmbSumber.Name = "cmbSumber";
             this.cmbSumber.Size = new System.Drawing.Size(342, 28);
             this.cmbSumber.TabIndex = 47;
@@ -174,7 +178,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(84, 146);
+            this.label11.Location = new System.Drawing.Point(84, 185);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(100, 20);
             this.label11.TabIndex = 46;
@@ -182,7 +186,7 @@
             // 
             // txtTotalHarga
             // 
-            this.txtTotalHarga.Location = new System.Drawing.Point(202, 143);
+            this.txtTotalHarga.Location = new System.Drawing.Point(202, 182);
             this.txtTotalHarga.Name = "txtTotalHarga";
             this.txtTotalHarga.Size = new System.Drawing.Size(342, 26);
             this.txtTotalHarga.TabIndex = 45;
@@ -192,7 +196,7 @@
             // 
             this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbStatus.FormattingEnabled = true;
-            this.cmbStatus.Location = new System.Drawing.Point(202, 295);
+            this.cmbStatus.Location = new System.Drawing.Point(202, 334);
             this.cmbStatus.Name = "cmbStatus";
             this.cmbStatus.Size = new System.Drawing.Size(342, 28);
             this.cmbStatus.TabIndex = 44;
@@ -200,7 +204,7 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(123, 300);
+            this.label23.Location = new System.Drawing.Point(123, 337);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(64, 20);
             this.label23.TabIndex = 43;
@@ -212,7 +216,7 @@
             this.cmbGudang.DisplayMember = "NamaGudang";
             this.cmbGudang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbGudang.FormattingEnabled = true;
-            this.cmbGudang.Location = new System.Drawing.Point(202, 180);
+            this.cmbGudang.Location = new System.Drawing.Point(202, 221);
             this.cmbGudang.Name = "cmbGudang";
             this.cmbGudang.Size = new System.Drawing.Size(342, 28);
             this.cmbGudang.TabIndex = 42;
@@ -225,7 +229,7 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(111, 185);
+            this.label22.Location = new System.Drawing.Point(111, 224);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(75, 20);
             this.label22.TabIndex = 41;
@@ -234,7 +238,7 @@
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(86, 341);
+            this.label20.Location = new System.Drawing.Point(86, 380);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(100, 20);
             this.label20.TabIndex = 34;
@@ -242,23 +246,42 @@
             // 
             // txtKeterangan
             // 
-            this.txtKeterangan.Location = new System.Drawing.Point(202, 337);
+            this.txtKeterangan.Location = new System.Drawing.Point(202, 376);
             this.txtKeterangan.Multiline = true;
             this.txtKeterangan.Name = "txtKeterangan";
-            this.txtKeterangan.Size = new System.Drawing.Size(340, 55);
+            this.txtKeterangan.Size = new System.Drawing.Size(340, 49);
             this.txtKeterangan.TabIndex = 33;
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(38, 223);
+            this.label18.Location = new System.Drawing.Point(37, 262);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(149, 20);
             this.label18.TabIndex = 31;
             this.label18.Text = "Sumber Perolehan :";
             // 
+            // dtpWaktuBelanja
+            // 
+            this.dtpWaktuBelanja.CustomFormat = "dd/MM/yyyy HH:mm";
+            this.dtpWaktuBelanja.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpWaktuBelanja.Location = new System.Drawing.Point(204, 103);
+            this.dtpWaktuBelanja.Name = "dtpWaktuBelanja";
+            this.dtpWaktuBelanja.Size = new System.Drawing.Size(340, 26);
+            this.dtpWaktuBelanja.TabIndex = 76;
+            // 
+            // label24
+            // 
+            this.label24.Location = new System.Drawing.Point(14, 98);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(180, 38);
+            this.label24.TabIndex = 75;
+            this.label24.Text = "Waktu Belanja\r\n(Rencana Pengadaan)";
+            // 
             // dtpTglPengadaan
             // 
+            this.dtpTglPengadaan.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpTglPengadaan.CustomFormat = "dd/MM/yyyy";
             this.dtpTglPengadaan.Location = new System.Drawing.Point(204, 65);
             this.dtpTglPengadaan.Name = "dtpTglPengadaan";
             this.dtpTglPengadaan.Size = new System.Drawing.Size(340, 26);
@@ -267,7 +290,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(22, 68);
+            this.label7.Location = new System.Drawing.Point(22, 67);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(160, 20);
             this.label7.TabIndex = 13;
@@ -276,7 +299,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(64, 29);
+            this.label3.Location = new System.Drawing.Point(66, 28);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(120, 20);
             this.label3.TabIndex = 1;
@@ -290,18 +313,35 @@
             this.txtId.Size = new System.Drawing.Size(340, 26);
             this.txtId.TabIndex = 0;
             // 
-            // pemasokBindingSource
+            // txtPemasok
             // 
-            this.pemasokBindingSource.DataSource = typeof(Assets_Inventory.Models.Pemasok);
+            this.txtPemasok.Location = new System.Drawing.Point(202, 295);
+            this.txtPemasok.Name = "txtPemasok";
+            this.txtPemasok.Size = new System.Drawing.Size(240, 26);
+            this.txtPemasok.TabIndex = 74;
+            // 
+            // btnTerapkanPemasok
+            // 
+            this.btnTerapkanPemasok.Location = new System.Drawing.Point(450, 291);
+            this.btnTerapkanPemasok.Name = "btnTerapkanPemasok";
+            this.btnTerapkanPemasok.Size = new System.Drawing.Size(94, 35);
+            this.btnTerapkanPemasok.TabIndex = 4;
+            this.btnTerapkanPemasok.Text = "Terapkan";
+            this.btnTerapkanPemasok.UseVisualStyleBackColor = true;
+            this.btnTerapkanPemasok.Click += new System.EventHandler(this.btnTerapkanPemasok_Click);
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(84, 258);
+            this.label16.Location = new System.Drawing.Point(104, 298);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(100, 20);
+            this.label16.Size = new System.Drawing.Size(82, 20);
             this.label16.TabIndex = 39;
             this.label16.Text = "Rekanan :";
+            // 
+            // pemasokBindingSource
+            // 
+            this.pemasokBindingSource.DataSource = typeof(Assets_Inventory.Models.Pemasok);
             // 
             // kondisiBindingSource
             // 
@@ -341,24 +381,14 @@
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.dgDetailBon);
-            this.groupBox3.Location = new System.Drawing.Point(18, 513);
+            this.groupBox3.Location = new System.Drawing.Point(18, 542);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox3.Size = new System.Drawing.Size(1278, 345);
+            this.groupBox3.Size = new System.Drawing.Size(1278, 300);
             this.groupBox3.TabIndex = 19;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Data Barang & Kode Rekening";
-            // 
-            // btnTerapkanPemasok
-            // 
-            this.btnTerapkanPemasok.Location = new System.Drawing.Point(450, 253);
-            this.btnTerapkanPemasok.Name = "btnTerapkanPemasok";
-            this.btnTerapkanPemasok.Size = new System.Drawing.Size(94, 30);
-            this.btnTerapkanPemasok.TabIndex = 4;
-            this.btnTerapkanPemasok.Text = "Terapkan";
-            this.btnTerapkanPemasok.UseVisualStyleBackColor = true;
-            this.btnTerapkanPemasok.Click += new System.EventHandler(this.btnTerapkanPemasok_Click);
             // 
             // dgDetailBon
             // 
@@ -370,7 +400,7 @@
             this.dgDetailBon.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.dgDetailBon.Name = "dgDetailBon";
             this.dgDetailBon.RowHeadersWidth = 62;
-            this.dgDetailBon.Size = new System.Drawing.Size(1240, 249);
+            this.dgDetailBon.Size = new System.Drawing.Size(1240, 261);
             this.dgDetailBon.TabIndex = 73;
             this.dgDetailBon.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgDetailBon_CellEndEdit);
             this.dgDetailBon.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.DgDetailBon_CellFormatting);
@@ -383,14 +413,14 @@
             this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox4.Size = new System.Drawing.Size(705, 372);
+            this.groupBox4.Size = new System.Drawing.Size(705, 408);
             this.groupBox4.TabIndex = 20;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Data Permintaan";
             // 
             // btnPilihPermintaan
             // 
-            this.btnPilihPermintaan.Location = new System.Drawing.Point(556, 317);
+            this.btnPilihPermintaan.Location = new System.Drawing.Point(556, 360);
             this.btnPilihPermintaan.Name = "btnPilihPermintaan";
             this.btnPilihPermintaan.Size = new System.Drawing.Size(140, 40);
             this.btnPilihPermintaan.TabIndex = 3;
@@ -408,19 +438,12 @@
             this.dgPermintaan.Name = "dgPermintaan";
             this.dgPermintaan.ReadOnly = true;
             this.dgPermintaan.RowHeadersWidth = 62;
-            this.dgPermintaan.Size = new System.Drawing.Size(678, 280);
+            this.dgPermintaan.Size = new System.Drawing.Size(678, 323);
             this.dgPermintaan.TabIndex = 0;
             // 
             // bindingSource1
             // 
             this.bindingSource1.DataSource = typeof(Assets_Inventory.Models.Permintaan);
-            // 
-            // txtPemasok
-            // 
-            this.txtPemasok.Location = new System.Drawing.Point(202, 253);
-            this.txtPemasok.Name = "txtPemasok";
-            this.txtPemasok.Size = new System.Drawing.Size(240, 26);
-            this.txtPemasok.TabIndex = 74;
             // 
             // InputPengadaanBarangForm
             // 
@@ -448,7 +471,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.kondisiBindingSource)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgDetailBon)).EndInit();
             this.groupBox4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgPermintaan)).EndInit();
@@ -464,6 +486,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.DateTimePicker dtpWaktuBelanja;
+        private System.Windows.Forms.Label label24;
         private System.Windows.Forms.DateTimePicker dtpTglPengadaan;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label3;

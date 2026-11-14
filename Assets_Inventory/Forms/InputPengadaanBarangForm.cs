@@ -65,6 +65,7 @@ namespace Assets_Inventory
             {
                 txtId.Text = GenerateIdPengadaan();
                 dtpTglPengadaan.Value = DateTime.Now;
+                dtpWaktuBelanja.Value = DateTime.Now;
                 cmbStatus.SelectedItem = "Menunggu Proses";
                 cmbStatus.Enabled = false;
 
@@ -83,6 +84,7 @@ namespace Assets_Inventory
             {
                 this.Text = "Detail Pengadaan Barang";
                 dtpTglPengadaan.Enabled = false;
+                dtpWaktuBelanja.Enabled = false;
                 cmbGudang.Enabled = false;
                 cmbSumber.Enabled = false;
                 txtPemasok.Enabled = false; 
@@ -195,6 +197,15 @@ namespace Assets_Inventory
             }
 
             GenerateDetailBon();
+
+            // Rencana pengadaan mengikuti MIN(waktu_belanja) permintaan terpilih,
+            // tapi user tetap bebas mengubah tanggal/jam sebelum menyimpan.
+            var waktuRencana = selectedPermintaanList.Where(p => p.WaktuBelanja.HasValue)
+                                                     .Select(p => p.WaktuBelanja.Value)
+                                                     .OrderBy(w => w)
+                                                     .FirstOrDefault();
+            if (waktuRencana != default(DateTime))
+                dtpWaktuBelanja.Value = waktuRencana;
         }
 
         private void GenerateDetailBon()
@@ -361,11 +372,7 @@ namespace Assets_Inventory
                         KodeGudang = cmbGudang.SelectedValue.ToString(),
                         IdSumberPerolehan = (int)cmbSumber.SelectedValue,
                         IdPemasok = idRekanan,
-                        // Rencana pengadaan diambil dari MIN(waktu_belanja) permintaan yang dipilih.
-                        WaktuBelanja = selectedPermintaanList.Where(p => p.WaktuBelanja.HasValue)
-                                                                .Select(p => p.WaktuBelanja)
-                                                                .OrderBy(w => w)
-                                                                .FirstOrDefault(),
+                        WaktuBelanja = dtpWaktuBelanja.Value,
                         Status = "Menunggu Proses"
                     };
 
@@ -412,10 +419,7 @@ namespace Assets_Inventory
                     updatePgd.KodeGudang = cmbGudang.SelectedValue.ToString();
                     updatePgd.IdSumberPerolehan = (int)cmbSumber.SelectedValue;
                     updatePgd.IdPemasok = idRekanan;
-                    updatePgd.WaktuBelanja = selectedPermintaanList.Where(p => p.WaktuBelanja.HasValue)
-                                                                   .Select(p => p.WaktuBelanja)
-                                                                   .OrderBy(w => w)
-                                                                   .FirstOrDefault();
+                    updatePgd.WaktuBelanja = dtpWaktuBelanja.Value;
 
                     var oldDetails = db.DetailPengadaan.Where(d => d.IdPengadaan == updatePgd.IdPengadaan);
                     db.DetailPengadaan.RemoveRange(oldDetails);
@@ -473,6 +477,7 @@ namespace Assets_Inventory
         {
             txtId.Text = selectedPengadaan.IdPengadaan.ToString();
             dtpTglPengadaan.Value = selectedPengadaan.TanggalPengadaan;
+            dtpWaktuBelanja.Value = selectedPengadaan.WaktuBelanja ?? DateTime.Now;
             cmbGudang.SelectedValue = selectedPengadaan.KodeGudang;
             cmbStatus.SelectedItem = selectedPengadaan.Status;
             cmbSumber.SelectedValue = selectedPengadaan.IdSumberPerolehan;
