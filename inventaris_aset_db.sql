@@ -1114,10 +1114,18 @@ CREATE TABLE `detail_pengadaan` (
   `id_pengadaan` int NOT NULL,
   `id_pemasok` int DEFAULT NULL,
   `id_master_barang` int NOT NULL,
+  `kode_rekening` varchar(50) DEFAULT NULL,
   `jumlah_masuk` int NOT NULL,
   `harga_satuan` decimal(15,2) NOT NULL,
-  `status` tinyint(1) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `status` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id_detail_pengadaan`),
+  KEY `idx_pengadaan` (`id_pengadaan`),
+  KEY `idx_master` (`id_master_barang`),
+  KEY `fk_detail_pengadaan_pemasok` (`id_pemasok`),
+  CONSTRAINT `fk_detail_pengadaan_master` FOREIGN KEY (`id_master_barang`) REFERENCES `master_barang` (`id_master_barang`) ON DELETE CASCADE,
+  CONSTRAINT `fk_detail_pengadaan_pemasok` FOREIGN KEY (`id_pemasok`) REFERENCES `pemasok` (`id_pemasok`) ON DELETE SET NULL,
+  CONSTRAINT `fk_detail_pengadaan_pengadaan` FOREIGN KEY (`id_pengadaan`) REFERENCES `pengadaan` (`id_pengadaan`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `detail_pengadaan`
@@ -1896,13 +1904,25 @@ INSERT INTO `peminjaman` (`nomor_peminjaman`, `tanggal_pinjam`, `nama_peminjam`,
 CREATE TABLE `pengadaan` (
   `id_pengadaan` int NOT NULL,
   `tanggal_pengadaan` date NOT NULL,
+  `waktu_belanja` datetime DEFAULT NULL,
+  `tanggal_selesai_belanja` date DEFAULT NULL,
   `id_tahun_ajaran` int DEFAULT NULL,
   `total_harga` decimal(15,2) DEFAULT '0.00',
   `keterangan` text,
   `kode_gudang` varchar(20) DEFAULT NULL,
   `id_sumber_perolehan` int DEFAULT NULL,
-  `status` enum('Menunggu Proses','Sedang Dibelanjakan','Selesai Dibelanjakan') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'Menunggu Proses'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `id_pemasok` int DEFAULT NULL,
+  `status` enum('Menunggu Proses','Sedang Dibelanjakan','Selesai Dibelanjakan') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'Menunggu Proses',
+  PRIMARY KEY (`id_pengadaan`),
+  KEY `idx_gudang` (`kode_gudang`),
+  KEY `fk_pengadaan_sumber` (`id_sumber_perolehan`),
+  KEY `fk_pengadaan_ta` (`id_tahun_ajaran`),
+  KEY `fk_pengadaan_pemasok` (`id_pemasok`),
+  CONSTRAINT `fk_pengadaan_sumber` FOREIGN KEY (`id_sumber_perolehan`) REFERENCES `sumber_perolehan` (`id_sumber_perolehan`) ON DELETE SET NULL,
+  CONSTRAINT `fk_pengadaan_ta` FOREIGN KEY (`id_tahun_ajaran`) REFERENCES `tahun_ajaran` (`id_tahun_ajaran`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_pengadaan_gudang` FOREIGN KEY (`kode_gudang`) REFERENCES `gudang` (`kode_gudang`),
+  CONSTRAINT `fk_pengadaan_pemasok` FOREIGN KEY (`id_pemasok`) REFERENCES `pemasok` (`id_pemasok`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `pengadaan`
@@ -3734,7 +3754,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_opnam
 --
 DROP TABLE IF EXISTS `v_pengadaan_aset`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_pengadaan_aset`  AS SELECT `p`.`id_pengadaan` AS `id_pengadaan`, `p`.`tanggal_pengadaan` AS `tanggal_pengadaan`, `ta`.`tahun_ajaran` AS `tahun_ajaran`, `sp`.`nama_sumber` AS `nama_sumber`, `g`.`nama_gudang` AS `nama_gudang`, `mb`.`nama_barang` AS `nama_barang`, `k`.`nama_kategori` AS `nama_kategori`, `dp`.`jumlah_masuk` AS `jumlah_masuk`, `dp`.`harga_satuan` AS `harga_satuan`, (`dp`.`jumlah_masuk` * `dp`.`harga_satuan`) AS `sub_total`, `pem`.`nama_pemasok` AS `nama_pemasok`, `p`.`status` AS `status`, `p`.`keterangan` AS `keterangan` FROM (((((((`detail_pengadaan` `dp` join `pengadaan` `p` on((`dp`.`id_pengadaan` = `p`.`id_pengadaan`))) left join `master_barang` `mb` on((`dp`.`id_master_barang` = `mb`.`id_master_barang`))) left join `kategori` `k` on((`mb`.`id_kategori` = `k`.`id_kategori`))) left join `pemasok` `pem` on((`dp`.`id_pemasok` = `pem`.`id_pemasok`))) left join `sumber_perolehan` `sp` on((`p`.`id_sumber_perolehan` = `sp`.`id_sumber_perolehan`))) left join `gudang` `g` on((`p`.`kode_gudang` = `g`.`kode_gudang`))) left join `tahun_ajaran` `ta` on((`p`.`id_tahun_ajaran` = `ta`.`id_tahun_ajaran`))) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_pengadaan_aset`  AS SELECT `p`.`id_pengadaan` AS `id_pengadaan`, `p`.`tanggal_pengadaan` AS `tanggal_pengadaan`, `ta`.`tahun_ajaran` AS `tahun_ajaran`, `sp`.`nama_sumber` AS `nama_sumber`, `g`.`nama_gudang` AS `nama_gudang`, `mb`.`nama_barang` AS `nama_barang`, `k`.`nama_kategori` AS `nama_kategori`, `dp`.`jumlah_masuk` AS `jumlah_masuk`, `dp`.`harga_satuan` AS `harga_satuan`, (`dp`.`jumlah_masuk` * `dp`.`harga_satuan`) AS `sub_total`, `pem`.`nama_pemasok` AS `nama_pemasok`, `p`.`status` AS `status`, `p`.`keterangan` AS `keterangan` FROM (((((((`detail_pengadaan` `dp` join `pengadaan` `p` on((`dp`.`id_pengadaan` = `p`.`id_pengadaan`))) left join `master_barang` `mb` on((`dp`.`id_master_barang` = `mb`.`id_master_barang`))) left join `kategori` `k` on((`mb`.`id_kategori` = `k`.`id_kategori`))) left join `pemasok` `pem` on((`p`.`id_pemasok` = `pem`.`id_pemasok`))) left join `sumber_perolehan` `sp` on((`p`.`id_sumber_perolehan` = `sp`.`id_sumber_perolehan`))) left join `gudang` `g` on((`p`.`kode_gudang` = `g`.`kode_gudang`))) left join `tahun_ajaran` `ta` on((`p`.`id_tahun_ajaran` = `ta`.`id_tahun_ajaran`))) ;
 
 -- --------------------------------------------------------
 

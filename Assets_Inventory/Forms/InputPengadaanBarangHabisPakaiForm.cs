@@ -517,7 +517,7 @@ namespace Assets_Inventory.Forms
             if (dgDetailBon.Columns["NamaBarang"] != null) dgDetailBon.Columns["NamaBarang"].HeaderText = "Nama Barang";
             if (dgDetailBon.Columns["Kategori"] != null) dgDetailBon.Columns["Kategori"].HeaderText = "Kategori";
             if (dgDetailBon.Columns["JumlahMasuk"] != null) dgDetailBon.Columns["JumlahMasuk"].HeaderText = "Jumlah Masuk";
-            if (dgDetailBon.Columns["NamaPemasok"] != null) dgDetailBon.Columns["NamaPemasok"].HeaderText = "Nama Pemasok";
+            if (dgDetailBon.Columns["NamaPemasok"] != null) dgDetailBon.Columns["NamaPemasok"].HeaderText = "Nama Rekanan";
 
             if (dgDetailBon.Columns["HargaSatuan"] != null)
             {
@@ -555,7 +555,7 @@ namespace Assets_Inventory.Forms
                         item.NamaPemasok = namaPemasokTerpilih;
                     }
                 }
-                MessageBox.Show($"Pemasok diterapkan ke {dgDetailBon.SelectedRows.Count} barang terpilih.");
+                MessageBox.Show($"Rekanan diterapkan ke {dgDetailBon.SelectedRows.Count} barang terpilih.");
             }
             else
             {
@@ -566,7 +566,7 @@ namespace Assets_Inventory.Forms
                         item.IdPemasok = idPemasokTerpilih;
                         item.NamaPemasok = namaPemasokTerpilih;
                     }
-                    MessageBox.Show("Pemasok diterapkan ke semua barang.");
+                    MessageBox.Show("Rekanan diterapkan ke semua barang.");
                 }
             }
 

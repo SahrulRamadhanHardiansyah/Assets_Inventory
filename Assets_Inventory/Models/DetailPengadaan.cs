@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 // Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
@@ -18,6 +18,7 @@ namespace Assets_Inventory.Models
         public int IdPengadaan { get; set; }
         public int? IdPemasok { get; set; }
         public int IdMasterBarang { get; set; }
+        public string KodeRekening { get; set; }
         public int JumlahMasuk { get; set; }
         public decimal HargaSatuan { get; set; }
         public bool? Status { get; set; }

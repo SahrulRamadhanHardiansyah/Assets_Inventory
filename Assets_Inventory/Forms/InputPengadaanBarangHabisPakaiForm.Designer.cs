@@ -199,7 +199,7 @@
             this.btnTerapkanPemasok.Name = "btnTerapkanPemasok";
             this.btnTerapkanPemasok.Size = new System.Drawing.Size(176, 40);
             this.btnTerapkanPemasok.TabIndex = 4;
-            this.btnTerapkanPemasok.Text = "Terapkan Pemasok";
+            this.btnTerapkanPemasok.Text = "Terapkan Rekanan";
             this.btnTerapkanPemasok.UseVisualStyleBackColor = true;
             this.btnTerapkanPemasok.Click += new System.EventHandler(this.btnTerapkanPemasok_Click);
             // 
@@ -224,7 +224,7 @@
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(83, 20);
             this.label16.TabIndex = 39;
-            this.label16.Text = "Pemasok :";
+            this.label16.Text = "Rekanan :";
             // 
             // cmbPemasok
             // 

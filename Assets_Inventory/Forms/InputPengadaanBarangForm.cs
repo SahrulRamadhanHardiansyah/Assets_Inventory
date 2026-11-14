@@ -26,6 +26,7 @@ namespace Assets_Inventory
             public int IdMasterBarang { get; set; }
             public string NamaBarang { get; set; }
             public string Kategori { get; set; }
+            public string KodeRekening { get; set; }
             public int JumlahMasuk { get; set; }
             public decimal HargaSatuan { get; set; }
             public decimal TotalHarga { get; set; }
@@ -239,6 +240,7 @@ namespace Assets_Inventory
                             IdMasterBarang = item.IdMasterBarang,
                             NamaBarang = barang.NamaBarang,
                             Kategori = namaKat,
+                            KodeRekening = null,
                             JumlahMasuk = item.TotalJumlah,
                             HargaSatuan = 0,
                             TotalHarga = 0,
@@ -305,11 +307,42 @@ namespace Assets_Inventory
                 return;
             }
 
-            if (listDetailBon.Any(d => d.IdPemasok == null))
+            if (string.IsNullOrWhiteSpace(txtPemasok.Text))
             {
-                MessageBox.Show("Pastikan semua barang sudah memiliki Pemasok.");
+                MessageBox.Show("Rekanan wajib diisi. Satu transaksi pengadaan hanya untuk satu rekanan.", "Validasi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            var belumAdaRekening = listDetailBon.Where(d => string.IsNullOrWhiteSpace(d.KodeRekening)).Select(d => d.NamaBarang).ToList();
+            if (belumAdaRekening.Count > 0)
+            {
+                MessageBox.Show("Kode Rekening wajib diisi untuk setiap barang.\n\nBelum terisi:\n - " + string.Join("\n - ", belumAdaRekening),
+                    "Validasi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int idRekanan;
+            string namaRekanan;
+            try
+            {
+                idRekanan = SimpanAtauAmbilRekanan();
+                if (idRekanan <= 0) return;
+                namaRekanan = db.Pemasok.Find(idRekanan).NamaPemasok;
+            }
+            catch (Exception exSimpanRekanan)
+            {
+                System.Diagnostics.Debug.WriteLine(exSimpanRekanan.ToString());
+                MessageBox.Show("Gagal menyimpan data rekanan: " + exSimpanRekanan.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Rekanan header berlaku untuk seluruh keranjang (1 pengadaan = 1 rekanan).
+            foreach (var itemRek in listDetailBon)
+            {
+                itemRek.IdPemasok = idRekanan;
+                itemRek.NamaPemasok = namaRekanan;
+            }
+            dgDetailBon.Refresh();
 
             try
             {
@@ -327,6 +360,12 @@ namespace Assets_Inventory
                         Keterangan = txtKeterangan.Text,
                         KodeGudang = cmbGudang.SelectedValue.ToString(),
                         IdSumberPerolehan = (int)cmbSumber.SelectedValue,
+                        IdPemasok = idRekanan,
+                        // Rencana pengadaan diambil dari MIN(waktu_belanja) permintaan yang dipilih.
+                        WaktuBelanja = selectedPermintaanList.Where(p => p.WaktuBelanja.HasValue)
+                                                                .Select(p => p.WaktuBelanja)
+                                                                .OrderBy(w => w)
+                                                                .FirstOrDefault(),
                         Status = "Menunggu Proses"
                     };
 
@@ -339,9 +378,12 @@ namespace Assets_Inventory
                         {
                             IdPengadaan = pengadaan.IdPengadaan,
                             IdMasterBarang = item.IdMasterBarang,
+                            KodeRekening = item.KodeRekening,
                             JumlahMasuk = item.JumlahMasuk,
                             HargaSatuan = item.HargaSatuan,
-                            IdPemasok = item.IdPemasok
+                            // dual-write: rekanan header ditulis juga ke detail agar
+                            // laporan/view lama (v_pengadaan_aset) tetap konsisten.
+                            IdPemasok = idRekanan
                         });
                     }
 
@@ -369,6 +411,11 @@ namespace Assets_Inventory
                     updatePgd.Keterangan = txtKeterangan.Text;
                     updatePgd.KodeGudang = cmbGudang.SelectedValue.ToString();
                     updatePgd.IdSumberPerolehan = (int)cmbSumber.SelectedValue;
+                    updatePgd.IdPemasok = idRekanan;
+                    updatePgd.WaktuBelanja = selectedPermintaanList.Where(p => p.WaktuBelanja.HasValue)
+                                                                   .Select(p => p.WaktuBelanja)
+                                                                   .OrderBy(w => w)
+                                                                   .FirstOrDefault();
 
                     var oldDetails = db.DetailPengadaan.Where(d => d.IdPengadaan == updatePgd.IdPengadaan);
                     db.DetailPengadaan.RemoveRange(oldDetails);
@@ -384,9 +431,10 @@ namespace Assets_Inventory
                         {
                             IdPengadaan = updatePgd.IdPengadaan,
                             IdMasterBarang = item.IdMasterBarang,
+                            KodeRekening = item.KodeRekening,
                             JumlahMasuk = item.JumlahMasuk,
                             HargaSatuan = item.HargaSatuan,
-                            IdPemasok = item.IdPemasok
+                            IdPemasok = idRekanan
                         });
                     }
 
@@ -433,6 +481,11 @@ namespace Assets_Inventory
 
             TahunAjaranInput.Fill(db, cmbTahunAjaran, selectedPengadaan.IdTahunAjaran);
 
+            // Rekanan disimpan di header pengadaan; null-kan kompatibel dengan data lama.
+            txtPemasok.Text = selectedPengadaan.IdPemasok.HasValue
+                ? (db.Pemasok.Find(selectedPengadaan.IdPemasok.Value)?.NamaPemasok ?? "")
+                : "";
+
             var details = db.DetailPengadaan.AsNoTracking().Where(d => d.IdPengadaan == selectedPengadaan.IdPengadaan).ToList();
             var dictBarang = db.MasterBarang.ToDictionary(b => b.IdMasterBarang, b => b);
             var dictKategori = db.Kategori.ToDictionary(k => k.IdKategori, k => k.NamaKategori);
@@ -457,6 +510,7 @@ namespace Assets_Inventory
                     IdMasterBarang = d.IdMasterBarang,
                     NamaBarang = barang != null ? barang.NamaBarang : "N/A",
                     Kategori = namaKat,
+                    KodeRekening = d.KodeRekening,
                     JumlahMasuk = d.JumlahMasuk,
                     HargaSatuan = d.HargaSatuan,
                     TotalHarga = d.JumlahMasuk * d.HargaSatuan,
@@ -528,8 +582,13 @@ namespace Assets_Inventory
             if (dgDetailBon.Columns["KodePermintaanAsal"] != null) dgDetailBon.Columns["KodePermintaanAsal"].HeaderText = "Permintaan Asal";
             if (dgDetailBon.Columns["NamaBarang"] != null) dgDetailBon.Columns["NamaBarang"].HeaderText = "Nama Barang";
             if (dgDetailBon.Columns["Kategori"] != null) dgDetailBon.Columns["Kategori"].HeaderText = "Kategori";
+            if (dgDetailBon.Columns["KodeRekening"] != null)
+            {
+                dgDetailBon.Columns["KodeRekening"].HeaderText = "Kode Rekening";
+                dgDetailBon.Columns["KodeRekening"].DisplayIndex = dgDetailBon.Columns["Kategori"].DisplayIndex + 1;
+            }
             if (dgDetailBon.Columns["JumlahMasuk"] != null) dgDetailBon.Columns["JumlahMasuk"].HeaderText = "Jumlah Masuk";
-            if (dgDetailBon.Columns["NamaPemasok"] != null) dgDetailBon.Columns["NamaPemasok"].HeaderText = "Nama Pemasok";
+            if (dgDetailBon.Columns["NamaPemasok"] != null) dgDetailBon.Columns["NamaPemasok"].HeaderText = "Nama Rekanan";
 
             if (dgDetailBon.Columns["HargaSatuan"] != null)
             {
@@ -554,64 +613,50 @@ namespace Assets_Inventory
             dgDetailBon.CellFormatting += DgDetailBon_CellFormatting;
         }
 
+        // Cari rekanan berdasarkan nama (case-insensitive); buat baru bila belum ada.
+        // Dipakai baik oleh tombol Terapkan maupun saat Simpan.
+        private int SimpanAtauAmbilRekanan()
+        {
+            string nama = txtPemasok.Text.Trim();
+            if (string.IsNullOrWhiteSpace(nama)) return 0;
+
+            var rekananDb = db.Pemasok.FirstOrDefault(p => p.NamaPemasok.ToLower() == nama.ToLower());
+            if (rekananDb == null)
+            {
+                rekananDb = new Pemasok { NamaPemasok = nama };
+                db.Pemasok.Add(rekananDb);
+                db.SaveChanges();
+                SetupAutoComplete();
+            }
+            return rekananDb.IdPemasok;
+        }
+
         private void btnTerapkanPemasok_Click(object sender, EventArgs e)
         {
-            string namaPemasokInput = txtPemasok.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(namaPemasokInput))
+            if (string.IsNullOrWhiteSpace(txtPemasok.Text))
             {
-                MessageBox.Show("Silakan ketik nama pemasok dari daftar atau buat baru terlebih dahulu.");
+                MessageBox.Show("Silakan ketik nama rekanan dari daftar atau buat baru terlebih dahulu.");
                 return;
             }
 
-            var pemasokDb = db.Pemasok.FirstOrDefault(p => p.NamaPemasok.ToLower() == namaPemasokInput.ToLower());
-            int idPemasokTerpilih;
-            string namaPemasokTerpilih;
+            int idRekanan = SimpanAtauAmbilRekanan();
+            if (idRekanan <= 0) return;
 
-            if (pemasokDb == null)
+            string nama = db.Pemasok.Find(idRekanan).NamaPemasok;
+
+            if (MessageBox.Show($"Terapkan rekanan '{nama}' sebagai rekanan transaksi pengadaan ini?\n\nSeluruh barang pada keranjang akan memakai rekanan yang sama.",
+                "Konfirmasi Rekanan", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            foreach (var item in listDetailBon)
             {
-                var newPemasok = new Pemasok { NamaPemasok = namaPemasokInput };
-                db.Pemasok.Add(newPemasok);
-                db.SaveChanges(); 
-
-                idPemasokTerpilih = newPemasok.IdPemasok;
-                namaPemasokTerpilih = newPemasok.NamaPemasok;
-
-                SetupAutoComplete();
-            }
-            else
-            {
-                idPemasokTerpilih = pemasokDb.IdPemasok;
-                namaPemasokTerpilih = pemasokDb.NamaPemasok;
+                item.IdPemasok = idRekanan;
+                item.NamaPemasok = nama;
             }
 
-            if (dgDetailBon.SelectedRows.Count > 0)
-            {
-                foreach (DataGridViewRow row in dgDetailBon.SelectedRows)
-                {
-                    var item = row.DataBoundItem as DetailPengadaanViewModel;
-                    if (item != null)
-                    {
-                        item.IdPemasok = idPemasokTerpilih;
-                        item.NamaPemasok = namaPemasokTerpilih;
-                    }
-                }
-                MessageBox.Show($"Pemasok '{namaPemasokTerpilih}' diterapkan ke {dgDetailBon.SelectedRows.Count} barang terpilih.");
-            }
-            else
-            {
-                if (MessageBox.Show($"Terapkan pemasok '{namaPemasokTerpilih}' ini ke SEMUA barang di keranjang?", "Konfirmasi", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    foreach (var item in listDetailBon)
-                    {
-                        item.IdPemasok = idPemasokTerpilih;
-                        item.NamaPemasok = namaPemasokTerpilih;
-                    }
-                    MessageBox.Show($"Pemasok '{namaPemasokTerpilih}' diterapkan ke semua barang.");
-                }
-            }
-
+            txtPemasok.Text = nama;
             dgDetailBon.Refresh();
+            MessageBox.Show($"Rekanan '{nama}' diterapkan ke seluruh transaksi pengadaan ini.");
         }
 
         private void txtTotalHarga_KeyPress(object sender, KeyPressEventArgs e)

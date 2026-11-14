@@ -151,7 +151,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 9;
-            this.label4.Text = "Nama Supplier :";
+            this.label4.Text = "Nama Rekanan :";
             // 
             // btnUbah
             // 
@@ -260,7 +260,7 @@
             this.groupBox2.Size = new System.Drawing.Size(411, 233);
             this.groupBox2.TabIndex = 25;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Data Supplier";
+            this.groupBox2.Text = "Data Rekanan";
             // 
             // btnCari
             // 
@@ -289,7 +289,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(151, 13);
             this.label7.TabIndex = 18;
-            this.label7.Text = "Cari Nama / Kontak Pemosok:";
+            this.label7.Text = "Cari Nama / Kontak Rekanan:";
             // 
             // groupBox1
             // 
@@ -310,7 +310,7 @@
             this.groupBox1.Size = new System.Drawing.Size(292, 233);
             this.groupBox1.TabIndex = 24;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Detail Supplier";
+            this.groupBox1.Text = "Detail Rekanan";
             // 
             // label6
             // 
@@ -351,7 +351,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(306, 15);
             this.label1.TabIndex = 23;
-            this.label1.Text = "Gunakan Form Ini Untuk Mengisi Master Data Supplier";
+            this.label1.Text = "Gunakan Form Ini Untuk Mengisi Master Data Rekanan";
             // 
             // label2
             // 
@@ -362,7 +362,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(151, 17);
             this.label2.TabIndex = 22;
-            this.label2.Text = "MASTER SUPPLIER";
+            this.label2.Text = "MASTER REKANAN";
             // 
             // kryptonPalette1
             // 
@@ -384,7 +384,7 @@
             // namaPemasokDataGridViewTextBoxColumn
             // 
             this.namaPemasokDataGridViewTextBoxColumn.DataPropertyName = "NamaPemasok";
-            this.namaPemasokDataGridViewTextBoxColumn.HeaderText = "Nama Supplier";
+            this.namaPemasokDataGridViewTextBoxColumn.HeaderText = "Nama Rekanan";
             this.namaPemasokDataGridViewTextBoxColumn.Name = "namaPemasokDataGridViewTextBoxColumn";
             this.namaPemasokDataGridViewTextBoxColumn.ReadOnly = true;
             // 
@@ -425,7 +425,7 @@
             this.Palette = this.kryptonPalette1;
             this.PaletteMode = ComponentFactory.Krypton.Toolkit.PaletteMode.Custom;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Master Supplier";
+            this.Text = "Master Rekanan";
             this.Load += new System.EventHandler(this.MasterSupplierForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.groupBox3.ResumeLayout(false);

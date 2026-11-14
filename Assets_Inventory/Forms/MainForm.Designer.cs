@@ -289,7 +289,7 @@ namespace Assets_Inventory
             // 
             this.dataSupplierToolStripMenuItem.Name = "dataSupplierToolStripMenuItem";
             this.dataSupplierToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.dataSupplierToolStripMenuItem.Text = "Data Supplier";
+            this.dataSupplierToolStripMenuItem.Text = "Data Rekanan";
             this.dataSupplierToolStripMenuItem.Click += new System.EventHandler(this.dataSupplierToolStripMenuItem_Click);
             // 
             // dataGudangToolStripMenuItem

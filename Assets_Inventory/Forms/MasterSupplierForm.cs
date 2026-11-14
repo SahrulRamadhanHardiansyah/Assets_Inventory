@@ -90,7 +90,7 @@ namespace Assets_Inventory
         {
             if (string.IsNullOrEmpty(txtNama.Text))
             {
-                MessageBox.Show("Nama pemasok harus diisi.");
+                MessageBox.Show("Nama rekanan harus diisi.");
                 return;
             }
 

@@ -126,9 +126,12 @@
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.txtId);
+            this.groupBox1.Controls.Add(this.txtPemasok);
+            this.groupBox1.Controls.Add(this.btnTerapkanPemasok);
+            this.groupBox1.Controls.Add(this.label16);
             this.groupBox1.Location = new System.Drawing.Point(730, 88);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(566, 371);
+            this.groupBox1.Size = new System.Drawing.Size(566, 415);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detail Pengadaan";
@@ -189,7 +192,7 @@
             // 
             this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbStatus.FormattingEnabled = true;
-            this.cmbStatus.Location = new System.Drawing.Point(202, 257);
+            this.cmbStatus.Location = new System.Drawing.Point(202, 295);
             this.cmbStatus.Name = "cmbStatus";
             this.cmbStatus.Size = new System.Drawing.Size(342, 28);
             this.cmbStatus.TabIndex = 44;
@@ -197,7 +200,7 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(123, 262);
+            this.label23.Location = new System.Drawing.Point(123, 300);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(64, 20);
             this.label23.TabIndex = 43;
@@ -231,7 +234,7 @@
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(86, 298);
+            this.label20.Location = new System.Drawing.Point(86, 341);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(100, 20);
             this.label20.TabIndex = 34;
@@ -239,7 +242,7 @@
             // 
             // txtKeterangan
             // 
-            this.txtKeterangan.Location = new System.Drawing.Point(204, 298);
+            this.txtKeterangan.Location = new System.Drawing.Point(202, 337);
             this.txtKeterangan.Multiline = true;
             this.txtKeterangan.Name = "txtKeterangan";
             this.txtKeterangan.Size = new System.Drawing.Size(340, 55);
@@ -294,11 +297,11 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(14, 298);
+            this.label16.Location = new System.Drawing.Point(84, 258);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(83, 20);
+            this.label16.Size = new System.Drawing.Size(100, 20);
             this.label16.TabIndex = 39;
-            this.label16.Text = "Pemasok :";
+            this.label16.Text = "Rekanan :";
             // 
             // kondisiBindingSource
             // 
@@ -308,7 +311,7 @@
             // 
             this.groupBox2.Controls.Add(this.btnTutup);
             this.groupBox2.Controls.Add(this.btnSimpan);
-            this.groupBox2.Location = new System.Drawing.Point(18, 820);
+            this.groupBox2.Location = new System.Drawing.Point(18, 866);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(1278, 88);
             this.groupBox2.TabIndex = 18;
@@ -337,26 +340,23 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.txtPemasok);
-            this.groupBox3.Controls.Add(this.btnTerapkanPemasok);
             this.groupBox3.Controls.Add(this.dgDetailBon);
-            this.groupBox3.Controls.Add(this.label16);
-            this.groupBox3.Location = new System.Drawing.Point(18, 468);
+            this.groupBox3.Location = new System.Drawing.Point(18, 513);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox3.Size = new System.Drawing.Size(1278, 345);
             this.groupBox3.TabIndex = 19;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Data Barang";
+            this.groupBox3.Text = "Data Barang & Kode Rekening";
             // 
             // btnTerapkanPemasok
             // 
-            this.btnTerapkanPemasok.Location = new System.Drawing.Point(416, 289);
+            this.btnTerapkanPemasok.Location = new System.Drawing.Point(450, 253);
             this.btnTerapkanPemasok.Name = "btnTerapkanPemasok";
-            this.btnTerapkanPemasok.Size = new System.Drawing.Size(176, 40);
+            this.btnTerapkanPemasok.Size = new System.Drawing.Size(94, 30);
             this.btnTerapkanPemasok.TabIndex = 4;
-            this.btnTerapkanPemasok.Text = "Terapkan Pemasok";
+            this.btnTerapkanPemasok.Text = "Terapkan";
             this.btnTerapkanPemasok.UseVisualStyleBackColor = true;
             this.btnTerapkanPemasok.Click += new System.EventHandler(this.btnTerapkanPemasok_Click);
             // 
@@ -417,9 +417,9 @@
             // 
             // txtPemasok
             // 
-            this.txtPemasok.Location = new System.Drawing.Point(112, 296);
+            this.txtPemasok.Location = new System.Drawing.Point(202, 253);
             this.txtPemasok.Name = "txtPemasok";
-            this.txtPemasok.Size = new System.Drawing.Size(289, 26);
+            this.txtPemasok.Size = new System.Drawing.Size(240, 26);
             this.txtPemasok.TabIndex = 74;
             // 
             // InputPengadaanBarangForm
@@ -427,7 +427,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1322, 919);
+            this.ClientSize = new System.Drawing.Size(1322, 972);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);

@@ -856,6 +856,12 @@ namespace Assets_Inventory.Models
 
                 entity.Property(e => e.IdMasterBarang).HasColumnName("id_master_barang");
 
+                entity.Property(e => e.KodeRekening)
+                    .HasColumnName("kode_rekening")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
                 entity.Property(e => e.IdPemasok).HasColumnName("id_pemasok");
 
                 entity.Property(e => e.IdPengadaan).HasColumnName("id_pengadaan");
@@ -1768,7 +1774,20 @@ namespace Assets_Inventory.Models
                 entity.HasIndex(e => e.KodeGudang)
                     .HasName("idx_gudang");
 
+                entity.HasIndex(e => e.IdPemasok)
+                    .HasName("fk_pengadaan_pemasok");
+
                 entity.Property(e => e.IdPengadaan).HasColumnName("id_pengadaan");
+
+                entity.Property(e => e.IdPemasok).HasColumnName("id_pemasok");
+
+                entity.Property(e => e.WaktuBelanja)
+                    .HasColumnName("waktu_belanja")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.TanggalSelesaiBelanja)
+                    .HasColumnName("tanggal_selesai_belanja")
+                    .HasColumnType("date");
 
                 entity.Property(e => e.IdSumberPerolehan).HasColumnName("id_sumber_perolehan");
 
@@ -1817,6 +1836,12 @@ namespace Assets_Inventory.Models
                     .WithMany(p => p.Pengadaan)
                     .HasForeignKey(d => d.KodeGudang)
                     .HasConstraintName("fk_pengadaan_gudang");
+
+                entity.HasOne(d => d.IdPemasokNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.IdPemasok)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_pengadaan_pemasok");
             });
 
             modelBuilder.Entity<PengadaanHabisPakai>(entity =>

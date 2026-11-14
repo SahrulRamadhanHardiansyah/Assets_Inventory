@@ -50,7 +50,7 @@ namespace Assets_Inventory
                 .ToList(); ;
 
             dg.Columns["NamaBarang"].HeaderText = "Nama Barang";
-            dg.Columns["NamaPemasok"].HeaderText = "Nama Pemasok";
+            dg.Columns["NamaPemasok"].HeaderText = "Nama Rekanan";
             dg.Columns["JumlahMasuk"].HeaderText = "Jumlah Masuk";
             dg.Columns["HargaSatuan"].HeaderText = "Harga Satuan";
             dg.Columns["HargaSatuan"].DefaultCellStyle.Format = "C2";

@@ -290,7 +290,7 @@ namespace Assets_Inventory
             g.DrawString(tglStr, new Font("Arial", 10, FontStyle.Regular), Brushes.Black, new RectangleF(margin, yPos + 25, pageWidth, 20), formatCenter);
             yPos += 55;
 
-            string[] headers = { "No", "Tgl Pengadaan", "Nama Barang", "Kategori", "Sumber", "Pemasok", "Jml", "Harga Satuan", "Sub Total" };
+            string[] headers = { "No", "Tgl Pengadaan", "Nama Barang", "Kategori", "Sumber", "Rekanan", "Jml", "Harga Satuan", "Sub Total" };
             int[] colWidths = { 30, 100, 200, 110, 120, 130, 40, 150, 189 };
 
             int tableWidth = colWidths.Sum();

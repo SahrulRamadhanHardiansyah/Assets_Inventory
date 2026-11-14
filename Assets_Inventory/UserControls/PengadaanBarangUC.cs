@@ -28,9 +28,11 @@ namespace Assets_Inventory
         {
             public int IdPengadaan { get; set; }
             public DateTime TanggalPengadaan { get; set; }
+            public DateTime? WaktuBelanja { get; set; }
             public string TahunAjaran { get; set; }
             public string NamaSumber { get; set; }
             public string NamaGudang { get; set; }
+            public string NamaPemasok { get; set; }
             public decimal TotalHarga { get; set; }
             public string Status { get; set; }
             public Pengadaan ObjekAsli { get; set; }
@@ -97,14 +99,17 @@ namespace Assets_Inventory
             var dictSumber = db.SumberPerolehan.ToDictionary(s => s.IdSumberPerolehan, s => s.NamaSumber);
             var dictGudang = db.Gudang.ToDictionary(g => g.KodeGudang, g => g.NamaGudang);
             var dictTA = db.TahunAjaran.ToDictionary(ta => ta.IdTahunAjaran, ta => $"{ta.TahunAjaran1} - Smt {ta.Semester}");
+            var dictRekanan = db.Pemasok.ToDictionary(p => p.IdPemasok, p => p.NamaPemasok);
 
             var data = listPengadaan.Select(p => new PengadaanViewModel
             {
                 IdPengadaan = p.IdPengadaan,
                 TanggalPengadaan = p.TanggalPengadaan,
+                WaktuBelanja = p.WaktuBelanja,
                 TahunAjaran = (p.IdTahunAjaran.HasValue && dictTA.ContainsKey(p.IdTahunAjaran.Value)) ? dictTA[p.IdTahunAjaran.Value] : "-",
                 NamaSumber = (p.IdSumberPerolehan.HasValue && dictSumber.ContainsKey(p.IdSumberPerolehan.Value)) ? dictSumber[p.IdSumberPerolehan.Value] : "N/A",
                 NamaGudang = (!string.IsNullOrEmpty(p.KodeGudang) && dictGudang.ContainsKey(p.KodeGudang)) ? dictGudang[p.KodeGudang] : "N/A",
+                NamaPemasok = (p.IdPemasok.HasValue && dictRekanan.ContainsKey(p.IdPemasok.Value)) ? dictRekanan[p.IdPemasok.Value] : "-",
                 TotalHarga = p.TotalHarga ?? 0,
                 Status = p.Status ?? "Menunggu Proses",
                 ObjekAsli = p
@@ -115,10 +120,18 @@ namespace Assets_Inventory
 
             if (dg.Columns["IdPengadaan"] != null) dg.Columns["IdPengadaan"].HeaderText = "ID Pengadaan";
             if (dg.Columns["TanggalPengadaan"] != null) dg.Columns["TanggalPengadaan"].HeaderText = "Tanggal";
+            if (dg.Columns["WaktuBelanja"] != null)
+            {
+                dg.Columns["WaktuBelanja"].HeaderText = "Waktu Belanja (Rencana Pengadaan)";
+                dg.Columns["WaktuBelanja"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+            }
             if (dg.Columns["TahunAjaran"] != null) dg.Columns["TahunAjaran"].HeaderText = "Tahun Ajaran";
             if (dg.Columns["NamaSumber"] != null) dg.Columns["NamaSumber"].HeaderText = "Sumber Perolehan";
             if (dg.Columns["NamaGudang"] != null) dg.Columns["NamaGudang"].HeaderText = "Gudang Tujuan";
-            if (dg.Columns["Status"] != null) dg.Columns["Status"].HeaderText = "Status";
+            if (dg.Columns["NamaPemasok"] != null) dg.Columns["NamaPemasok"].HeaderText = "Rekanan";
+            // Kolom Status disembunyikan dari grid: posisinya digantikan Waktu Belanja,
+            // tapi nilainya tetap dipakai filter cmbStatus + guard tombol.
+            if (dg.Columns["Status"] != null) dg.Columns["Status"].Visible = false;
             if (dg.Columns["TotalHarga"] != null)
             {
                 dg.Columns["TotalHarga"].HeaderText = "Total Harga";
@@ -227,7 +240,7 @@ namespace Assets_Inventory
         {
 
             if (!ImportTemplateHelper.ConfirmOrGenerate(this, "Import Pengadaan Barang",
-                new[] { ("Tanggal Pengadaan", "2026-11-09"),("Id Pemasok", "1"),("Total Harga", "250000"),("Kode Gudang", "GDG-01"),("Status", "Menunggu Proses"),("Keterangan", "") }))
+                new[] { ("Tanggal Pengadaan", "2026-11-09"),("Id Rekanan", "1"),("Total Harga", "250000"),("Kode Gudang", "GDG-01"),("Status", "Menunggu Proses"),("Keterangan", "") }))
                 return;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -367,9 +380,9 @@ namespace Assets_Inventory
                 if (dg.CurrentRow != null && dg.CurrentRow.DataBoundItem is PengadaanViewModel vm)
                 {
                     var p = vm.ObjekAsli;
-                    if (p.Status == "Menunggu Proses")
+                    if (p.Status != "Selesai Dibelanjakan")
                     {
-                        MessageBox.Show("Pengadaan ini belum diproses (Barang belum punya kode inventaris).", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Pengadaan ini belum selesai dibelanjakan.\n\nBarcode hanya dapat dicetak setelah barang didistribusikan dan memperoleh kode inventaris di halaman Distribusi Barang.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -380,7 +393,7 @@ namespace Assets_Inventory
 
                     if (asetList.Count == 0)
                     {
-                        MessageBox.Show("Tidak ada aset dengan kode inventaris yang terikat pada pengadaan ini.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Belum ada aset / kode inventaris untuk pengadaan ini.\n\nData aset baru dibuat setelah barang diverifikasi pada halaman Distribusi Barang.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -406,7 +419,7 @@ namespace Assets_Inventory
 
                 if (asetList.Count == 0)
                 {
-                    MessageBox.Show("Tidak ada aset dengan kode inventaris yang bisa dicetak.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Belum ada aset / kode inventaris yang bisa dicetak.\n\nData aset baru dibuat setelah barang diverifikasi pada halaman Distribusi Barang.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -500,13 +513,13 @@ namespace Assets_Inventory
                 }
 
                 if (MessageBox.Show(
-                    "Proses belanja akan dilakukan per-item barang:\n" +
+                    "Menandai pengadaan sebagai selesai dibelanjakan:\n" +
                     "1. Memilih item barang yang saat ini fisiknya telah datang\n" +
-                    "2. Meng-generate kode inventaris untuk unit barang tersebut\n" +
-                    "3. Memasukkan barang ke tabel aset (Status: Di Gudang)\n" +
-                    "4. Memperbarui status dokumen pengadaan\n\n" +
-                    "Apakah Anda yakin ingin melanjutkan eksekusi ini?",
-                    "Konfirmasi Proses Belanja",
+                    "2. Mengisi tanggal selesai dibelanjakan\n" +
+                    "3. Menandai item sebagai sudah dibelanjakan (belum menjadi aset)\n\n" +
+                    "Pembuatan data aset dilakukan di halaman Distribusi Barang setelah diverifikasi.\n\n" +
+                    "Apakah Anda yakin ingin melanjutkan?",
+                    "Konfirmasi Selesai Dibelanjakan",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question) == DialogResult.Yes)
                 {
@@ -540,26 +553,38 @@ namespace Assets_Inventory
                     if (targetPgd != null)
                     {
                         targetPgd.Status = "Selesai Dibelanjakan";
+                        if (!targetPgd.TanggalSelesaiBelanja.HasValue)
+                            targetPgd.TanggalSelesaiBelanja = DateTime.Now.Date;
                         db.SaveChanges();
                     }
-                    MessageBox.Show("Semua item barang pada pengadaan ini sudah selesai dibelanjakan masuk gudang.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Semua item barang pada pengadaan ini sudah ditandai selesai dibelanjakan.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     loadData();
                     return;
                 }
 
+                var pgdData = db.Pengadaan.Find(idPengadaanTarget);
+
                 Form shopForm = new Form
                 {
-                    Text = "Proses Belanja Per-Barang",
-                    Size = new Size(450, 200),
+                    Text = "Selesai Dibelanjakan",
+                    Size = new Size(470, 265),
                     FormBorderStyle = FormBorderStyle.FixedDialog,
                     StartPosition = FormStartPosition.CenterScreen,
                     MaximizeBox = false,
                     MinimizeBox = false
                 };
 
-                Label lblInfo = new Label { Text = "Pilih item barang yang saat ini telah dibeli / datang:", Location = new Point(20, 20), Size = new Size(400, 20) };
-                ComboBox cmbItems = new ComboBox { Location = new Point(20, 45), Size = new Size(390, 25), DropDownStyle = ComboBoxStyle.DropDownList };
-                Button btnExecute = new Button { Text = "Selesaikan Item Ini", Location = new Point(260, 95), Size = new Size(150, 35), BackColor = Color.LightGreen };
+                Label lblInfo = new Label { Text = "Pilih item barang yang saat ini telah dibeli / datang:", Location = new Point(20, 18), Size = new Size(420, 20) };
+                ComboBox cmbItems = new ComboBox { Location = new Point(20, 42), Size = new Size(410, 25), DropDownStyle = ComboBoxStyle.DropDownList };
+                Label lblTanggal = new Label { Text = "Tanggal Selesai Dibelanjakan:", Location = new Point(20, 82), Size = new Size(200, 20) };
+                DateTimePicker dtpTanggal = new DateTimePicker
+                {
+                    Location = new Point(20, 105),
+                    Size = new Size(410, 25),
+                    Format = DateTimePickerFormat.Long,
+                    Value = pgdData != null && pgdData.WaktuBelanja.HasValue ? pgdData.WaktuBelanja.Value : DateTime.Now
+                };
+                Button btnExecute = new Button { Text = "Selesaikan", Location = new Point(280, 155), Size = new Size(150, 35), BackColor = Color.LightGreen };
 
                 var comboSource = new List<ComboItemVM>();
 
@@ -572,7 +597,8 @@ namespace Assets_Inventory
                 {
                     var masterBrg = db.MasterBarang.Find(d.IdMasterBarang);
                     string namaBrg = masterBrg != null ? masterBrg.NamaBarang : "Unknown";
-                    comboSource.Add(new ComboItemVM { Text = $"{namaBrg} ({d.JumlahMasuk} Unit)", Value = d.IdDetailPengadaan });
+                    string kodeRek = string.IsNullOrEmpty(d.KodeRekening) ? "-" : d.KodeRekening;
+                    comboSource.Add(new ComboItemVM { Text = $"{namaBrg} [{kodeRek}] ({d.JumlahMasuk} Unit)", Value = d.IdDetailPengadaan });
                 }
 
                 cmbItems.DataSource = comboSource;
@@ -581,13 +607,15 @@ namespace Assets_Inventory
 
                 shopForm.Controls.Add(lblInfo);
                 shopForm.Controls.Add(cmbItems);
+                shopForm.Controls.Add(lblTanggal);
+                shopForm.Controls.Add(dtpTanggal);
                 shopForm.Controls.Add(btnExecute);
 
                 btnExecute.Click += (s, ev) =>
                 {
                     if (cmbItems.SelectedValue == null) return;
                     shopForm.DialogResult = DialogResult.OK;
-                    shopForm.Tag = (int)cmbItems.SelectedValue;
+                    shopForm.Tag = new object[] { (int)cmbItems.SelectedValue, dtpTanggal.Value.Date };
                     shopForm.Close();
                 };
 
@@ -597,8 +625,9 @@ namespace Assets_Inventory
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
-                int selectedChoice = (int)shopForm.Tag;
+                var tag = (object[])shopForm.Tag;
+                int selectedChoice = (int)tag[0];
+                DateTime tanggalSelesai = (DateTime)tag[1];
 
                 var targetDetails = new List<DetailPengadaan>();
 
@@ -614,71 +643,10 @@ namespace Assets_Inventory
 
                 if (targetDetails.Count == 0) return;
 
-                int? idJurusanTarget = null;
-                var listKodePermintaan = db.PengadaanPermintaan
-                                           .Where(pp => pp.IdPengadaan == idPengadaanTarget)
-                                           .Select(pp => pp.KodePermintaan)
-                                           .ToList();
-
-                if (listKodePermintaan.Count > 0)
-                {
-                    string kodePrmPertama = listKodePermintaan.FirstOrDefault();
-                    var prm = db.Permintaan.FirstOrDefault(x => x.KodePermintaan == kodePrmPertama);
-                    if (prm != null) idJurusanTarget = prm.IdJurusan;
-                }
-
-                string prefix = "INV";
-                var pengaturan = db.Pengaturan.FirstOrDefault();
-                if (pengaturan != null && !string.IsNullOrEmpty(pengaturan.KustomPrefix))
-                {
-                    prefix = pengaturan.KustomPrefix;
-                }
-
-                var targetPgdData = db.Pengadaan.Find(idPengadaanTarget);
-                string tahunPgd = targetPgdData != null ? targetPgdData.TanggalPengadaan.Year.ToString() : DateTime.Now.Year.ToString();
-
-                var urutanDetailIds = db.DetailPengadaan
-                                        .Where(d => d.IdPengadaan == idPengadaanTarget)
-                                        .OrderBy(d => d.IdDetailPengadaan)
-                                        .Select(d => d.IdDetailPengadaan)
-                                        .ToList();
-
-                List<Aset> asetBaruList = new List<Aset>();
+                this.Cursor = Cursors.WaitCursor;
 
                 foreach (var detail in targetDetails)
                 {
-                    int urutanBarang = urutanDetailIds.IndexOf(detail.IdDetailPengadaan) + 1;
-                    string strTotalBarang = detail.JumlahMasuk.ToString("D3");
-
-                    for (int i = 1; i <= detail.JumlahMasuk; i++)
-                    {
-                        string strUrutanUnit = i.ToString("D3");
-
-                        string kodeInventaris = $"{prefix}-{tahunPgd}-{idPengadaanTarget:D3}-{urutanBarang:D3}-{strTotalBarang}-{strUrutanUnit}";
-
-                        var aset = new Aset
-                        {
-                            IdDetailPengadaan = detail.IdDetailPengadaan,
-                            IdMasterBarang = detail.IdMasterBarang,
-                            IdJurusan = idJurusanTarget,
-                            IdRuang = null,
-                            IdLokasi = null,
-                            NoSeri = null,
-                            HargaSatuan = detail.HargaSatuan,
-                            NilaiResidu = 0,
-                            UmurEkonomi = null,
-                            KodeInventaris = kodeInventaris,
-                            Status = "Di Gudang",
-                            TanggalRegistrasi = DateTime.Now,
-                            Gambar = null,
-                            Keterangan = $"Dari pengadaan #{idPengadaanTarget}",
-                            KodeBarang2 = Guid.NewGuid().ToString("N").Substring(0, 20).ToUpper()
-                        };
-
-                        db.Aset.Add(aset);
-                        asetBaruList.Add(aset);
-                    }
-
                     detail.Status = true;
                 }
 
@@ -690,25 +658,22 @@ namespace Assets_Inventory
                 if (targetPengadaanUpdate != null)
                 {
                     targetPengadaanUpdate.Status = remainingUnpurchased > 0 ? "Sedang Dibelanjakan" : "Selesai Dibelanjakan";
+                    targetPengadaanUpdate.TanggalSelesaiBelanja = remainingUnpurchased > 0
+                        ? targetPengadaanUpdate.TanggalSelesaiBelanja
+                        : tanggalSelesai;
                     db.SaveChanges();
                 }
 
                 this.Cursor = Cursors.Default;
 
-                string infoText = selectedChoice == -1 ? "Semua sisa barang" : $"Item '{db.MasterBarang.Find(targetDetails[0].IdMasterBarang)?.NamaBarang}'";
+                string infoText = selectedChoice == -1 ? "semua sisa barang" : $"item '{db.MasterBarang.Find(targetDetails[0].IdMasterBarang)?.NamaBarang}'";
 
-                DialogResult opsi = MessageBox.Show(
-                    $"Sukses memproses {infoText}. {asetBaruList.Count} unit barang berhasil dimasukkan ke Gudang Utama.\n\n" +
-                    $"Apakah Anda ingin melengkapi data fisik (No. Seri, Gambar, Ruang) untuk item ini sekarang?",
-                    "Lengkapi Data Aset",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
-                if (opsi == DialogResult.Yes)
-                {
-                    KelengkapanAsetForm formLengkap = new KelengkapanAsetForm(asetBaruList);
-                    formLengkap.ShowDialog();
-                }
+                MessageBox.Show(
+                    $"Sukses menandai {infoText} sebagai selesai dibelanjakan pada {tanggalSelesai:dd/MM/yyyy}.\n\n" +
+                    "Data aset BELUM dibuat. Barang akan masuk ke tabel aset setelah diverifikasi pada halaman Distribusi Barang.",
+                    "Selesai Dibelanjakan",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
                 loadData();
             }
